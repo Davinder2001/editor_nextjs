@@ -1,6 +1,5 @@
 'use client';
 import React, { useState, useEffect } from "react";
-import anime from "animejs"; // Import anime.js
 
 const Page: React.FC = () => {
   const [svgDataList, setSvgDataList] = useState<string[]>([]);
@@ -16,22 +15,6 @@ const Page: React.FC = () => {
       setSelectedSvg(svgList[0] || null); // Set the first SVG as the default selected one
     }
   }, []);
-
-  useEffect(() => {
-    if (selectedSvg) {
-      // After the selected SVG is set, animate the hand (or any other element by its ID)
-      const handElement = document.getElementById('hand-details-back');
-      if (handElement) {
-        anime({
-          targets: handElement,
-          translateX: 100,  // Example animation (move hand horizontally by 100px)
-          translateY: 50,   // Move vertically by 50px
-          duration: 1000,    // Duration of the animation
-          easing: 'easeInOutQuad',  // Easing function
-        });
-      }
-    }
-  }, [selectedSvg]); // Run the animation whenever selectedSvg changes
 
   const handleUpload = (event: React.ChangeEvent<HTMLInputElement>): void => {
     const files = event.target.files;
@@ -136,8 +119,6 @@ const Page: React.FC = () => {
           <div className="w-2/3 pl-4 border-l">
             {selectedSvg ? (
               <div
-              onClick={() => handleSvgClick(selectedSvg)}
-                onContextMenu={(event) => handleRightClick(event, selectedSvg)}
                 dangerouslySetInnerHTML={{ __html: selectedSvg }}
                 style={{
                   width: "100%",
