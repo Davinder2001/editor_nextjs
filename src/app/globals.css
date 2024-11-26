@@ -1,42 +1,43 @@
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+.container{
+    display: flex;
+    max-width: 1400px;
+    margin: auto;
 }
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+.right-side {
+    width: 80%;
+}
+.left-side{
+    width: 20%;
+}
+.main-heading {
+    text-align: center;
+}
+/* Container styling */
+.choose_file-container {
+  margin-bottom:20px ;
   }
-}
-
-html,
-body {
-  max-width: 100vw;
-  overflow-x: hidden;
-}
-
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
+  
+  /* Custom label styled as a button */
+  .custom-file-upload {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 16px;
+    color: white;
+    background-color: #007bff;
+    border: 1px solid #007bff;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
   }
-}
+  
+  .custom-file-upload:hover {
+    background-color: #0056b3;
+  }
+  
+  /* Hide the actual file input */
+  input[type="file"] {
+    display: none;
+  }
+  .active{
+    background-color: aliceblue;
+  }
