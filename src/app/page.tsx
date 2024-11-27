@@ -4,15 +4,14 @@ import React, { useState, useEffect } from "react";
 const Page: React.FC = () => {
   const [svgDataList, setSvgDataList] = useState<string[]>([]);
   const [selectedSvg, setSelectedSvg] = useState<string | null>(null);
-  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; index: number | null } | null>(null);
+  const [selectedLayers, setSelectedLayers] = useState<string[]>([]);
 
-  // Load SVGs from local storage when the component mounts
   useEffect(() => {
     const savedSVGs = localStorage.getItem("uploadedSVGs");
     if (savedSVGs) {
       const svgList = JSON.parse(savedSVGs);
       setSvgDataList(svgList);
-      setSelectedSvg(svgList[0] || null); // Set the first SVG as the default selected one
+      setSelectedSvg(svgList[0] || null);
     }
   }, []);
 
@@ -27,13 +26,10 @@ const Page: React.FC = () => {
             const svgContent = e.target?.result as string;
             newSvgDataList.push(svgContent);
 
-            // Update the state and local storage after reading all files
             if (newSvgDataList.length === files.length) {
               const updatedList = [...svgDataList, ...newSvgDataList];
               setSvgDataList(updatedList);
               localStorage.setItem("uploadedSVGs", JSON.stringify(updatedList));
-
-              // Automatically set the first SVG as the selected one after upload
               setSelectedSvg(updatedList[0]);
             }
           };
@@ -46,37 +42,53 @@ const Page: React.FC = () => {
   };
 
   const handleSvgClick = (svg: string) => {
-    setSelectedSvg(svg); // Update the selected SVG when a thumbnail is clicked
+    setSelectedSvg(svg);
+    setSelectedLayers([]); // Reset selected layers
   };
 
-  const handleSvgDelete = (index: number) => {
-    const updatedList = [...svgDataList];
-    updatedList.splice(index, 1);
-    setSvgDataList(updatedList);
-    localStorage.setItem("uploadedSVGs", JSON.stringify(updatedList));
-    setContextMenu(null); // Close the context menu after deletion
-
-    // If the deleted SVG was selected, reset to the first SVG (if available)
-    if (selectedSvg === svgDataList[index]) {
-      setSelectedSvg(updatedList[0] || null);
-    }
+  const handleLayerClick = (layerId: string) => {
+    setSelectedLayers([layerId]); // Select only the clicked layer
   };
 
-  const handleRightClick = (event: React.MouseEvent<HTMLDivElement>, index: number) => {
-    event.preventDefault();
-    setContextMenu({ x: event.clientX, y: event.clientY, index });
+  const parseSvgLayers = (svg: string) => {
+    const parser = new DOMParser();
+    const svgDoc = parser.parseFromString(svg, "image/svg+xml");
+
+    // Select only top-level <g> elements
+    const topLevelLayers = Array.from(svgDoc.documentElement.querySelectorAll(":scope > g")).map((layer, index) => ({
+      id: layer.id || `layer-${index}`,
+      content: layer.outerHTML,
+    }));
+
+    return topLevelLayers;
   };
 
-  const handleCloseContextMenu = () => {
-    setContextMenu(null); // Close context menu
+  const applyLayerStyles = (svg: string, layersToHighlight: string[]) => {
+    const parser = new DOMParser();
+    const svgDoc = parser.parseFromString(svg, "image/svg+xml");
+
+    svgDoc.querySelectorAll("g").forEach((layer) => {
+      const layerId = layer.id || `layer-${Array.from(layer.parentElement?.children || []).indexOf(layer)}`;
+      if (layersToHighlight.includes(layerId)) {
+        layer.setAttribute("style", "border: 2px solid #000;");
+        layer.setAttribute("stroke", "red");
+        layer.setAttribute("stroke-width", "4");
+      } else {
+        layer.removeAttribute("style");
+        layer.removeAttribute("stroke");
+        layer.removeAttribute("stroke-width");
+      }
+    });
+
+    return svgDoc.documentElement.outerHTML;
   };
 
   return (
-    <div className="p-4 flex" onClick={handleCloseContextMenu}>
-      <h1 className="main-heading">Editor</h1>
-      <div className="container">
+    <div className="container">
+      {/* <h1 className="main-heading">Editor</h1> */}
+      <div className="frame-container">
         <div className="left-side">
-          {/* Left side with all SVG thumbnails */}
+        <h1 className="main-heading">Upload</h1>
           <div className="choose_file-container">
             <label htmlFor="file-upload" className="custom-file-upload">
               Upload SVGs
@@ -87,26 +99,26 @@ const Page: React.FC = () => {
               accept=".svg"
               multiple
               onChange={handleUpload}
+              className="hidden"
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="svg-thumb-container">
             {svgDataList.length > 0 ? (
               svgDataList.map((svg, index) => (
                 <div
                   key={index}
                   onClick={() => handleSvgClick(svg)}
-                  onContextMenu={(event) => handleRightClick(event, index)} // Handle right-click
                   dangerouslySetInnerHTML={{ __html: svg }}
                   style={{
-                    maxWidth: "200px",
+                
                     maxHeight: "200px",
                     border: "1px solid #ccc",
-                    padding: "8px",
+                    marginBottom: '20px',
                     cursor: "pointer",
-                    marginBottom: "20px",
+                  
                   }}
-                  className={selectedSvg === svg ? "active" : ""} // Apply active class
+                  className={selectedSvg === svg ? "active" : ""}
                 />
               ))
             ) : (
@@ -114,57 +126,56 @@ const Page: React.FC = () => {
             )}
           </div>
         </div>
+            <>
+          {selectedSvg ? (
+            <>
         <div className="right-side">
-          {/* Right side with big preview */}
-          <div className="w-2/3 pl-4 border-l">
-            {selectedSvg ? (
-              <div
-                dangerouslySetInnerHTML={{ __html: selectedSvg }}
-                style={{
-                  width: "100%",
-                  height: "auto",
-                  border: "1px solid #ccc",
-                  padding: "16px",
-                }}
-              />
-            ) : (
-              <p>Select an SVG to preview it here.</p>
-            )}
+        <h1 className="main-heading">Preview</h1>
+            <div className="right-side-inner">
+              <div className="svg-preview-container">
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: applyLayerStyles(selectedSvg, selectedLayers),
+                  }}
+                  style={{
+                    height: "auto",
+                    border: "1px solid #ccc",
+                    padding: "16px",
+                  }}
+                  />
+              </div>
+             
+            </div>
           </div>
-        </div>
-      </div>
+           <div className="layers-prev-container">
+           <h1 className="main-heading">Layers</h1>
+           <ul>
+             {parseSvgLayers(selectedSvg).map((layer) => (
+               <li key={layer.id}>
+                 <button
+                   onClick={() => handleLayerClick(layer.id)}
+                   style={{
+                     background: selectedLayers.includes(layer.id) ? "lightblue" : "transparent",
+                     padding: "8px",
+                     cursor: "pointer",
+                     margin: "4px 0",
+                     width: '100%'
+                    }}
+                    >
+                   {layer.id}
+                 </button>
+               </li>
+             ))}
+           </ul>
+         </div>
+             </>
+          ) : (
+            <p>Select an SVG to preview it here.</p>
+          )}
 
-      {/* Context Menu */}
-      {contextMenu && (
-        <div
-          className="context-menu"
-          style={{
-            position: "absolute",
-            top: contextMenu.y,
-            left: contextMenu.x,
-            border: "1px solid #ccc",
-            backgroundColor: "white",
-            boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-            zIndex: 1000,
-            padding: "8px",
-            borderRadius: "4px",
-          }}
-        >
-          <button
-            onClick={() => handleSvgDelete(contextMenu.index!)}
-            style={{
-              background: "red",
-              color: "white",
-              padding: "8px 16px",
-              border: "none",
-              borderRadius: "4px",
-              cursor: "pointer",
-            }}
-          >
-            Delete
-          </button>
-        </div>
-      )}
+          
+          </>
+      </div>
     </div>
   );
 };

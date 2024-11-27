@@ -1,23 +1,23 @@
+.frame-container{
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 1fr 4fr 1fr;
+}
 .container{
-    display: flex;
-    max-width: 1400px;
-    margin: auto;
+  max-width: 1400px;
+  margin: auto;
 }
-.right-side {
-    width: 80%;
-}
-.left-side{
-    width: 20%;
-}
+
+
 .main-heading {
     text-align: center;
 }
-/* Container styling */
+
 .choose_file-container {
   margin-bottom:20px ;
+  text-align: center;
   }
   
-  /* Custom label styled as a button */
   .custom-file-upload {
     display: inline-block;
     padding: 10px 20px;
@@ -34,10 +34,23 @@
     background-color: #0056b3;
   }
   
-  /* Hide the actual file input */
+
   input[type="file"] {
     display: none;
   }
   .active{
     background-color: aliceblue;
   }
+
+
+
+
+
+ul {
+  list-style-type: none; 
+  padding-left: 0;
+}
+
+li {
+  margin-left: 0; 
+}
