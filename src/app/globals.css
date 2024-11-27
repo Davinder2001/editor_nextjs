@@ -42,10 +42,6 @@
     background-color: aliceblue;
   }
 
-
-
-
-
 ul {
   list-style-type: none; 
   padding-left: 0;
@@ -53,4 +49,8 @@ ul {
 
 li {
   margin-left: 0; 
+}
+.flip-context-menu.context-menu ul li {
+  padding: 10px;
+  cursor: pointer;
 }
