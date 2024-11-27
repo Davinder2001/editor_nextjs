@@ -1,21 +1,25 @@
-.frame-container{
-  display: grid;
-  gap: 10px;
-  grid-template-columns: 1fr 4fr 1fr;
-}
+/* Main container css */
+
 .container{
   max-width: 1400px;
   margin: auto;
 }
 
 
-.main-heading {
-    text-align: center;
+.frame-container{
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 1fr 4fr 1fr;
 }
 
-.choose_file-container {
-  margin-bottom:20px ;
-  text-align: center;
+
+  .main-heading {
+    text-align: center;
+  }
+
+  .choose_file-container {
+    margin-bottom:20px ;
+    text-align: center;
   }
   
   .custom-file-upload {
@@ -35,7 +39,7 @@
   }
   
 
-  input[type="file"] {
+  .choose_file-container input[type="file"] {
     display: none;
   }
   .active{
