@@ -279,7 +279,7 @@ const Page: React.FC = () => {
           <div className="layers-prev-container">
             <h1 className="main-heading">Layers</h1>
             <ul>
-              {parseSvgLayers(selectedSvg).map((layer) => (
+              {selectedSvg && parseSvgLayers(selectedSvg).map((layer) => (
                 <li key={layer.id}>
                   {/* Main Layer */}
                   <button
