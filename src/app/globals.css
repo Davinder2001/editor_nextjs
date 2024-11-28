@@ -5,13 +5,29 @@
   margin: auto;
 }
 
-
+.svg-thumb-container svg{
+  height: 100%;
+  width: 100%;
+}
+.layers-prev-container button {
+  text-transform: capitalize;
+}
+.right-side-inner svg {
+  height: 100%;
+  width: 100%;
+}
 .frame-container{
-  display: grid;
+  display: flex;
   gap: 10px;
-  grid-template-columns: 1fr 4fr 1fr;
+  /* grid-template-columns: 1fr 4fr 1fr; */
+}
+.right-side {
+  width: 80%;
 }
 
+.left-side {
+  width: 20%;
+}
 
   .main-heading {
     text-align: center;
@@ -57,4 +73,17 @@ li {
 .flip-context-menu.context-menu ul li {
   padding: 10px;
   cursor: pointer;
+}
+
+
+@media only screen and (max-width: 768px) {
+  .frame-container{
+    flex-direction:column ;
+  }
+  .left-side{
+    width: 100%;
+  }
+  .right-side{
+    width: 100%;
+  }
 }
