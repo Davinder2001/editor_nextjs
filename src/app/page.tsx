@@ -11,27 +11,13 @@ const Page: React.FC = () => {
   const dragStart = useRef({ x: 0, y: 0 }); // Start coordinates for dragging
   const [contextMenuPosition, setContextMenuPosition] = useState<{ x: number; y: number } | null>(null);
 
-
-
   const [animationDuration, setAnimationDuration] = useState(10000); // Default duration (10 seconds)
   const [isPaused, setIsPaused] = useState(false); // Animation paused state
-  const [startTime, setStartTime] = useState(null); // Start time for animation
-  const [pausedTime, setPausedTime] = useState(null); 
-  const svgContainerRef = useRef(null); // Container for SVG content
-  const durationInputRef = useRef(null);
-  const animationFrameId = useRef(null);
-
-
-
-
-
-
-
-
-
-
-
-
+  const [startTime, setStartTime] = useState<number | null>(null); // Start time for animation, type updated
+  const [pausedTime, setPausedTime] = useState<number | null>(null); // Paused time state with correct type
+  const svgContainerRef = useRef<HTMLDivElement | null>(null); // Container for SVG content
+  const durationInputRef = useRef<HTMLInputElement | null>(null);
+  const animationFrameId = useRef<number | null>(null);
 
   useEffect(() => {
     const savedSVGs = localStorage.getItem("uploadedSVGs");
@@ -48,79 +34,73 @@ const Page: React.FC = () => {
   }, []);
 
 
-
-
-
-  useEffect(() => {
-    if (!selectedSvg || !svgContainerRef.current) return;
-
-    svgContainerRef.current.innerHTML = selectedSvg; // Inject SVG content
-  }, [selectedSvg]);
-
-
   const animate = (timestamp: number) => {
     // Ensure animation starts correctly
-    if (!startTime) setStartTime(timestamp);
-  
-    const elapsedTime = timestamp - (startTime || 0);
-  
+    if (startTime === null) {
+      setStartTime(timestamp);
+    }
+
+    const elapsedTime = timestamp - (startTime ?? 0);
+
     if (elapsedTime >= animationDuration) {
       console.log("Animation completed.");
       return; // Stop animation after the specified duration
     }
-  
+
     if (isPaused) return; // Stop if paused
-  
+
     // Ensure the SVG container exists
     const svgElement = svgContainerRef.current?.querySelector("svg");
     if (!svgElement) {
       console.warn("SVG element not found in the container.");
       return;
     }
-  
+
     // Select specific elements for animation
     const leftHand = svgElement.querySelector("#hand-details-back");
     const rightHand = svgElement.querySelector("#hand-details-front");
     const leftLeg = svgElement.querySelector("#pant-back-details");
     const rightLeg = svgElement.querySelector("#pant-front-details");
-  
+
     // Log warnings if specific elements are missing
     if (!leftHand || !rightHand || !leftLeg || !rightLeg) {
       console.error("Some elements are missing in the SVG.");
       return;
     }
-  
+
     // Animation logic
     const stepDuration = 1500; // Duration of one animation cycle in ms
     const elapsed = elapsedTime % stepDuration;
     const progress = elapsed / stepDuration;
-  
+
     // Calculate swing values
     const handSwing = Math.sin(progress * 2 * Math.PI) * 20; // Hand swing amplitude: 20 degrees
     const legSwing = Math.cos(progress * 2 * Math.PI) * 20; // Leg swing amplitude: 20 degrees
-  
+
     // Apply transforms
     leftHand.setAttribute("transform", `rotate(${handSwing} 920 400)`);
     rightHand.setAttribute("transform", `rotate(${-handSwing} 960 400)`);
     leftLeg.setAttribute("transform", `rotate(${legSwing} 1000 500)`);
     rightLeg.setAttribute("transform", `rotate(${-legSwing} 1000 500)`);
-  
+
     // Request next frame
     animationFrameId.current = requestAnimationFrame(animate);
   };
+
+
   
 
   const playAnimation = () => {
-    const userDuration = parseInt(durationInputRef.current.value, 10);
-  
+    const userDuration = parseInt(durationInputRef.current?.value || "0", 10);
+
     if (userDuration && userDuration > 0) {
       setAnimationDuration(userDuration * 1000); // Update duration
     } else {
       setAnimationDuration(10000); // Default duration
     }
 
-    if (isPaused && pausedTime) {
-      setStartTime((prevStartTime) => prevStartTime + performance.now() - pausedTime); // Adjust start time
+    if (isPaused && pausedTime !== null) {
+      setStartTime((prevStartTime) => (prevStartTime ?? 0) + performance.now() - pausedTime); // Adjust start time
       setIsPaused(false);
       setPausedTime(null);
     } else {
@@ -135,16 +115,6 @@ const Page: React.FC = () => {
     setPausedTime(performance.now()); // Save pause time
     if (animationFrameId.current) cancelAnimationFrame(animationFrameId.current); // Stop animation
   };
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -211,15 +181,6 @@ const Page: React.FC = () => {
           children: Array.from(layer.children) // Array of children for this layer
       };
   });
-  
-  // Log the structured data
-  // console.log('Layers with Children:', getLayers);
-  
-    // // Select only top-level <g> elements
-    // const topLevelLayers = Array.from(svgDoc.querySelectorAll(":scope > g")).map((layer, index) => ({
-    //   id: layer.id || `layer-${index}`,
-    //   content: layer.outerHTML,
-    // }));
 
     return layersWithChildren;
   };
@@ -454,7 +415,7 @@ const Page: React.FC = () => {
               <h1 className="main-heading">Preview</h1>
               <div
                 className="right-side-inner"
-                ref={svgContainerRef}
+                
                 style={{
                   backgroundImage: backgroundImage ? `url(${backgroundImage})` : "none",
                   backgroundSize: "cover",
@@ -465,6 +426,7 @@ const Page: React.FC = () => {
                 }}
               >
                 <div
+                ref={svgContainerRef}
                   className="svg-preview-container"
                   onMouseDown={startDrag}
                   onMouseMove={onDrag}
@@ -518,36 +480,36 @@ const Page: React.FC = () => {
                 </div>
               </div>
               <div style={{ display: "flex", justifyContent: "center", marginTop: "10px" }}>
-        <input
-          ref={durationInputRef}
-          type="number"
-          placeholder="Enter duration in seconds"
-          min="1"
-          style={{ padding: "8px", marginRight: "10px", fontSize: "16px" }}
-        />
-        <button
-          onClick={playAnimation}
-          style={{ padding: "8px 16px", fontSize: "16px", cursor: "pointer", marginRight: "10px" }}
-        >
-          Play
-        </button>
-        <button
-          onClick={pauseAnimation}
-          style={{ padding: "8px 16px", fontSize: "16px", cursor: "pointer" }}
-        >
-          Pause
-        </button>
-       
-      </div>
-            </div>
-           
-          </>
-        ) : (
-          <p>Select an SVG to preview it here.</p>
-        )}
-      
-      </div>
-    </div>
+                <input
+                  ref={durationInputRef}
+                  type="number"
+                  placeholder="Enter duration in seconds"
+                  min="1"
+                  style={{ padding: "8px", marginRight: "10px", fontSize: "16px" }}
+                />
+                <button
+                  onClick={playAnimation}
+                  style={{ padding: "8px 16px", fontSize: "16px", cursor: "pointer", marginRight: "10px" }}
+                >
+                  Play
+                </button>
+                <button
+                  onClick={pauseAnimation}
+                  style={{ padding: "8px 16px", fontSize: "16px", cursor: "pointer" }}
+                >
+                  Pause
+                </button>
+              
+              </div>
+                    </div>
+                  
+                  </>
+                ) : (
+                  <p>Select an SVG to preview it here.</p>
+                )}
+              
+          </div>
+        </div>
   );
 };
 
