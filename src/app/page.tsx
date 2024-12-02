@@ -1,4 +1,5 @@
 'use client';
+import PlayPause from "@/components/PlayPause";
 import React, { useState, useEffect, useRef } from "react";
 
 const Page: React.FC = () => {
@@ -7,12 +8,12 @@ const Page: React.FC = () => {
   const [selectedLayers, setSelectedLayers] = useState<string[]>([]);
   const [backgroundImage, setBackgroundImage] = useState<string | null>(null);
   const [svgPosition, setSvgPosition] = useState({ x: 0, y: 0 }); // Track position
-  const isDragging = useRef(false); // To track drag status
-  const dragStart = useRef({ x: 0, y: 0 }); // Start coordinates for dragging
+  const isDragging = useRef(false);  
+  const dragStart = useRef({ x: 0, y: 0 });  
   const [contextMenuPosition, setContextMenuPosition] = useState<{ x: number; y: number } | null>(null);
   
-  const [animationDuration, setAnimationDuration] = useState(10000); // Default duration (10 seconds)
-  const [isPaused, setIsPaused] = useState(false); // Animation paused state
+  const [animationDuration, setAnimationDuration] = useState(10000);  
+  const [isPaused, setIsPaused] = useState(false);  
   const [startTime, setStartTime] = useState<number | null>(null); // Start time for animation, type updated
   const [pausedTime, setPausedTime] = useState<number | null>(null); // Paused time state with correct type
   const svgContainerRef = useRef<HTMLDivElement | null>(null); // Container for SVG content
@@ -39,8 +40,7 @@ const Page: React.FC = () => {
 
 
   const animate = (timestamp: number) => {
-    // Ensure animation starts correctly
-    if (startTime === null) {
+     if (startTime === null) {
       setStartTime(timestamp);
     }
     const elapsedTime = timestamp - (startTime ?? 10);
@@ -48,7 +48,7 @@ const Page: React.FC = () => {
     
     if (elapsedTime >= animationDuration) {
       console.log("Animation completed.");
-      return; // Stop animation after the specified duration
+      return;  
     }
 
     if (isPaused) return; // Stop if paused
@@ -504,28 +504,7 @@ const Page: React.FC = () => {
                   />
                 </div>
               </div>
-              <div style={{ display: "flex", justifyContent: "center", marginTop: "10px" }}>
-                <input
-                  ref={durationInputRef}
-                  type="number"
-                  placeholder="Enter duration in seconds"
-                  min="1"
-                  style={{ padding: "8px", marginRight: "10px", fontSize: "16px" }}
-                />
-                <button
-                  onClick={playAnimation}
-                  style={{ padding: "8px 16px", fontSize: "16px", cursor: "pointer", marginRight: "10px" }}
-                >
-                  Play
-                </button>
-                <button
-                  onClick={pauseAnimation}
-                  style={{ padding: "8px 16px", fontSize: "16px", cursor: "pointer" }}
-                >
-                  Pause
-                </button>
-              
-              </div>
+               <PlayPause durationInputRef={durationInputRef} playAnimation={playAnimation} pauseAnimation={pauseAnimation} />
                     </div>
                   
                   </>

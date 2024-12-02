@@ -12,6 +12,7 @@
     "@ffmpeg/core": "^0.12.6",
     "@ffmpeg/ffmpeg": "^0.12.10",
     "animejs": "^3.2.2",
+    "html2canvas": "^1.4.1",
     "lottie-web": "^5.12.2",
     "next": "15.0.3",
     "react": "19.0.0-rc-66855b96-20241106",
