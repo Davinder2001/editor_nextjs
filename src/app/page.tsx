@@ -1,5 +1,5 @@
 'use client';
- 
+
 import Preview from "@/components/preview";
 import React, { useState, useEffect, useRef } from "react";
 
@@ -240,7 +240,7 @@ const Page: React.FC = () => {
     };
   }, [isPlaying]);
 
- 
+
 
   const handleContextMenu = (e: React.MouseEvent, svg: string) => {
     e.preventDefault();
@@ -399,12 +399,12 @@ const Page: React.FC = () => {
           timelineRef={timelineRef}
           currentTime={currentTime}
           setCurrentTime={setCurrentTime}
-          durationInputRef={ durationInputRef}
+          durationInputRef={durationInputRef}
           playAnimation={playAnimation}
           pauseAnimation={pauseAnimation}
         />
 
-       
+
       </div>
     </div>
   );

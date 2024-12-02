@@ -1,6 +1,24 @@
 import React, { useEffect, useRef, useState } from 'react'
 import PlayPause from './PlayPause';
 
+interface Preview{
+    setSvgDataList:any,
+    selectedSvg:any,
+    backgroundImage:any,
+    svgContainerRef:React.RefObject<HTMLInputElement> | any,
+    setSelectedSvg:any,
+    setBackgroundImage:any,
+    isPlaying:boolean,
+    togglePlayPause:()=>void,
+    selectedLayers:any,
+    timelineRef:React.RefObject<HTMLInputElement> | any,
+    currentTime:number,
+    setCurrentTime:any,
+    durationInputRef:React.RefObject<HTMLInputElement> | any,
+    playAnimation:()=>void,
+    pauseAnimation:()=>void
+}
+
 function Preview({
     setSvgDataList,
     selectedSvg,
@@ -17,7 +35,7 @@ function Preview({
     durationInputRef,
     playAnimation,
     pauseAnimation
-}) {
+}:Preview) {
 
     const [svgPosition, setSvgPosition] = useState({ x: 0, y: 0 });  
     const isDragging = useRef(false);

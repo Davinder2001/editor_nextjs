@@ -1,7 +1,7 @@
 import React from 'react'
 
 interface Props{
-  durationInputRef:any
+  durationInputRef:React.RefObject<HTMLInputElement>
   playAnimation:()=>void
   pauseAnimation:()=>void
 }
