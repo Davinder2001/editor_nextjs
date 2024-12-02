@@ -10,7 +10,7 @@ const Page: React.FC = () => {
   const isDragging = useRef(false); // To track drag status
   const dragStart = useRef({ x: 0, y: 0 }); // Start coordinates for dragging
   const [contextMenuPosition, setContextMenuPosition] = useState<{ x: number; y: number } | null>(null);
-
+  
   const [animationDuration, setAnimationDuration] = useState(10000); // Default duration (10 seconds)
   const [isPaused, setIsPaused] = useState(false); // Animation paused state
   const [startTime, setStartTime] = useState<number | null>(null); // Start time for animation, type updated
@@ -18,7 +18,11 @@ const Page: React.FC = () => {
   const svgContainerRef = useRef<HTMLDivElement | null>(null); // Container for SVG content
   const durationInputRef = useRef<HTMLInputElement | null>(null);
   const animationFrameId = useRef<number | null>(null);
-
+  
+  const [currentTime, setCurrentTime] = useState(0); // Current time in seconds
+  const [isPlaying, setIsPlaying] = useState(false); // Play/Pause state
+  const timelineRef = useRef<HTMLDivElement | null>(null);
+  
   useEffect(() => {
     const savedSVGs = localStorage.getItem("uploadedSVGs");
     if (savedSVGs) {
@@ -39,9 +43,9 @@ const Page: React.FC = () => {
     if (startTime === null) {
       setStartTime(timestamp);
     }
-
-    const elapsedTime = timestamp - (startTime ?? 0);
-
+    const elapsedTime = timestamp - (startTime ?? 10);
+    console.log('Start time', startTime)
+    
     if (elapsedTime >= animationDuration) {
       console.log("Animation completed.");
       return; // Stop animation after the specified duration
@@ -59,11 +63,19 @@ const Page: React.FC = () => {
     // Select specific elements for animation
     const leftHand = svgElement.querySelector("#hand-details-back");
     const rightHand = svgElement.querySelector("#hand-details-front");
+
     const leftLeg = svgElement.querySelector("#pant-back-details");
     const rightLeg = svgElement.querySelector("#pant-front-details");
 
+    const legFront = svgElement.querySelector("#leg-front");
+    const legBack = svgElement.querySelector("#leg-back");
+
+    const footFront = svgElement.querySelector("#shoe-front");
+    const footBack = svgElement.querySelector("#shoe-back");
+
+
     // Log warnings if specific elements are missing
-    if (!leftHand || !rightHand || !leftLeg || !rightLeg) {
+    if (!leftHand || !rightHand || !leftLeg || !rightLeg || !legFront || !legBack || !footFront || !footBack) {
       console.error("Some elements are missing in the SVG.");
       return;
     }
@@ -74,20 +86,35 @@ const Page: React.FC = () => {
     const progress = elapsed / stepDuration;
 
     // Calculate swing values
-    const handSwing = Math.sin(progress * 2 * Math.PI) * 20; // Hand swing amplitude: 20 degrees
-    const legSwing = Math.cos(progress * 2 * Math.PI) * 20; // Leg swing amplitude: 20 degrees
+    const handSwing = Math.sin(progress * 2 * Math.PI) * 20;  // Hand swing amplitude: 20 degrees
+    const legSwing = Math.cos(progress * 2 * Math.PI) * 20;   // Leg swing amplitude: 20 degrees
+
+    const legFrontSwing = Math.cos(progress * 2 * Math.PI) * 20;   // Leg swing amplitude: 20 degrees
+    const legBackSwing = Math.cos(progress * 2 * Math.PI) * 20;   // Leg swing amplitude: 20 degrees
+    
+    const footFrontSwing = Math.cos(progress * 2 * Math.PI) * 20; 
+    const footBackSwing = Math.cos(progress * 2 * Math.PI) * 20; 
 
     // Apply transforms
+    // Hand Rotate
     leftHand.setAttribute("transform", `rotate(${handSwing} 920 400)`);
     rightHand.setAttribute("transform", `rotate(${-handSwing} 960 400)`);
+
+    // Leg rotate
     leftLeg.setAttribute("transform", `rotate(${legSwing} 1000 500)`);
     rightLeg.setAttribute("transform", `rotate(${-legSwing} 1000 500)`);
+
+    // Rotate
+    legFront.setAttribute("transform", `rotate(${-legFrontSwing} 1000 500)`);
+    legBack.setAttribute("transform", `rotate(${legBackSwing} 1000 500)`);
+
+    // Feet rotate
+    footFront.setAttribute("transform", `rotate(${-footFrontSwing} 1000 500)`);
+    footBack.setAttribute("transform", `rotate(${footBackSwing} 1000 500)`);
 
     // Request next frame
     animationFrameId.current = requestAnimationFrame(animate);
   };
-
-
   
 
   const playAnimation = () => {
@@ -110,12 +137,12 @@ const Page: React.FC = () => {
     animationFrameId.current = requestAnimationFrame(animate);
   };
 
+
   const pauseAnimation = () => {
     setIsPaused(true);
     setPausedTime(performance.now()); // Save pause time
     if (animationFrameId.current) cancelAnimationFrame(animationFrameId.current); // Stop animation
   };
-
 
 
   const handleUpload = (event: React.ChangeEvent<HTMLInputElement>): void => {
@@ -144,6 +171,7 @@ const Page: React.FC = () => {
     }
   };
 
+
   const handleBackgroundUpload = (event: React.ChangeEvent<HTMLInputElement>): void => {
     const file = event.target.files?.[0];
     if (file && file.type.startsWith("image/")) {
@@ -159,14 +187,17 @@ const Page: React.FC = () => {
     }
   };
 
+
   const handleSvgClick = (svg: string) => {
     setSelectedSvg(svg);
     setSelectedLayers([]); // Reset selected layers
   };
 
+
   const handleLayerClick = (layerId: string) => {
     setSelectedLayers([layerId]); // Select only the clicked layer
   };
+
 
   const parseSvgLayers = (svg: string) => {
     const parser = new DOMParser();
@@ -185,18 +216,12 @@ const Page: React.FC = () => {
     return layersWithChildren;
   };
 
-
-  // Timeline state
-  const [currentTime, setCurrentTime] = useState(0); // Current time in seconds
-  const [isPlaying, setIsPlaying] = useState(false); // Play/Pause state
-
-  const timelineRef = useRef<HTMLDivElement | null>(null);
     // Handle the play/pause functionality for the timeline
-    const togglePlayPause = () => {
+  const togglePlayPause = () => {
       setIsPlaying((prev) => !prev);
     };
   
-    useEffect(() => {
+  useEffect(() => {
       let timer: NodeJS.Timeout | null = null;
   
       if (isPlaying) {
@@ -244,6 +269,7 @@ const Page: React.FC = () => {
     
     return svgDoc.documentElement.outerHTML;
   };
+  
   const handleContextMenu = (e: React.MouseEvent, svg: string) => {
     e.preventDefault();
     setSelectedSvg(svg);
@@ -264,7 +290,6 @@ const Page: React.FC = () => {
     }
     setContextMenuPosition(null); // Hide context menu
   };
-
 
 
   const startDrag = (e: React.MouseEvent) => {
