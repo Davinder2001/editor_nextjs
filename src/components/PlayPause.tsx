@@ -1,7 +1,7 @@
 import React from 'react'
 
 interface Props{
-  durationInputRef:string
+  durationInputRef:any
   playAnimation:()=>void
   pauseAnimation:()=>void
 }

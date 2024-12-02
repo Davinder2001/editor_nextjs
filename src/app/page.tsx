@@ -1,5 +1,6 @@
 'use client';
-import PlayPause from "@/components/PlayPause";
+ 
+import Preview from "@/components/preview";
 import React, { useState, useEffect, useRef } from "react";
 
 const Page: React.FC = () => {
@@ -7,23 +8,21 @@ const Page: React.FC = () => {
   const [selectedSvg, setSelectedSvg] = useState<string | null>(null);
   const [selectedLayers, setSelectedLayers] = useState<string[]>([]);
   const [backgroundImage, setBackgroundImage] = useState<string | null>(null);
-  const [svgPosition, setSvgPosition] = useState({ x: 0, y: 0 }); // Track position
-  const isDragging = useRef(false);  
-  const dragStart = useRef({ x: 0, y: 0 });  
+
   const [contextMenuPosition, setContextMenuPosition] = useState<{ x: number; y: number } | null>(null);
-  
-  const [animationDuration, setAnimationDuration] = useState(10000);  
-  const [isPaused, setIsPaused] = useState(false);  
+
+  const [animationDuration, setAnimationDuration] = useState(10000);
+  const [isPaused, setIsPaused] = useState(false);
   const [startTime, setStartTime] = useState<number | null>(null); // Start time for animation, type updated
   const [pausedTime, setPausedTime] = useState<number | null>(null); // Paused time state with correct type
   const svgContainerRef = useRef<HTMLDivElement | null>(null); // Container for SVG content
   const durationInputRef = useRef<HTMLInputElement | null>(null);
   const animationFrameId = useRef<number | null>(null);
-  
+
   const [currentTime, setCurrentTime] = useState(0); // Current time in seconds
   const [isPlaying, setIsPlaying] = useState(false); // Play/Pause state
   const timelineRef = useRef<HTMLDivElement | null>(null);
-  
+
   useEffect(() => {
     const savedSVGs = localStorage.getItem("uploadedSVGs");
     if (savedSVGs) {
@@ -40,15 +39,15 @@ const Page: React.FC = () => {
 
 
   const animate = (timestamp: number) => {
-     if (startTime === null) {
+    if (startTime === null) {
       setStartTime(timestamp);
     }
     const elapsedTime = timestamp - (startTime ?? 10);
     console.log('Start time', startTime)
-    
+
     if (elapsedTime >= animationDuration) {
       console.log("Animation completed.");
-      return;  
+      return;
     }
 
     if (isPaused) return; // Stop if paused
@@ -91,9 +90,9 @@ const Page: React.FC = () => {
 
     const legFrontSwing = Math.cos(progress * 2 * Math.PI) * 20;   // Leg swing amplitude: 20 degrees
     const legBackSwing = Math.cos(progress * 2 * Math.PI) * 20;   // Leg swing amplitude: 20 degrees
-    
-    const footFrontSwing = Math.cos(progress * 2 * Math.PI) * 20; 
-    const footBackSwing = Math.cos(progress * 2 * Math.PI) * 20; 
+
+    const footFrontSwing = Math.cos(progress * 2 * Math.PI) * 20;
+    const footBackSwing = Math.cos(progress * 2 * Math.PI) * 20;
 
     // Apply transforms
     // Hand Rotate
@@ -115,7 +114,7 @@ const Page: React.FC = () => {
     // Request next frame
     animationFrameId.current = requestAnimationFrame(animate);
   };
-  
+
 
   const playAnimation = () => {
     const userDuration = parseInt(durationInputRef.current?.value || "0", 10);
@@ -207,75 +206,48 @@ const Page: React.FC = () => {
 
     const layersWithChildren = Array.from(getLayers).map((layer, index) => {
       return {
-          index: index, // Index of the layer
-          id: layer.id || `Layer ${index}`, // Name of the layer
-          children: Array.from(layer.children) // Array of children for this layer
+        index: index, // Index of the layer
+        id: layer.id || `Layer ${index}`, // Name of the layer
+        children: Array.from(layer.children) // Array of children for this layer
       };
-  });
+    });
 
     return layersWithChildren;
   };
 
-    // Handle the play/pause functionality for the timeline
+  // Handle the play/pause functionality for the timeline
   const togglePlayPause = () => {
-      setIsPlaying((prev) => !prev);
-    };
-  
-  useEffect(() => {
-      let timer: NodeJS.Timeout | null = null;
-  
-      if (isPlaying) {
-        timer = setInterval(() => {
-          setCurrentTime((prevTime) => {
-            // Loop the time back to 0 when it reaches the end of the timeline
-            if (prevTime >= 100) return 0;
-            return prevTime + 1;
-          });
-        }, 1000); // Update every second
-      } else if (!isPlaying && timer) {
-        clearInterval(timer);
-      }
-  
-      return () => {
-        if (timer) clearInterval(timer);
-      };
-    }, [isPlaying]);
-
-  const applyLayerStyles = (svg: string, layersToHighlight: string[]) => {
-    const parser = new DOMParser();
-    const svgDoc = parser.parseFromString(svg, "image/svg+xml");
-  
-    svgDoc.querySelectorAll("g").forEach((layer) => {
-      const layerId = layer.id || `layer-${Array.from(layer.parentElement?.children || []).indexOf(layer)}`;
-      
-      if (layersToHighlight.includes(layerId)) {
-        layer.setAttribute("stroke", "red");
-        layer.setAttribute("stroke-width", "4");
-        Array.from(layer.children).forEach((child) => {
-          if (layersToHighlight.includes(child.id || `${layerId}-child-${Array.from(layer.children).indexOf(child)}`)) {
-            child.setAttribute("stroke", "red");
-            child.setAttribute("stroke-width", "4");
-          }
-        });
-      } else {
-        layer.removeAttribute("stroke");
-        layer.removeAttribute("stroke-width");
-        Array.from(layer.children).forEach((child) => {
-          child.removeAttribute("stroke");
-          child.removeAttribute("stroke-width");
-        });
-      }
-    });
-    
-    return svgDoc.documentElement.outerHTML;
+    setIsPlaying((prev) => !prev);
   };
-  
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout | null = null;
+
+    if (isPlaying) {
+      timer = setInterval(() => {
+        setCurrentTime((prevTime) => {
+          // Loop the time back to 0 when it reaches the end of the timeline
+          if (prevTime >= 100) return 0;
+          return prevTime + 1;
+        });
+      }, 1000); // Update every second
+    } else if (!isPlaying && timer) {
+      clearInterval(timer);
+    }
+
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [isPlaying]);
+
+ 
+
   const handleContextMenu = (e: React.MouseEvent, svg: string) => {
     e.preventDefault();
     setSelectedSvg(svg);
     setContextMenuPosition({ x: e.clientX, y: e.clientY });
   };
-  
+
   const handleDeleteSvg = () => {
     if (selectedSvg) {
       // Remove from state
@@ -292,28 +264,7 @@ const Page: React.FC = () => {
   };
 
 
-  const startDrag = (e: React.MouseEvent) => {
-    isDragging.current = true;
-    dragStart.current = { x: e.clientX, y: e.clientY };
-  };
 
-  const onDrag = (e: React.MouseEvent) => {
-    if (!isDragging.current) return;
-
-    const dx = e.clientX - dragStart.current.x;
-    const dy = e.clientY - dragStart.current.y;
-    
-    setSvgPosition((prev) => ({
-      x: prev.x + dx,
-      y: prev.y + dy,
-    }));
-
-    dragStart.current = { x: e.clientX, y: e.clientY };
-  };
-
-  const stopDrag = () => {
-    isDragging.current = false;
-  };
 
   return (
     <div className="container">
@@ -365,25 +316,25 @@ const Page: React.FC = () => {
             ) : (
               <p>No SVGs uploaded yet.</p>
             )}
-             {/* Context Menu */}
-        {contextMenuPosition && (
-          <div
-            className="context-menu"
-            style={{
-              position: "absolute",
-              top: `${contextMenuPosition.y}px`,
-              left: `${contextMenuPosition.x}px`,
-              background: "#fff",
-              border: "1px solid #ccc",
-              boxShadow: "0 0 5px rgba(0, 0, 0, 0.1)",
-              zIndex: 10,
-            }}
-          >
-            <button onClick={handleDeleteSvg} style={{ padding: "8px 12px" }}>
-              Delete SVG
-            </button>
-          </div>
-        )}
+            {/* Context Menu */}
+            {contextMenuPosition && (
+              <div
+                className="context-menu"
+                style={{
+                  position: "absolute",
+                  top: `${contextMenuPosition.y}px`,
+                  left: `${contextMenuPosition.x}px`,
+                  background: "#fff",
+                  border: "1px solid #ccc",
+                  boxShadow: "0 0 5px rgba(0, 0, 0, 0.1)",
+                  zIndex: 10,
+                }}
+              >
+                <button onClick={handleDeleteSvg} style={{ padding: "8px 12px" }}>
+                  Delete SVG
+                </button>
+              </div>
+            )}
           </div>
           <div className="layers-prev-container">
             <h1 className="main-heading">Layers</h1>
@@ -405,7 +356,7 @@ const Page: React.FC = () => {
                     {layer.id}
                   </button>
 
-                  
+
                   {/* Children */}
                   {layer.children.length > 0 && (
                     <ul style={{ paddingLeft: "16px" }}>
@@ -434,86 +385,28 @@ const Page: React.FC = () => {
             </ul>
           </div>
         </div>
-        {selectedSvg ? (
-          <>
-            <div className="right-side">
-              <h1 className="main-heading">Preview</h1>
-              <div
-                className="right-side-inner"
-                
-                style={{
-                  backgroundImage: backgroundImage ? `url(${backgroundImage})` : "none",
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                  border: "1px solid #ccc",
-                  padding: "16px",
-                  overflow: "hidden"
-                }}
-              >
-                <div
-                ref={svgContainerRef}
-                  className="svg-preview-container"
-                  onMouseDown={startDrag}
-                  onMouseMove={onDrag}
-                  onMouseUp={stopDrag}
-                  onMouseLeave={stopDrag}
-                  style={{
-                    position: "relative",
-                    cursor: "move",
-                    left: `${svgPosition.x}px`,
-                    top: `${svgPosition.y}px`,
-                  }}
-                >
-                  <div
-                    dangerouslySetInnerHTML={{
-                      __html: applyLayerStyles(selectedSvg, selectedLayers),
-                    }}
-                    style={{ maxHeight: "600px" }}
-                  />
-                </div>
-              </div>
-                {/* Timeline and Play/Pause Button */}
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", marginTop: "20px" }}>
-                <button onClick={togglePlayPause} style={{ marginRight: "10px" }}>
-                  {isPlaying ? "Pause" : "Play"}
-                </button>
-                <div
-                  ref={timelineRef}
-                  style={{
-                    width: "80%",
-                    height: "10px",
-                    background: "#ccc",
-                    borderRadius: "5px",
-                    position: "relative",
-                    cursor: "pointer",
-                  }}
-                  onClick={(e) => {
-                    const clickPosition = e.nativeEvent.offsetX;
-                    const timelineWidth = timelineRef.current?.offsetWidth || 0;
-                    const newTime = (clickPosition / timelineWidth) * 100; // Map click to time
-                    setCurrentTime(newTime);
-                  }}
-                >
-                  <div
-                    style={{
-                      width: `${currentTime}%`,
-                      height: "100%",
-                      background: "blue",
-                      borderRadius: "5px",
-                    }}
-                  />
-                </div>
-              </div>
-               <PlayPause durationInputRef={durationInputRef} playAnimation={playAnimation} pauseAnimation={pauseAnimation} />
-                    </div>
-                  
-                  </>
-                ) : (
-                  <p>Select an SVG to preview it here.</p>
-                )}
-              
-          </div>
-        </div>
+
+        <Preview
+          setSvgDataList={setSvgDataList}
+          selectedSvg={selectedSvg}
+          backgroundImage={backgroundImage}
+          svgContainerRef={svgContainerRef}
+          setSelectedSvg={setSelectedSvg}
+          setBackgroundImage={setBackgroundImage}
+          isPlaying={isPlaying}
+          togglePlayPause={togglePlayPause}
+          selectedLayers={selectedLayers}
+          timelineRef={timelineRef}
+          currentTime={currentTime}
+          setCurrentTime={setCurrentTime}
+          durationInputRef={ durationInputRef}
+          playAnimation={playAnimation}
+          pauseAnimation={pauseAnimation}
+        />
+
+       
+      </div>
+    </div>
   );
 };
 
