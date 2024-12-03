@@ -18,6 +18,7 @@ import TimeLine from "./timeLine";
         playAnimation: (duration: number) => void;
         pauseAnimation: () => void;
         durationInputRef : any;
+        slideForTimeline : any;
     }
 
     function Preview({
@@ -35,6 +36,7 @@ import TimeLine from "./timeLine";
         // setCurrentTime,
         playAnimation,
         // pauseAnimation,
+        slideForTimeline
     }: PreviewProps) {
         const [svgPosition, setSvgPosition] = useState({ x: 0, y: 0 });
         const [tracks, setTracks] = useState([
@@ -203,6 +205,7 @@ import TimeLine from "./timeLine";
                                         pause={pause}
                                         timelineRef={timelineRef}
                                         playheadPosition={playheadPosition}
+                                        slideForTimeline={slideForTimeline}
                            
                            />
 

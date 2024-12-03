@@ -3,12 +3,14 @@
 import Animations from "@/components/animations";
 // import Layers from "@/components/layers";
 import Preview from "@/components/preview";
+
 // import SelectSvg from "@/components/selectSvg";
 import React, { useState, useEffect, useRef } from "react";
 
 const Page: React.FC = () => {
   const [svgDataList, setSvgDataList] = useState<string[]>([]);
   const [selectedSvg, setSelectedSvg] = useState<string | null>(null);
+  const [slideForTimeline, setAddSlideRimeline] = useState<string | null>(null);
   const [selectedLayers, setSelectedLayers] = useState<string[]>([]);
   const [backgroundImage, setBackgroundImage] = useState<string | null>(null);
 
@@ -46,7 +48,7 @@ const Page: React.FC = () => {
       setStartTime(timestamp);
     }
     const elapsedTime = timestamp - (startTime ?? 10);
-    console.log('Start time', startTime)
+    // console.log('Start time', startTime)
 
     if (elapsedTime >= animationDuration) {
       console.log("Animation completed.");
@@ -119,8 +121,16 @@ const Page: React.FC = () => {
   };
 
 
+  const wlkingAnimationPlay = () =>{
+    const userDuration = parseInt(durationInputRef.current?.value || "5");
+    setAnimationDuration(userDuration * 1000); // Update duration
+    animationFrameId.current = requestAnimationFrame(animate);
+  }
+
+  
+
   const playAnimation = () => {
-    const userDuration = parseInt(durationInputRef.current?.value || "0", 10);
+    const userDuration = parseInt(durationInputRef.current?.value || "5");
 
     if (userDuration && userDuration > 0) {
       setAnimationDuration(userDuration * 1000); // Update duration
@@ -266,11 +276,13 @@ const Page: React.FC = () => {
     setContextMenuPosition(null); // Hide context menu
   };
   const addSlideToTimeline = () => {
-    
+
+    const getSlideToTimeline = selectedSvg;
+    setAddSlideRimeline(getSlideToTimeline); // Update state with the selected SVG value
+
   } 
   const playWalkingAnimation = () => {
-    console.log("Walking Animations")
-    playAnimation();
+    wlkingAnimationPlay();
 } 
 
 
@@ -380,6 +392,7 @@ const Page: React.FC = () => {
           durationInputRef={durationInputRef}
           playAnimation={playAnimation}
           pauseAnimation={pauseAnimation}
+          slideForTimeline={slideForTimeline}
         />
       </div>
     </div>
