@@ -265,6 +265,9 @@ const Page: React.FC = () => {
     }
     setContextMenuPosition(null); // Hide context menu
   };
+  const addSlideToTimeline = () => {
+    
+  } 
 
 
 
@@ -338,7 +341,8 @@ const Page: React.FC = () => {
                 </button>
                 <br></br>
                 <br></br>
-                <button style={{ padding: "8px 12px" }}>
+                <button style={{ padding: "8px 12px" }}
+                        onClick={addSlideToTimeline}>
                   Add Slide
                 </button>
               </div>

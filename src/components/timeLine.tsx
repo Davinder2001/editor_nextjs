@@ -2,7 +2,7 @@ import React from 'react'
 interface PreviewProps {
     play: ()=> void;
     pause: ()=> void;
-    timelineRef: any;
+    timelineRef: string;
     playheadPosition: number;
 }
 
