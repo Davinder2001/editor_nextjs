@@ -268,7 +268,10 @@ const Page: React.FC = () => {
   const addSlideToTimeline = () => {
     
   } 
-
+  const playWalkingAnimation = () => {
+    console.log("Walking Animations")
+    playAnimation();
+} 
 
 
 
@@ -356,7 +359,7 @@ const Page: React.FC = () => {
                       selectedLayers={selectedLayers}
                       handleLayerClick={handleLayerClick}
                        /> */}
-                <Animations/>
+                <Animations playWalkingAnimation={playWalkingAnimation} />
             </div>
           </div>
         </div>
