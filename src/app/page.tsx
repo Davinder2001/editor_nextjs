@@ -1,6 +1,9 @@
 'use client';
 
+import Animations from "@/components/animations";
+// import Layers from "@/components/layers";
 import Preview from "@/components/preview";
+// import SelectSvg from "@/components/selectSvg";
 import React, { useState, useEffect, useRef } from "react";
 
 const Page: React.FC = () => {
@@ -193,27 +196,27 @@ const Page: React.FC = () => {
   };
 
 
-  const handleLayerClick = (layerId: string) => {
-    setSelectedLayers([layerId]); // Select only the clicked layer
-  };
+  // const handleLayerClick = (layerId: string) => {
+  //   setSelectedLayers([layerId]); // Select only the clicked layer
+  // };
 
 
-  const parseSvgLayers = (svg: string) => {
-    const parser = new DOMParser();
-    const svgDoc = parser.parseFromString(svg, "image/svg+xml");
+  // const parseSvgLayers = (svg: string) => {
+  //   const parser = new DOMParser();
+  //   const svgDoc = parser.parseFromString(svg, "image/svg+xml");
 
-    const getLayers = svgDoc.documentElement.querySelectorAll(":scope > g");
+  //   const getLayers = svgDoc.documentElement.querySelectorAll(":scope > g");
 
-    const layersWithChildren = Array.from(getLayers).map((layer, index) => {
-      return {
-        index: index, // Index of the layer
-        id: layer.id || `Layer ${index}`, // Name of the layer
-        children: Array.from(layer.children) // Array of children for this layer
-      };
-    });
+  //   const layersWithChildren = Array.from(getLayers).map((layer, index) => {
+  //     return {
+  //       index: index, // Index of the layer
+  //       id: layer.id || `Layer ${index}`, // Name of the layer
+  //       children: Array.from(layer.children) // Array of children for this layer
+  //     };
+  //   });
 
-    return layersWithChildren;
-  };
+  //   return layersWithChildren;
+  // };
 
   // Handle the play/pause functionality for the timeline
   const togglePlayPause = () => {
@@ -333,56 +336,24 @@ const Page: React.FC = () => {
                 <button onClick={handleDeleteSvg} style={{ padding: "8px 12px" }}>
                   Delete SVG
                 </button>
+                <br></br>
+                <br></br>
+                <button style={{ padding: "8px 12px" }}>
+                  Add Slide
+                </button>
               </div>
             )}
           </div>
           <div className="layers-prev-container">
-            <h1 className="main-heading">Layers</h1>
-            <ul>
-              {selectedSvg && parseSvgLayers(selectedSvg).map((layer) => (
-                <li key={layer.id}>
-                  {/* Main Layer */}
-                  <button
-                    onClick={() => handleLayerClick(layer.id)}
-                    style={{
-                      background: selectedLayers.includes(layer.id) ? "lightblue" : "transparent",
-                      padding: "8px",
-                      cursor: "pointer",
-                      margin: "4px 0",
-                      width: "100%",
-                      color: "black", // Main layer in black
-                    }}
-                  >
-                    {layer.id}
-                  </button>
-
-
-                  {/* Children */}
-                  {layer.children.length > 0 && (
-                    <ul style={{ paddingLeft: "16px" }}>
-                      {layer.children.map((child, childIndex) => (
-                        <li key={`${layer.id}-child-${childIndex}`}>
-                          <button
-                            onClick={() => handleLayerClick(child.id || `${layer.id}-child-${childIndex}`)}
-                            style={{
-                              display: 'none',
-                              background: selectedLayers.includes(child.id) ? "lightcoral" : "transparent",
-                              padding: "8px",
-                              cursor: "pointer",
-                              margin: "4px 0",
-                              width: "100%",
-                              color: "red", // Children in red
-                            }}
-                          >
-                            {child.id || `Child ${childIndex}`}
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </li>
-              ))}
-            </ul>
+            <h1 className="main-heading">Animations</h1>
+            <div className="layersOuter">
+              {/* <Layers selectedSvg={selectedSvg}
+                      parseSvgLayers={parseSvgLayers}
+                      selectedLayers={selectedLayers}
+                      handleLayerClick={handleLayerClick}
+                       /> */}
+                <Animations/>
+            </div>
           </div>
         </div>
 
@@ -403,8 +374,6 @@ const Page: React.FC = () => {
           playAnimation={playAnimation}
           pauseAnimation={pauseAnimation}
         />
-
-
       </div>
     </div>
   );
