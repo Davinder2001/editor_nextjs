@@ -19,6 +19,7 @@ import TimeLine from "./timeLine";
         pauseAnimation: () => void;
         durationInputRef : any;
         slideForTimeline : any;
+        playWalkingAnimation: () => void;
     }
 
     function Preview({
@@ -36,7 +37,8 @@ import TimeLine from "./timeLine";
         // setCurrentTime,
         playAnimation,
         // pauseAnimation,
-        slideForTimeline
+        slideForTimeline,
+        playWalkingAnimation
     }: PreviewProps) {
         const [svgPosition, setSvgPosition] = useState({ x: 0, y: 0 });
         const [tracks, setTracks] = useState([
@@ -121,16 +123,6 @@ import TimeLine from "./timeLine";
             return svgDoc.documentElement.outerHTML;
         };
 
-        // const handleResize = (id: string, newEnd: number) => {
-        //     setTracks((prevTracks) =>
-        //         prevTracks.map((track) =>
-        //             track.id === id
-        //                 ? { ...track, endTime: Math.max(track.startTime + 5, Math.min(newEnd, 100)) }
-        //                 : track
-        //         )
-        //     );
-        // };
-
         const updateAnimationDuration = () => {
             if (timelineRef.current) {
                 const timelineWidth = timelineRef.current.offsetWidth || 1; // Avoid division by zero
@@ -186,18 +178,18 @@ import TimeLine from "./timeLine";
         return (
             <>
                 {selectedSvg ? (
-                    <>
+                  
                         <div className="right-side">
                             <h1 className="main-heading">Preview</h1>
-                                    <SvgPreviewMain backgroundImage={backgroundImage}
-                                                    svgContainerRef={svgContainerRef} 
-                                                    startDrag={startDrag}
-                                                    onDrag={onDrag} 
-                                                    stopDrag={stopDrag}
-                                                    svgPosition={svgPosition}
-                                                    applyLayerStyles={applyLayerStyles}
-                                                    selectedSvg={selectedSvg}
-                                                    selectedLayers={selectedLayers} />
+                        <SvgPreviewMain backgroundImage={backgroundImage}
+                                        svgContainerRef={svgContainerRef} 
+                                        startDrag={startDrag}
+                                        onDrag={onDrag} 
+                                        stopDrag={stopDrag}
+                                        svgPosition={svgPosition}
+                                        applyLayerStyles={applyLayerStyles}
+                                        selectedSvg={selectedSvg}
+                                        selectedLayers={selectedLayers} />
                          
 
                             {/* Timeline and Play/Pause Button */}
@@ -206,11 +198,11 @@ import TimeLine from "./timeLine";
                                         timelineRef={timelineRef}
                                         playheadPosition={playheadPosition}
                                         slideForTimeline={slideForTimeline}
-                           
+                                        // playWalkingAnimation={playWalkingAnimation}
+                                        svgContainerRef={svgContainerRef} 
                            />
 
                         </div>
-                    </>
                 ) : (
                     <p>Select an SVG to preview it here.</p>
                 )}

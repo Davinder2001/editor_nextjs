@@ -65,17 +65,17 @@ const Page: React.FC = () => {
     }
 
     // Select specific elements for animation
-    const leftHand = svgElement.querySelector("#hand-details-back");
-    const rightHand = svgElement.querySelector("#hand-details-front");
+    const leftHand    =   svgElement.querySelector("#hand-details-back");
+    const rightHand   =   svgElement.querySelector("#hand-details-front");
 
-    const leftLeg = svgElement.querySelector("#pant-back-details");
-    const rightLeg = svgElement.querySelector("#pant-front-details");
+    const leftLeg     =   svgElement.querySelector("#pant-back-details");
+    const rightLeg    =   svgElement.querySelector("#pant-front-details");
 
-    const legFront = svgElement.querySelector("#leg-front");
-    const legBack = svgElement.querySelector("#leg-back");
+    const legFront    =   svgElement.querySelector("#leg-front");
+    const legBack     =   svgElement.querySelector("#leg-back");
 
-    const footFront = svgElement.querySelector("#shoe-front");
-    const footBack = svgElement.querySelector("#shoe-back");
+    const footFront   =   svgElement.querySelector("#shoe-front");
+    const footBack    =   svgElement.querySelector("#shoe-back");
 
 
     // Log warnings if specific elements are missing
@@ -281,9 +281,7 @@ const Page: React.FC = () => {
     setAddSlideRimeline(getSlideToTimeline); // Update state with the selected SVG value
 
   } 
-  const playWalkingAnimation = () => {
-    wlkingAnimationPlay();
-} 
+ 
 
 
 
@@ -371,7 +369,7 @@ const Page: React.FC = () => {
                       selectedLayers={selectedLayers}
                       handleLayerClick={handleLayerClick}
                        /> */}
-                <Animations playWalkingAnimation={playWalkingAnimation} />
+                <Animations playWalkingAnimation={ wlkingAnimationPlay} />
             </div>
           </div>
         </div>
@@ -393,6 +391,7 @@ const Page: React.FC = () => {
           playAnimation={playAnimation}
           pauseAnimation={pauseAnimation}
           slideForTimeline={slideForTimeline}
+          playWalkingAnimation={ wlkingAnimationPlay}
         />
       </div>
     </div>

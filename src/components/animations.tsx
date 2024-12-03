@@ -4,12 +4,22 @@ interface PreviewProps {
 }
 
 const Animations = ({playWalkingAnimation}: PreviewProps) => {
-  return (
+  return (<>
     <button className=''
     style={{ marginBottom: "10px", padding: '10px', width: '100%' }}
     onClick={playWalkingAnimation}
     >
-         Walking Animation</button>
+         Walking</button>
+
+         <button className=''
+         style={{ marginBottom: "10px", padding: '10px', width: '100%' }}>
+            Sitting
+         </button>
+         <button className=''
+         style={{ marginBottom: "10px", padding: '10px', width: '100%' }}>
+            Jumping
+         </button>
+             </>
   )
 }
 

@@ -1,14 +1,34 @@
-import React from 'react'
+import React, { useState } from 'react';
 
 interface PreviewProps {
   play: () => void;
   pause: () => void;
-  timelineRef: React.RefObject<HTMLDivElement>; // Update timelineRef type to be a ref object
+  timelineRef: React.RefObject<HTMLDivElement>;
   playheadPosition: number;
-  slideForTimeline: string; // Make sure slideForTimeline is a string type for SVG markup
+  slideForTimeline: string; // SVG markup
+  svgContainerRef: () => any;
 }
 
-const TimeLine = ({ play, pause, timelineRef, playheadPosition, slideForTimeline }: PreviewProps) => {
+const TimeLine = ({ play, pause, timelineRef, playheadPosition, slideForTimeline, svgContainerRef }: PreviewProps) => {
+  const [isSelected, setIsSelected] = useState<boolean>(false);
+  const [selectedSvg, setSelectedSvg] = useState<string | null>(null);
+
+  const handleSvgClick = () => {
+    setIsSelected(!isSelected);
+    setSelectedSvg(isSelected ? null : slideForTimeline); // Capture or deselect the SVG
+  };
+console.log(selectedSvg)
+//   const handlePerformTask = () => {
+//     if (selectedSvg) {
+//       // Perform some task with the selected SVG
+//       console.log("Performing a task with the selected SVG:", selectedSvg);
+//       playWalkingAnimation()
+//       // Add any additional functionality here as needed
+//     } else {
+//       console.log("No SVG selected");
+//     }
+//   };
+
   return (
     <>
       <div
@@ -25,18 +45,31 @@ const TimeLine = ({ play, pause, timelineRef, playheadPosition, slideForTimeline
         <button onClick={pause} style={{ marginBottom: "10px" }}>
           Pause
         </button>
-        <div className="svg-container-for-timeline">
+
+        {/* SVG Preview */}
+        <div className="svg-container-for-timeline"
+         ref={svgContainerRef}
+         >
           {slideForTimeline ? (
             <div
+              onClick={handleSvgClick}
               dangerouslySetInnerHTML={{
                 __html: slideForTimeline,
               }}
-              style={{ maxHeight: "600px" }}
+              style={{
+                maxHeight: "600px",
+                border: isSelected ? "2px solid blue" : "1px solid #ccc",
+                cursor: "pointer",
+              }}
             />
           ) : (
-            <p>No SVG available</p> // Optional: Handle cases where slideForTimeline is empty
+            <p>No SVG available</p>
           )}
         </div>
+
+      
+
+        {/* Timeline */}
         <div
           className="timeline-test"
           ref={timelineRef}
@@ -60,7 +93,7 @@ const TimeLine = ({ play, pause, timelineRef, playheadPosition, slideForTimeline
         </div>
       </div>
     </>
-  )
-}
+  );
+};
 
 export default TimeLine;
