@@ -48,11 +48,11 @@ const Page: React.FC = () => {
   }, []);
 
 
-  const animate = (timestamp: number) => {
+const animate = (timestamp: number) => {
     if (startTime === null) {
       setStartTime(timestamp);
     }
-    const elapsedTime = timestamp - (startTime ?? 10);
+    const elapsedTime = timestamp - (startTime ?? 60);
     // console.log('Start time', startTime)
 
     if (elapsedTime >= animationDuration) {
@@ -60,7 +60,7 @@ const Page: React.FC = () => {
       return;
     }
 
-    if (isPaused) return; 
+    if (isPaused) return; // Stop if paused
 
     // Ensure the SVG container exists
     const svgElement = svgContainerRef.current?.querySelector("svg");
@@ -104,8 +104,7 @@ const Page: React.FC = () => {
     const footFrontSwing = Math.cos(progress * 2 * Math.PI) * 20;
     const footBackSwing = Math.cos(progress * 2 * Math.PI) * 20;
 
-    // Apply transforms
-    // Hand Rotate
+
     leftHand.setAttribute("transform", `rotate(${handSwing} 920 400)`);
     rightHand.setAttribute("transform", `rotate(${-handSwing} 960 400)`);
 
@@ -126,9 +125,10 @@ const Page: React.FC = () => {
   };
 
 
+
   const wlkingAnimationPlay = () => {
-    const userDuration = parseInt(durationInputRef.current?.value || "5");
-    setAnimationDuration(userDuration * 1000); // Update duration
+    const userDuration = 60;
+    setAnimationDuration(userDuration * 1000);  
     console.log("Walking trigger", animate)
     animationFrameId.current = requestAnimationFrame(animate);
   }
@@ -136,12 +136,12 @@ const Page: React.FC = () => {
 
 
   const playAnimation = () => {
-    const userDuration = parseInt(durationInputRef.current?.value || "5");
+    const userDuration = 60;
 
     if (userDuration && userDuration > 0) {
-      setAnimationDuration(userDuration * 1000); // Update duration
+      setAnimationDuration(userDuration * 1000); 
     } else {
-      setAnimationDuration(10000); // Default duration
+      setAnimationDuration(10000); 
     }
 
     if (isPaused && pausedTime !== null) {
@@ -301,7 +301,7 @@ const Page: React.FC = () => {
   // } 
   const addSlideToTimeline = () => {
     const getSlideToTimeline = selectedSvg;
-    setAddSlideRimeline((prevSlides) => [...prevSlides, getSlideToTimeline]); // Add new slide while keeping existing ones
+    setAddSlideRimeline((prevSlides) => [...prevSlides, getSlideToTimeline]); 
   };
 
 
@@ -361,8 +361,8 @@ const Page: React.FC = () => {
                     }}
                   />
 
-                  {/* Buttons: Add Slide and Delete */}
-                  <div>
+                
+<div className="add-and-delete-buttons">
                     <button
                       onClick={() => addSlideToTimeline(svg)}  
                       style={{

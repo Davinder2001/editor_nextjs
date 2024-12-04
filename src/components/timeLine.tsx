@@ -6,9 +6,8 @@ interface PreviewProps {
   playheadPosition: number;
   slideForTimeline: string[];
   selectedSvg: string | null;
-  selectedSvgIndex: number;
+  selectedSvgIndex: number | null;
   handleSvgClick: (svg: string, index: number) => void;
-  playWalkingAnimation: () => void;
 }
 
 const TimeLine = ({
@@ -21,8 +20,7 @@ const TimeLine = ({
   handleSvgClick,
 }: PreviewProps) => {
 
-  console.log(`selectedSvgIndex in timeline`)
-  console.log(selectedSvgIndex)
+   
   return (
     <div
       style={{
@@ -51,9 +49,9 @@ const TimeLine = ({
                 cursor: "pointer",
                 marginBottom: "10px",
               }}
-              // Apply the "active" class to the selected SVG
+            
               className={selectedSvgIndex === index + 100 ? "active" : ""}
-              onClick={() => handleSvgClick(svg, index + 100,)} // Update the selected index
+              onClick={() => handleSvgClick(svg, index + 100)}  
             />
           ))
         ) : (

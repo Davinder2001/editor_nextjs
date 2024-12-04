@@ -1,6 +1,12 @@
 /* Main container css */
 .active {
-  border: 1px solid red!important;
+  border: 1px solid green!important;
+}
+.add-and-delete-buttons {
+  display: none;
+}
+.active .add-and-delete-buttons{
+  display: block !important;
 }
 .container{
   max-width: 1400px;

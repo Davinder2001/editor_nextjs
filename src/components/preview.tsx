@@ -207,7 +207,7 @@ import TimeLine from "./timeLine";
                                         timelineRef={timelineRef}
                                         playheadPosition={playheadPosition}
                                         slideForTimeline={slideForTimeline}
-                                        playWalkingAnimation={playWalkingAnimation}
+                                        // playWalkingAnimation={playWalkingAnimation}
                                         svgContainerRefs={svgContainerRefs} 
                                         selectedSvg={selectedSvg}
                                         selectedSvgIndex={selectedSvgIndex}
