@@ -21,6 +21,8 @@ import TimeLine from "./timeLine";
         durationInputRef : any;
         slideForTimeline : any;
         playWalkingAnimation: () => void;
+        selectedSvgIndex:number,
+        
     }
 
     function Preview({
@@ -41,8 +43,12 @@ import TimeLine from "./timeLine";
         // pauseAnimation,
         slideForTimeline,
         playWalkingAnimation,
-        svgContainerRefs
+        svgContainerRefs,
+        selectedSvgIndex,
+        handleSvgClick,
     }: PreviewProps) {
+        console.log(`selectedSvgIndex in preview`)
+        console.log(selectedSvgIndex)
         const [svgPosition, setSvgPosition] = useState({ x: 0, y: 0 });
         const [tracks, setTracks] = useState([
             { id: "track1", name: "Layer 1", startTime: 10, endTime: 40 },
@@ -201,8 +207,11 @@ import TimeLine from "./timeLine";
                                         timelineRef={timelineRef}
                                         playheadPosition={playheadPosition}
                                         slideForTimeline={slideForTimeline}
-                                        // playWalkingAnimation={playWalkingAnimation}
+                                        playWalkingAnimation={playWalkingAnimation}
                                         svgContainerRefs={svgContainerRefs} 
+                                        selectedSvg={selectedSvg}
+                                        selectedSvgIndex={selectedSvgIndex}
+                                        handleSvgClick={handleSvgClick}
                            />
 
                         </div>

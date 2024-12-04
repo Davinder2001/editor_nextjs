@@ -1,22 +1,28 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 interface PreviewProps {
   play: () => void;
   pause: () => void;
   playheadPosition: number;
-  slideForTimeline: string[]; // Array of SVG strings
+  slideForTimeline: string[];
+  selectedSvg: string | null;
+  selectedSvgIndex: number;
+  handleSvgClick: (svg: string, index: number) => void;
+  playWalkingAnimation: () => void;
 }
 
-const TimeLine = ({ play, pause, playheadPosition, slideForTimeline }: PreviewProps) => {
-  const [selectedSvgIndex, setSelectedSvgIndex] = useState<number | null>(null); // Store only one selected index, or null if none selected
+const TimeLine = ({
+  play,
+  pause,
+  playheadPosition,
+  slideForTimeline,
+  selectedSvg,
+  selectedSvgIndex,
+  handleSvgClick,
+}: PreviewProps) => {
 
-  const handleSvgClick = (index: number) => {
-    // Set the clicked index as the only selected index
-    setSelectedSvgIndex(prev => (prev === index ? null : index)); // Deselect if clicked again, else select
-  };
-
-  console.log('Selected SVG index:', selectedSvgIndex); // Log the selected index
-
+  console.log(`selectedSvgIndex in timeline`)
+  console.log(selectedSvgIndex)
   return (
     <div
       style={{
@@ -39,16 +45,15 @@ const TimeLine = ({ play, pause, playheadPosition, slideForTimeline }: PreviewPr
           slideForTimeline.map((svg, index) => (
             <div
               key={index}
-              onClick={() => handleSvgClick(index)} // Pass the index of the SVG
-              dangerouslySetInnerHTML={{
-                __html: svg,
-              }}
+              dangerouslySetInnerHTML={{ __html: svg }}
               style={{
                 maxHeight: "600px",
-                border: selectedSvgIndex === index ? "2px solid blue" : "1px solid #ccc", // Check if this SVG index is selected
                 cursor: "pointer",
-                marginBottom: "10px", // Space between SVGs
+                marginBottom: "10px",
               }}
+              // Apply the "active" class to the selected SVG
+              className={selectedSvgIndex === index + 100 ? "active" : ""}
+              onClick={() => handleSvgClick(svg, index + 100,)} // Update the selected index
             />
           ))
         ) : (
@@ -56,7 +61,6 @@ const TimeLine = ({ play, pause, playheadPosition, slideForTimeline }: PreviewPr
         )}
       </div>
 
-      {/* Timeline */}
       <div
         className="timeline-test"
         style={{

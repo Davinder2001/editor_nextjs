@@ -1,5 +1,7 @@
 /* Main container css */
-
+.active {
+  border: 1px solid red!important;
+}
 .container{
   max-width: 1400px;
   margin: auto;
