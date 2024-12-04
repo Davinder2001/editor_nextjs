@@ -1,9 +1,10 @@
 import React from 'react'
 interface PreviewProps {
     playWalkingAnimation: () => void;
+    addAnimation: () => void;
 }
 
-const Animations = ({playWalkingAnimation}: PreviewProps) => {
+const Animations = ({playWalkingAnimation, addAnimation}: PreviewProps) => {
   return (<>
     <button className=''
     style={{ marginBottom: "10px", padding: '10px', width: '100%' }}
@@ -12,8 +13,10 @@ const Animations = ({playWalkingAnimation}: PreviewProps) => {
          Walking</button>
 
          <button className=''
-         style={{ marginBottom: "10px", padding: '10px', width: '100%' }}>
-            Sitting
+               style={{ marginBottom: "10px", padding: '10px', width: '100%' }}
+               onClick={addAnimation}
+               >
+               Add
          </button>
          <button className=''
          style={{ marginBottom: "10px", padding: '10px', width: '100%' }}>

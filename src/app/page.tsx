@@ -10,23 +10,25 @@ import React, { useState, useEffect, useRef } from "react";
 const Page: React.FC = () => {
   const [svgDataList, setSvgDataList] = useState<string[]>([]);
   const [selectedSvg, setSelectedSvg] = useState<string | null>(null);
-  const [slideForTimeline, setAddSlideRimeline] = useState<string | null>(null);
+  // const [slideForTimeline, setAddSlideRimeline] = useState<string | null>(null);
+  const [slideForTimeline, setAddSlideRimeline] = useState([]);  // Initial state is an empty array
   const [selectedLayers, setSelectedLayers] = useState<string[]>([]);
   const [backgroundImage, setBackgroundImage] = useState<string | null>(null);
-
   const [contextMenuPosition, setContextMenuPosition] = useState<{ x: number; y: number } | null>(null);
-
   const [animationDuration, setAnimationDuration] = useState(10000);
   const [isPaused, setIsPaused] = useState(false);
   const [startTime, setStartTime] = useState<number | null>(null); // Start time for animation, type updated
   const [pausedTime, setPausedTime] = useState<number | null>(null); // Paused time state with correct type
   const svgContainerRef = useRef<HTMLDivElement | null>(null); // Container for SVG content
+  const svgContainerRef2 = useRef<HTMLDivElement | null>(null); // Container for SVG content
   const durationInputRef = useRef<HTMLInputElement | null>(null);
+  // const durationInputRef2 = useRef<HTMLInputElement | null>(null);
   const animationFrameId = useRef<number | null>(null);
-
   const [currentTime, setCurrentTime] = useState(0); // Current time in seconds
   const [isPlaying, setIsPlaying] = useState(false); // Play/Pause state
   const timelineRef = useRef<HTMLDivElement | null>(null);
+  const svgContainerRefs = useRef<(HTMLDivElement | null)[]>([null, null, null, null]); // Array of refs for 4 containers
+
 
   useEffect(() => {
     const savedSVGs = localStorage.getItem("uploadedSVGs");
@@ -48,7 +50,6 @@ const Page: React.FC = () => {
       setStartTime(timestamp);
     }
     const elapsedTime = timestamp - (startTime ?? 10);
-    // console.log('Start time', startTime)
 
     if (elapsedTime >= animationDuration) {
       console.log("Animation completed.");
@@ -57,73 +58,66 @@ const Page: React.FC = () => {
 
     if (isPaused) return; // Stop if paused
 
-    // Ensure the SVG container exists
-    const svgElement = svgContainerRef.current?.querySelector("svg");
-    if (!svgElement) {
-      console.warn("SVG element not found in the container.");
-      return;
-    }
+    // Loop through all refs and apply animation logic to each SVG
+    svgContainerRefs.current.forEach((containerRef) => {
+      if (containerRef) {
+        const svgElement = containerRef.querySelector("svg");
 
-    // Select specific elements for animation
-    const leftHand    =   svgElement.querySelector("#hand-details-back");
-    const rightHand   =   svgElement.querySelector("#hand-details-front");
+        if (!svgElement) {
+          console.warn("SVG element not found in the container.");
+          return;
+        }
 
-    const leftLeg     =   svgElement.querySelector("#pant-back-details");
-    const rightLeg    =   svgElement.querySelector("#pant-front-details");
+        // Select specific elements for animation inside each SVG
+        const leftHand  = svgElement.querySelector("#hand-details-back");
+        const rightHand = svgElement.querySelector("#hand-details-front");
+        const leftLeg   = svgElement.querySelector("#pant-back-details");
+        const rightLeg  = svgElement.querySelector("#pant-front-details");
+        const legFront  = svgElement.querySelector("#leg-front");
+        const legBack   = svgElement.querySelector("#leg-back");
+        const footFront = svgElement.querySelector("#shoe-front");
+        const footBack  = svgElement.querySelector("#shoe-back");
 
-    const legFront    =   svgElement.querySelector("#leg-front");
-    const legBack     =   svgElement.querySelector("#leg-back");
+        // Log warnings if specific elements are missing
+        if (!leftHand || !rightHand || !leftLeg || !rightLeg || !legFront || !legBack || !footFront || !footBack) {
+          console.error("Some elements are missing in the SVG.");
+          return;
+        }
 
-    const footFront   =   svgElement.querySelector("#shoe-front");
-    const footBack    =   svgElement.querySelector("#shoe-back");
+        // Animation logic
+        const stepDuration  = 1500; // Duration of one animation cycle in ms
+        const elapsed       = elapsedTime % stepDuration;
+        const progress      = elapsed / stepDuration;
 
+        // Calculate swing values
+        const handSwing       = Math.sin(progress * 2 * Math.PI) * 20;  // Hand swing amplitude: 20 degrees
+        const legSwing        = Math.cos(progress * 2 * Math.PI) * 20;   // Leg swing amplitude: 20 degrees
+        const legFrontSwing   = Math.cos(progress * 2 * Math.PI) * 20; // Leg front swing amplitude: 20 degrees
+        const legBackSwing    = Math.cos(progress * 2 * Math.PI) * 20;  // Leg back swing amplitude: 20 degrees
+        const footFrontSwing  = Math.cos(progress * 2 * Math.PI) * 20; // Foot front swing amplitude: 20 degrees
+        const footBackSwing   = Math.cos(progress * 2 * Math.PI) * 20;  // Foot back swing amplitude: 20 degrees
 
-    // Log warnings if specific elements are missing
-    if (!leftHand || !rightHand || !leftLeg || !rightLeg || !legFront || !legBack || !footFront || !footBack) {
-      console.error("Some elements are missing in the SVG.");
-      return;
-    }
+        // Apply transforms to elements
+        leftHand.setAttribute("transform", `rotate(${handSwing} 920 400)`);
+        rightHand.setAttribute("transform", `rotate(${-handSwing} 960 400)`);
+        leftLeg.setAttribute("transform", `rotate(${legSwing} 1000 500)`);
+        rightLeg.setAttribute("transform", `rotate(${-legSwing} 1000 500)`);
+        legFront.setAttribute("transform", `rotate(${-legFrontSwing} 1000 500)`);
+        legBack.setAttribute("transform", `rotate(${legBackSwing} 1000 500)`);
+        footFront.setAttribute("transform", `rotate(${-footFrontSwing} 1000 500)`);
+        footBack.setAttribute("transform", `rotate(${footBackSwing} 1000 500)`);
+      }
+    });
 
-    // Animation logic
-    const stepDuration = 1500; // Duration of one animation cycle in ms
-    const elapsed = elapsedTime % stepDuration;
-    const progress = elapsed / stepDuration;
-
-    // Calculate swing values
-    const handSwing = Math.sin(progress * 2 * Math.PI) * 20;  // Hand swing amplitude: 20 degrees
-    const legSwing = Math.cos(progress * 2 * Math.PI) * 20;   // Leg swing amplitude: 20 degrees
-
-    const legFrontSwing = Math.cos(progress * 2 * Math.PI) * 20;   // Leg swing amplitude: 20 degrees
-    const legBackSwing = Math.cos(progress * 2 * Math.PI) * 20;   // Leg swing amplitude: 20 degrees
-
-    const footFrontSwing = Math.cos(progress * 2 * Math.PI) * 20;
-    const footBackSwing = Math.cos(progress * 2 * Math.PI) * 20;
-
-    // Apply transforms
-    // Hand Rotate
-    leftHand.setAttribute("transform", `rotate(${handSwing} 920 400)`);
-    rightHand.setAttribute("transform", `rotate(${-handSwing} 960 400)`);
-
-    // Leg rotate
-    leftLeg.setAttribute("transform", `rotate(${legSwing} 1000 500)`);
-    rightLeg.setAttribute("transform", `rotate(${-legSwing} 1000 500)`);
-
-    // Rotate
-    legFront.setAttribute("transform", `rotate(${-legFrontSwing} 1000 500)`);
-    legBack.setAttribute("transform", `rotate(${legBackSwing} 1000 500)`);
-
-    // Feet rotate
-    footFront.setAttribute("transform", `rotate(${-footFrontSwing} 1000 500)`);
-    footBack.setAttribute("transform", `rotate(${footBackSwing} 1000 500)`);
-
-    // Request next frame
-    animationFrameId.current = requestAnimationFrame(animate);
+    // Request the next frame of the animation
+    requestAnimationFrame(animate);
   };
 
 
   const wlkingAnimationPlay = () =>{
     const userDuration = parseInt(durationInputRef.current?.value || "5");
     setAnimationDuration(userDuration * 1000); // Update duration
+    console.log("Walking trigger", animate)
     animationFrameId.current = requestAnimationFrame(animate);
   }
 
@@ -199,6 +193,14 @@ const Page: React.FC = () => {
     }
   };
 
+  const addAnimation = () => {
+    const targetElement = document.querySelector('.timeline-test');
+    if (targetElement) {
+      targetElement.classList.toggle('animation-class');
+      console.log('Animation added/removed on target element');
+    }
+  };
+  
 
   const handleSvgClick = (svg: string) => {
     setSelectedSvg(svg);
@@ -255,11 +257,11 @@ const Page: React.FC = () => {
 
 
 
-  const handleContextMenu = (e: React.MouseEvent, svg: string) => {
-    e.preventDefault();
-    setSelectedSvg(svg);
-    setContextMenuPosition({ x: e.clientX, y: e.clientY });
-  };
+  // const handleContextMenu = (e: React.MouseEvent, svg: string) => {
+  //   e.preventDefault();
+  //   setSelectedSvg(svg);
+  //   setContextMenuPosition({ x: e.clientX, y: e.clientY });
+  // };
 
   const handleDeleteSvg = () => {
     if (selectedSvg) {
@@ -275,12 +277,17 @@ const Page: React.FC = () => {
     }
     setContextMenuPosition(null); // Hide context menu
   };
+  // const addSlideToTimeline = () => {
+
+  //   const getSlideToTimeline = selectedSvg;
+  //   setAddSlideRimeline(getSlideToTimeline); // Update state with the selected SVG value
+
+  // } 
   const addSlideToTimeline = () => {
-
     const getSlideToTimeline = selectedSvg;
-    setAddSlideRimeline(getSlideToTimeline); // Update state with the selected SVG value
-
-  } 
+    setAddSlideRimeline((prevSlides) => [...prevSlides, getSlideToTimeline]); // Add new slide while keeping existing ones
+  };
+  
  
 
 
@@ -316,51 +323,61 @@ const Page: React.FC = () => {
             />
           </div>
           <div className="svg-thumb-container">
-            {svgDataList.length > 0 ? (
-              svgDataList.map((svg, index) => (
-                <div
-                  key={index}
-                  onClick={() => handleSvgClick(svg)}
-                  onContextMenu={(e) => handleContextMenu(e, svg)}
-                  dangerouslySetInnerHTML={{ __html: svg }}
-                  style={{
-                    height: "200px",
-                    border: "1px solid #ccc",
-                    marginBottom: "20px",
-                    cursor: "pointer",
-                  }}
-                  className={selectedSvg === svg ? "active" : ""}
-                />
-              ))
-            ) : (
-              <p>No SVGs uploaded yet.</p>
-            )}
-            {/* Context Menu */}
-            {contextMenuPosition && (
-              <div
-                className="context-menu"
-                style={{
-                  position: "absolute",
-                  top: `${contextMenuPosition.y}px`,
-                  left: `${contextMenuPosition.x}px`,
-                  background: "#fff",
-                  border: "1px solid #ccc",
-                  boxShadow: "0 0 5px rgba(0, 0, 0, 0.1)",
-                  zIndex: 10,
-                }}
-              >
-                <button onClick={handleDeleteSvg} style={{ padding: "8px 12px" }}>
-                  Delete SVG
-                </button>
-                <br></br>
-                <br></br>
-                <button style={{ padding: "8px 12px" }}
-                        onClick={addSlideToTimeline}>
-                  Add Slide
-                </button>
+                {svgDataList.length > 0 ? (
+                  svgDataList.map((svg, index) => (
+                    <div
+                      key={index}
+                      style={{
+                        position: "relative", // Make the container position relative for absolute positioning of buttons
+                        height: "200px",
+                        border: "1px solid #ccc",
+                        marginBottom: "20px",
+                        cursor: "pointer",
+                      }}
+                      className={selectedSvg === svg ? "active" : ""}
+                    >
+                      <div
+                        onClick={() => handleSvgClick(svg)}
+                        dangerouslySetInnerHTML={{ __html: svg }}
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                        }}
+                      />
+                      
+                      {/* Buttons: Add Slide and Delete */}
+                      <div>
+                        <button
+                          onClick={() => addSlideToTimeline(svg)} // Assuming addSlideToTimeline adds the SVG to timeline
+                          style={{
+                            padding: "5px 10px",
+                            backgroundColor: "#4CAF50", // Green for "Add Slide"
+                            color: "white",
+                            border: "none",
+                            cursor: "pointer",
+                          }}
+                        >
+                          Add Slide
+                        </button>
+                        <button
+                          onClick={() => handleDeleteSvg(svg)} // Assuming handleDeleteSvg removes the SVG
+                          style={{
+                            padding: "5px 10px",
+                            backgroundColor: "#f44336", // Red for "Delete"
+                            color: "white",
+                            border: "none",
+                            cursor: "pointer",
+                          }}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p>No SVGs uploaded yet.</p>
+                )}
               </div>
-            )}
-          </div>
           <div className="layers-prev-container">
             <h1 className="main-heading">Animations</h1>
             <div className="layersOuter">
@@ -369,7 +386,7 @@ const Page: React.FC = () => {
                       selectedLayers={selectedLayers}
                       handleLayerClick={handleLayerClick}
                        /> */}
-                <Animations playWalkingAnimation={ wlkingAnimationPlay} />
+                <Animations playWalkingAnimation={ wlkingAnimationPlay} addAnimation={addAnimation} />
             </div>
           </div>
         </div>
@@ -379,6 +396,7 @@ const Page: React.FC = () => {
           selectedSvg={selectedSvg}
           backgroundImage={backgroundImage}
           svgContainerRef={svgContainerRef}
+          svgContainerRef2={svgContainerRef2}
           setSelectedSvg={setSelectedSvg}
           setBackgroundImage={setBackgroundImage}
           isPlaying={isPlaying}
@@ -392,6 +410,8 @@ const Page: React.FC = () => {
           pauseAnimation={pauseAnimation}
           slideForTimeline={slideForTimeline}
           playWalkingAnimation={ wlkingAnimationPlay}
+          svgContainerRefs={svgContainerRefs}
+          addAnimation={addAnimation}
         />
       </div>
     </div>

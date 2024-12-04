@@ -6,7 +6,8 @@ import TimeLine from "./timeLine";
         setSvgDataList: any;
         selectedSvg: any;
         backgroundImage: any;
-        svgContainerRef: React.RefObject<HTMLInputElement> | any;
+        svgContainerRef: any;
+        svgContainerRef2: any;
         setSelectedSvg: any;
         setBackgroundImage: any;
         isPlaying: boolean;
@@ -27,6 +28,7 @@ import TimeLine from "./timeLine";
         selectedSvg,
         backgroundImage,
         svgContainerRef,
+        svgContainerRef2,
         setSelectedSvg,
         setBackgroundImage,
         isPlaying,
@@ -38,7 +40,8 @@ import TimeLine from "./timeLine";
         playAnimation,
         // pauseAnimation,
         slideForTimeline,
-        playWalkingAnimation
+        playWalkingAnimation,
+        svgContainerRefs
     }: PreviewProps) {
         const [svgPosition, setSvgPosition] = useState({ x: 0, y: 0 });
         const [tracks, setTracks] = useState([
@@ -193,13 +196,13 @@ import TimeLine from "./timeLine";
                          
 
                             {/* Timeline and Play/Pause Button */}
-                           <TimeLine    play={play}
+                                    <TimeLine    play={play}
                                         pause={pause}
                                         timelineRef={timelineRef}
                                         playheadPosition={playheadPosition}
                                         slideForTimeline={slideForTimeline}
                                         // playWalkingAnimation={playWalkingAnimation}
-                                        svgContainerRef={svgContainerRef} 
+                                        svgContainerRefs={svgContainerRefs} 
                            />
 
                         </div>
