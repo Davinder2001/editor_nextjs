@@ -7,6 +7,7 @@
 }
 .active .add-and-delete-buttons{
   display: block !important;
+  border: 1px solid green;
 }
 .container{
   max-width: 1400px;
@@ -17,23 +18,37 @@
   height: 100%;
   width: 100%;
 }
-.layers-prev-container button {
+.layers-container button {
   text-transform: capitalize;
+  border: 2px solid black;
+  font-size: 15px;
 }
 .right-side-inner svg {
   height: 100%;
   width: 100%;
 }
+
+.play-and-pause-btn{
+  font-size: 35px;
+}
+
+.layers-container > h1 {
+  text-align: center;
+}
+
 .frame-container{
   display: flex;
   gap: 10px;
   /* grid-template-columns: 1fr 4fr 1fr; */
 }
 .right-side {
-  width: 80%;
+  width: 60%;
 }
 
 .left-side {
+  width: 20%;
+}
+.leayrs-container{
   width: 20%;
 }
 

@@ -8,7 +8,8 @@ interface PreviewProps {
 
 const Layers = ({selectedSvg, parseSvgLayers, selectedLayers, handleLayerClick }) => {
   return (
-   <>
+   <div className="layers-container">
+   <h1>Layers</h1>
     <ul>
               {selectedSvg && parseSvgLayers(selectedSvg).map((layer) => (
                 <li key={layer.id}>
@@ -54,7 +55,7 @@ const Layers = ({selectedSvg, parseSvgLayers, selectedLayers, handleLayerClick }
                 </li>
               ))}
             </ul>
-   </>
+   </div>
   )
 }
 

@@ -1,6 +1,7 @@
 'use client';
 
 import Animations from "@/components/animations";
+import Layers from "@/components/layers";
 // import Layers from "@/components/layers";
 import Preview from "@/components/preview";
 
@@ -46,6 +47,29 @@ const Page: React.FC = () => {
       setBackgroundImage(savedBackground);
     }
   }, []);
+
+  const parseSvgLayers = (svg: string) => {
+    const parser = new DOMParser();
+    const svgDoc = parser.parseFromString(svg, "image/svg+xml");
+
+    const getLayers = svgDoc.documentElement.querySelectorAll(":scope > g");
+
+    const layersWithChildren = Array.from(getLayers).map((layer, index) => {
+      return {
+          index: index, // Index of the layer
+          id: layer.id || `Layer ${index}`, // Name of the layer
+          children: Array.from(layer.children) // Array of children for this layer
+      };
+  });
+
+    return layersWithChildren;
+  };
+
+  
+  const handleLayerClick = (layerId: string) => {
+    setSelectedLayers([layerId]); // Select only the clicked layer
+  };
+
 
 
 const animate = (timestamp: number) => {
@@ -347,7 +371,7 @@ const animate = (timestamp: number) => {
                     position: "relative",
                     height: "200px",
                     border: "1px solid #ccc",
-                    marginBottom: "20px",
+                    marginBottom: "50px",
                     cursor: "pointer",
                   }}
                   className={ selectedSvgIndex ===index ? "active" : ""}
@@ -366,11 +390,12 @@ const animate = (timestamp: number) => {
                     <button
                       onClick={() => addSlideToTimeline(svg)}  
                       style={{
-                        padding: "5px 10px",
+                        padding: "12px 10px",
                         backgroundColor: "#4CAF50", // Green for "Add Slide"
                         color: "white",
                         border: "none",
                         cursor: "pointer",
+                        width: "50%"
                       }}
                     >
                       Add Slide
@@ -378,11 +403,12 @@ const animate = (timestamp: number) => {
                     <button
                       onClick={() => handleDeleteSvg(svg)} // Delete SVG
                       style={{
-                        padding: "5px 10px",
+                        padding: "12px 10px",
                         backgroundColor: "#f44336", // Red for "Delete"
                         color: "white",
                         border: "none",
                         cursor: "pointer",
+                        width: "50%"
                       }}
                     >
                       Delete
@@ -406,7 +432,7 @@ const animate = (timestamp: number) => {
             </div>
           </div>
         </div>
-
+        <div className="right-side">
         <Preview
           setSvgDataList={setSvgDataList}
           selectedSvg={selectedSvg}
@@ -432,6 +458,15 @@ const animate = (timestamp: number) => {
           selectedSvgIndex={selectedSvgIndex}
 
         />
+        
+      </div>
+      <div className="leayrs-container">
+           <Layers selectedSvg={selectedSvg}
+                      parseSvgLayers={parseSvgLayers}
+                      selectedLayers={selectedLayers}
+                      handleLayerClick={handleLayerClick}
+                       /> 
+      </div>
       </div>
     </div>
   );

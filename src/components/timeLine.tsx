@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { FaPlay, FaPause } from 'react-icons/fa';
 
 interface PreviewProps {
   play: () => void;
@@ -19,8 +20,17 @@ const TimeLine = ({
   selectedSvgIndex,
   handleSvgClick,
 }: PreviewProps) => {
+  const [isPlaying, setIsPlaying] = useState(false);
 
-   
+  const handlePlayPause = () => {
+    if (isPlaying) {
+      pause();
+    } else {
+      play();
+    }
+    setIsPlaying(!isPlaying);
+  };
+
   return (
     <div
       style={{
@@ -30,11 +40,8 @@ const TimeLine = ({
         marginTop: "20px",
       }}
     >
-      <button onClick={play} style={{ marginBottom: "10px" }}>
-        Play Animation
-      </button>
-      <button onClick={pause} style={{ marginBottom: "10px" }}>
-        Pause
+      <button className='play-and-pause-btn' onClick={handlePlayPause} style={{ marginBottom: "10px" }}>
+        {isPlaying ? <FaPause /> : <FaPlay />}
       </button>
 
       {/* SVG Preview */}
@@ -49,9 +56,8 @@ const TimeLine = ({
                 cursor: "pointer",
                 marginBottom: "10px",
               }}
-            
               className={selectedSvgIndex === index + 100 ? "active" : ""}
-              onClick={() => handleSvgClick(svg, index + 100)}  
+              onClick={() => handleSvgClick(svg, index + 100)}
             />
           ))
         ) : (

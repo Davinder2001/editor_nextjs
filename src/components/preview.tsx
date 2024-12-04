@@ -188,7 +188,7 @@ import TimeLine from "./timeLine";
             <>
                 {selectedSvg ? (
                   
-                        <div className="right-side">
+                    <>
                             <h1 className="main-heading">Preview</h1>
                         <SvgPreviewMain backgroundImage={backgroundImage}
                                         svgContainerRef={svgContainerRef} 
@@ -214,7 +214,8 @@ import TimeLine from "./timeLine";
                                         handleSvgClick={handleSvgClick}
                            />
 
-                        </div>
+                       
+                                        </>
                 ) : (
                     <p>Select an SVG to preview it here.</p>
                 )}
