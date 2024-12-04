@@ -39,6 +39,7 @@ const TimeLine = ({
         alignItems: "center",
         marginTop: "20px",
       }}
+      className='timeline-main-container'
     >
       <button className='play-and-pause-btn' onClick={handlePlayPause} style={{ marginBottom: "10px" }}>
         {isPlaying ? <FaPause /> : <FaPlay />}
@@ -73,6 +74,7 @@ const TimeLine = ({
           background: "#ccc",
           position: "relative",
           cursor: "pointer",
+          display: 'none'
         }}
       >
         <div

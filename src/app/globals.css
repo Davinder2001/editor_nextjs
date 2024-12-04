@@ -20,7 +20,8 @@
 }
 .layers-container button {
   text-transform: capitalize;
-  border: 2px solid black;
+  border: none;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2); 
   font-size: 15px;
 }
 .right-side-inner svg {
@@ -79,6 +80,13 @@
 
   .svg-container-for-timeline svg {
     width: 200px;
+  }
+  .svg-container-for-timeline {
+    display: flex;
+    background-color: rgb(201 199 199);
+    width: 95%;
+    justify-content: center;
+    padding: 20px;
   }
 
   .choose_file-container input[type="file"] {

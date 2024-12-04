@@ -18,7 +18,7 @@ const Layers = ({selectedSvg, parseSvgLayers, selectedLayers, handleLayerClick }
                     onClick={() => handleLayerClick(layer.id)}
                     style={{
                       background: selectedLayers.includes(layer.id) ? "lightblue" : "transparent",
-                      padding: "8px",
+                      padding: "12px",
                       cursor: "pointer",
                       margin: "4px 0",
                       width: "100%",

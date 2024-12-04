@@ -77,7 +77,7 @@ const animate = (timestamp: number) => {
       setStartTime(timestamp);
     }
     const elapsedTime = timestamp - (startTime ?? 60);
-    // console.log('Start time', startTime)
+    
 
     if (elapsedTime >= animationDuration) {
       console.log("Animation completed.");
@@ -151,15 +151,14 @@ const animate = (timestamp: number) => {
 
 
   const wlkingAnimationPlay = () => {
-    const userDuration = 60;
-    setAnimationDuration(userDuration * 1000);  
-    console.log("Walking trigger", animate)
+    console.log("Walking trigger")
     animationFrameId.current = requestAnimationFrame(animate);
   }
 
 
 
   const playAnimation = () => {
+    // console.log('Play animation is triggerd')
     const userDuration = 60;
 
     if (userDuration && userDuration > 0) {
@@ -245,8 +244,8 @@ const animate = (timestamp: number) => {
   };
 
 
-  console.log(`selectedSvgIndex in left and timeline`)
-  console.log(selectedSvgIndex)
+  // console.log(`selectedSvgIndex in left and timeline`)
+  // console.log(selectedSvgIndex)
 
   // const handleLayerClick = (layerId: string) => {
   //   setSelectedLayers([layerId]); // Select only the clicked layer

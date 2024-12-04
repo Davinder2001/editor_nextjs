@@ -47,8 +47,8 @@ import TimeLine from "./timeLine";
         selectedSvgIndex,
         handleSvgClick,
     }: PreviewProps) {
-        console.log(`selectedSvgIndex in preview`)
-        console.log(selectedSvgIndex)
+        // console.log(`selectedSvgIndex in preview`)
+        // console.log(selectedSvgIndex)
         const [svgPosition, setSvgPosition] = useState({ x: 0, y: 0 });
         const [tracks, setTracks] = useState([
             { id: "track1", name: "Layer 1", startTime: 10, endTime: 40 },
