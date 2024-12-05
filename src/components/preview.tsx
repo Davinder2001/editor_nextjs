@@ -202,8 +202,8 @@ import TimeLine from "./timeLine";
                          
 
                             {/* Timeline and Play/Pause Button */}
-                                    <TimeLine    play={play}
-                                        pause={pause}
+                                    <TimeLine    
+                                    
                                         timelineRef={timelineRef}
                                         playheadPosition={playheadPosition}
                                         slideForTimeline={slideForTimeline}
@@ -212,6 +212,8 @@ import TimeLine from "./timeLine";
                                         selectedSvg={selectedSvg}
                                         selectedSvgIndex={selectedSvgIndex}
                                         handleSvgClick={handleSvgClick}
+                                        togglePlayPause={togglePlayPause}  
+                                        isPlaying={isPlaying}
                            />
 
                        

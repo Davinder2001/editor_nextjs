@@ -4,6 +4,7 @@ import Animations from "@/components/animations";
 import Layers from "@/components/layers";
 // import Layers from "@/components/layers";
 import Preview from "@/components/preview";
+import { TIME_LINE } from "@/utils/animationsType";
 
 // import SelectSvg from "@/components/selectSvg";
 import React, { useState, useEffect, useRef } from "react";
@@ -16,7 +17,7 @@ const Page: React.FC = () => {
   const [selectedLayers, setSelectedLayers] = useState<string[]>([]);
   const [backgroundImage, setBackgroundImage] = useState<string | null>(null);
   const [contextMenuPosition, setContextMenuPosition] = useState<{ x: number; y: number } | null>(null);
-  const [animationDuration, setAnimationDuration] = useState(10000);
+  const [animationDuration, setAnimationDuration] = useState(TIME_LINE);
   const [isPaused, setIsPaused] = useState(false);
   const [startTime, setStartTime] = useState<number | null>(null); // Start time for animation, type updated
   const [pausedTime, setPausedTime] = useState<number | null>(null); // Paused time state with correct type
@@ -30,6 +31,7 @@ const Page: React.FC = () => {
   const timelineRef = useRef<HTMLDivElement | null>(null);
   const svgContainerRefs = useRef<(HTMLDivElement | null)[]>([null, null, null, null]); // Array of refs for 4 containers
   const [selectedSvgIndex, setSelectedSvgIndex] = useState<number>(0); // Store selected index
+  
 
 
 
@@ -76,7 +78,7 @@ const animate = (timestamp: number) => {
     if (startTime === null) {
       setStartTime(timestamp);
     }
-    const elapsedTime = timestamp - (startTime ?? 60);
+    const elapsedTime = timestamp - (startTime ?? 3);
     
 
     if (elapsedTime >= animationDuration) {
@@ -84,7 +86,7 @@ const animate = (timestamp: number) => {
       return;
     }
 
-    if (isPaused) return; // Stop if paused
+    if (isPaused) return;  
 
     // Ensure the SVG container exists
     const svgElement = svgContainerRef.current?.querySelector("svg");
@@ -114,7 +116,7 @@ const animate = (timestamp: number) => {
     }
 
     // Animation logic
-    const stepDuration = 1500; // Duration of one animation cycle in ms
+    const stepDuration = 1000; 
     const elapsed = elapsedTime % stepDuration;
     const progress = elapsed / stepDuration;
 
@@ -151,7 +153,6 @@ const animate = (timestamp: number) => {
 
 
   const wlkingAnimationPlay = () => {
-    console.log("Walking trigger")
     animationFrameId.current = requestAnimationFrame(animate);
   }
 
@@ -159,7 +160,7 @@ const animate = (timestamp: number) => {
 
   const playAnimation = () => {
     // console.log('Play animation is triggerd')
-    const userDuration = 60;
+    const userDuration = 30;
 
     if (userDuration && userDuration > 0) {
       setAnimationDuration(userDuration * 1000); 
