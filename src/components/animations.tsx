@@ -1,28 +1,30 @@
 import React from 'react'
 interface PreviewProps {
-    playWalkingAnimation: () => void;
-    addAnimation: () => void;
+  playWalkingAnimation: () => void;
+  addAnimation: () => void;
+  handleWalkingAnimation: () => void;
 }
 
-const Animations = ({playWalkingAnimation, addAnimation}: PreviewProps) => {
+const Animations = ({ addAnimation,handleWalkingAnimation }: PreviewProps) => {
   return (<>
     <button className=''
-    style={{ marginBottom: "10px", padding: '10px', width: '100%' }}
-    onClick={playWalkingAnimation}
+      style={{ marginBottom: "10px", padding: '10px', width: '100%' }}
+      onClick={()=>{handleWalkingAnimation()}}
     >
-         Walking</button>
+      Walking
+      </button>
 
-         <button className=''
-               style={{ marginBottom: "10px", padding: '10px', width: '100%' }}
-               onClick={addAnimation}
-               >
-               Add
-         </button>
-         <button className=''
-         style={{ marginBottom: "10px", padding: '10px', width: '100%' }}>
-            Jumping
-         </button>
-             </>
+    <button className=''
+      style={{ marginBottom: "10px", padding: '10px', width: '100%' }}
+      onClick={addAnimation}
+    >
+      Add
+    </button>
+    <button className=''
+      style={{ marginBottom: "10px", padding: '10px', width: '100%' }}>
+      Jumping
+    </button>
+  </>
   )
 }
 

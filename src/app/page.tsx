@@ -4,7 +4,7 @@ import Animations from "@/components/animations";
 import Layers from "@/components/layers";
 // import Layers from "@/components/layers";
 import Preview from "@/components/preview";
-import { TIME_LINE } from "@/utils/animationsType";
+import { ANIMATION_TIME_LINE, WALKING } from "@/utils/animationsType";
 
 // import SelectSvg from "@/components/selectSvg";
 import React, { useState, useEffect, useRef } from "react";
@@ -13,11 +13,11 @@ const Page: React.FC = () => {
   const [svgDataList, setSvgDataList] = useState<string[]>([]);
   const [selectedSvg, setSelectedSvg] = useState<string | null>(null);
   // const [slideForTimeline, setAddSlideRimeline] = useState<string | null>(null);
-  const [slideForTimeline, setAddSlideRimeline] = useState([]);  // Initial state is an empty array
+  const [slideForTimeline, setAddSlideRimeline] = useState<{ svg: string, animationType: string | null }[]>([]);
   const [selectedLayers, setSelectedLayers] = useState<string[]>([]);
   const [backgroundImage, setBackgroundImage] = useState<string | null>(null);
   const [contextMenuPosition, setContextMenuPosition] = useState<{ x: number; y: number } | null>(null);
-  const [animationDuration, setAnimationDuration] = useState(TIME_LINE);
+  const [animationDuration, setAnimationDuration] = useState(ANIMATION_TIME_LINE);
   const [isPaused, setIsPaused] = useState(false);
   const [startTime, setStartTime] = useState<number | null>(null); // Start time for animation, type updated
   const [pausedTime, setPausedTime] = useState<number | null>(null); // Paused time state with correct type
@@ -31,6 +31,17 @@ const Page: React.FC = () => {
   const timelineRef = useRef<HTMLDivElement | null>(null);
   const svgContainerRefs = useRef<(HTMLDivElement | null)[]>([null, null, null, null]); // Array of refs for 4 containers
   const [selectedSvgIndex, setSelectedSvgIndex] = useState<number>(0); // Store selected index
+  
+
+
+  console.log(`animationDuration`)
+  console.log(animationDuration)
+  
+    
+
+
+ 
+ 
   
 
 
@@ -58,35 +69,35 @@ const Page: React.FC = () => {
 
     const layersWithChildren = Array.from(getLayers).map((layer, index) => {
       return {
-          index: index, // Index of the layer
-          id: layer.id || `Layer ${index}`, // Name of the layer
-          children: Array.from(layer.children) // Array of children for this layer
+        index: index, // Index of the layer
+        id: layer.id || `Layer ${index}`, // Name of the layer
+        children: Array.from(layer.children) // Array of children for this layer
       };
-  });
+    });
 
     return layersWithChildren;
   };
 
-  
+
   const handleLayerClick = (layerId: string) => {
     setSelectedLayers([layerId]); // Select only the clicked layer
   };
 
 
 
-const animate = (timestamp: number) => {
+  const animate = (timestamp: number) => {
     if (startTime === null) {
       setStartTime(timestamp);
     }
     const elapsedTime = timestamp - (startTime ?? 3);
-    
+
 
     if (elapsedTime >= animationDuration) {
       console.log("Animation completed.");
       return;
     }
 
-    if (isPaused) return;  
+    if (isPaused) return;
 
     // Ensure the SVG container exists
     const svgElement = svgContainerRef.current?.querySelector("svg");
@@ -116,7 +127,7 @@ const animate = (timestamp: number) => {
     }
 
     // Animation logic
-    const stepDuration = 1000; 
+    const stepDuration = 1000;
     const elapsed = elapsedTime % stepDuration;
     const progress = elapsed / stepDuration;
 
@@ -153,8 +164,12 @@ const animate = (timestamp: number) => {
 
 
   const wlkingAnimationPlay = () => {
+    if (animationFrameId.current) {
+      cancelAnimationFrame(animationFrameId.current);  
+    }
     animationFrameId.current = requestAnimationFrame(animate);
-  }
+  };
+  
 
 
 
@@ -163,9 +178,9 @@ const animate = (timestamp: number) => {
     const userDuration = 30;
 
     if (userDuration && userDuration > 0) {
-      setAnimationDuration(userDuration * 1000); 
+      setAnimationDuration(userDuration * 1000);
     } else {
-      setAnimationDuration(10000); 
+      setAnimationDuration(10000);
     }
 
     if (isPaused && pausedTime !== null) {
@@ -238,11 +253,13 @@ const animate = (timestamp: number) => {
   };
 
 
-  const handleSvgClick = (svg: string, index:number) => {
+  const handleSvgClick = (svg: string, index: number) => {
     setSelectedSvg(svg);
-    setSelectedLayers([]);
+    setSelectedLayers([]);   
     setSelectedSvgIndex(index);
+       
   };
+  
 
 
   // console.log(`selectedSvgIndex in left and timeline`)
@@ -324,9 +341,46 @@ const animate = (timestamp: number) => {
 
   // } 
   const addSlideToTimeline = () => {
-    const getSlideToTimeline = selectedSvg;
-    setAddSlideRimeline((prevSlides) => [...prevSlides, getSlideToTimeline]); 
+    if (selectedSvg) {
+      const newSlide = { svg: selectedSvg, animationType: null };
+      setAddSlideRimeline((prevSlides) => [...prevSlides, newSlide]);
+    }
   };
+  
+  
+
+  const handleWalkingAnimation = () => {
+    if (
+      selectedSvgIndex !== null &&
+      selectedSvgIndex >= 0 &&
+      selectedSvgIndex < slideForTimeline.length
+    ) {
+      console.log("Button clicked for SVG at index:", selectedSvgIndex);
+  
+      setAddSlideRimeline((prevSlides) => {
+        const updatedSlides = prevSlides.map((slide, index) => {
+          if (index === selectedSvgIndex) {
+            return {
+              ...slide,
+              animationType: slide.animationType === WALKING ? null : WALKING,
+            };
+          }
+          return slide;
+        });
+  
+        console.log("Updated slideForTimeline:", updatedSlides);
+        return updatedSlides;
+      });
+    } else {
+      console.log("Invalid selectedSvgIndex:", selectedSvgIndex);
+    }
+  };
+  
+  
+  
+  
+  
+  
 
 
 
@@ -374,7 +428,7 @@ const animate = (timestamp: number) => {
                     marginBottom: "50px",
                     cursor: "pointer",
                   }}
-                  className={ selectedSvgIndex ===index ? "active" : ""}
+                  className={selectedSvgIndex === index ? "active" : ""}
                 >
                   <div
                     onClick={() => handleSvgClick(svg, index)}
@@ -385,10 +439,10 @@ const animate = (timestamp: number) => {
                     }}
                   />
 
-                
-<div className="add-and-delete-buttons">
+
+                  <div className="add-and-delete-buttons">
                     <button
-                      onClick={() => addSlideToTimeline(svg)}  
+                      onClick={() => addSlideToTimeline(svg)}
                       style={{
                         padding: "12px 10px",
                         backgroundColor: "#4CAF50", // Green for "Add Slide"
@@ -428,45 +482,47 @@ const animate = (timestamp: number) => {
                       selectedLayers={selectedLayers}
                       handleLayerClick={handleLayerClick}
                        /> */}
-              <Animations playWalkingAnimation={wlkingAnimationPlay} addAnimation={addAnimation} />
+              <Animations playWalkingAnimation={wlkingAnimationPlay} addAnimation={addAnimation} handleWalkingAnimation={handleWalkingAnimation} />
             </div>
           </div>
         </div>
         <div className="right-side">
-        <Preview
-          setSvgDataList={setSvgDataList}
-          selectedSvg={selectedSvg}
-          backgroundImage={backgroundImage}
-          svgContainerRef={svgContainerRef}
-          svgContainerRef2={svgContainerRef2}
-          setSelectedSvg={setSelectedSvg}
-          setBackgroundImage={setBackgroundImage}
-          isPlaying={isPlaying}
-          togglePlayPause={togglePlayPause}
-          selectedLayers={selectedLayers}
-          timelineRef={timelineRef}
-          currentTime={currentTime}
-          setCurrentTime={setCurrentTime}
-          durationInputRef={durationInputRef}
-          playAnimation={playAnimation}
-          pauseAnimation={pauseAnimation}
-          slideForTimeline={slideForTimeline}
-          playWalkingAnimation={wlkingAnimationPlay}
-          svgContainerRefs={svgContainerRefs}
-          addAnimation={addAnimation}
-          handleSvgClick={handleSvgClick}
-          selectedSvgIndex={selectedSvgIndex}
+          <Preview
+            setSvgDataList={setSvgDataList}
+            selectedSvg={selectedSvg}
+            backgroundImage={backgroundImage}
+            svgContainerRef={svgContainerRef}
+            svgContainerRef2={svgContainerRef2}
+            setSelectedSvg={setSelectedSvg}
+            setBackgroundImage={setBackgroundImage}
+            isPlaying={isPlaying}
+            togglePlayPause={togglePlayPause}
+            selectedLayers={selectedLayers}
+            timelineRef={timelineRef}
+            currentTime={currentTime}
+            setCurrentTime={setCurrentTime}
+            durationInputRef={durationInputRef}
+            playAnimation={playAnimation}
+            pauseAnimation={pauseAnimation}
+            slideForTimeline={slideForTimeline}
+            playWalkingAnimation={wlkingAnimationPlay}
+            svgContainerRefs={svgContainerRefs}
+            addAnimation={addAnimation}
+            handleSvgClick={handleSvgClick}
+            selectedSvgIndex={selectedSvgIndex}
+            handleWalkingAnimation={handleWalkingAnimation}
+           
 
-        />
-        
-      </div>
-      <div className="leayrs-container">
-           <Layers selectedSvg={selectedSvg}
-                      parseSvgLayers={parseSvgLayers}
-                      selectedLayers={selectedLayers}
-                      handleLayerClick={handleLayerClick}
-                       /> 
-      </div>
+          />
+
+        </div>
+        <div className="leayrs-container">
+          <Layers selectedSvg={selectedSvg}
+            parseSvgLayers={parseSvgLayers}
+            selectedLayers={selectedLayers}
+            handleLayerClick={handleLayerClick}
+          />
+        </div>
       </div>
     </div>
   );

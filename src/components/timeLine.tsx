@@ -1,91 +1,65 @@
-import React, { useState } from 'react';
-import { FaPlay, FaPause } from 'react-icons/fa';
+import { WALKING,SITTING } from "@/utils/animationsType";
+import React, { useState } from "react";
+import { toast } from "sonner";
 
 interface PreviewProps {
-  play: () => void;
-  pause: () => void;
-  playheadPosition: number;
-  slideForTimeline: string[];
-  selectedSvg: string | null;
+  slideForTimeline: { svg: string; animationType: string | null }[];
   selectedSvgIndex: number | null;
   handleSvgClick: (svg: string, index: number) => void;
+  playWalkingAnimation: () => void; // Pass your existing function as a prop
+  
 }
 
-const TimeLine = ({
-  play,
-  pause,
-  playheadPosition,
+const TimeLine: React.FC<PreviewProps> = ({
   slideForTimeline,
-  selectedSvg,
   selectedSvgIndex,
   handleSvgClick,
-}: PreviewProps) => {
-  const [isPlaying, setIsPlaying] = useState(false);
+  playWalkingAnimation,
+   
+}) => {
+  const [currentPlayingIndex, setCurrentPlayingIndex] = useState<number | null>(
+    null
+  ); // Track the currently playing SVG index
 
-  const handlePlayPause = () => {
-    if (isPlaying) {
-      pause();
-    } else {
-      play();
+ 
+  const togglePlayPause = () => {
+    if (
+      selectedSvgIndex !== null &&
+      slideForTimeline[selectedSvgIndex]?.animationType === WALKING // Match against the constant
+    ) {
+      if (currentPlayingIndex !== null && currentPlayingIndex !== selectedSvgIndex) {
+        console.log("Resetting animation for index:", currentPlayingIndex);
+      }
+  
+      toast.success(`Playing  animation for index: ${selectedSvgIndex}`);
+      playWalkingAnimation();  
+      setCurrentPlayingIndex(selectedSvgIndex);  
+    }  else {
+      console.log(
+        toast.error(`Can't Playing animation for index: ${selectedSvgIndex} please select  ${WALKING},${SITTING} animation type first`)
+       
+      );
     }
-    setIsPlaying(!isPlaying);
   };
+  
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        marginTop: "20px",
-      }}
-    >
-      <button className='play-and-pause-btn' onClick={handlePlayPause} style={{ marginBottom: "10px" }}>
-        {isPlaying ? <FaPause /> : <FaPlay />}
-      </button>
+    <>
+      <button onClick={togglePlayPause}>Play</button>
 
-      {/* SVG Preview */}
       <div className="svg-container-for-timeline">
-        {slideForTimeline.length > 0 ? (
-          slideForTimeline.map((svg, index) => (
+        {slideForTimeline.map((slide, index) => (
+          <div key={index} style={{ marginBottom: "10px" }}>
             <div
-              key={index}
-              dangerouslySetInnerHTML={{ __html: svg }}
-              style={{
-                maxHeight: "600px",
-                cursor: "pointer",
-                marginBottom: "10px",
-              }}
-              className={selectedSvgIndex === index + 100 ? "active" : ""}
-              onClick={() => handleSvgClick(svg, index + 100)}
+              dangerouslySetInnerHTML={{ __html: slide.svg }}
+              className={selectedSvgIndex === index ? "timeline" : ""}
+              onClick={() => handleSvgClick(slide.svg, index)}
             />
-          ))
-        ) : (
-          <p>No SVG available</p>
-        )}
+            <p>{slide.animationType}</p>
+          </div>
+        ))}
       </div>
-
-      <div
-        className="timeline-test"
-        style={{
-          width: "80%",
-          height: "50px",
-          background: "#ccc",
-          position: "relative",
-          cursor: "pointer",
-        }}
-      >
-        <div
-          style={{
-            position: "absolute",
-            height: "100%",
-            background: "blue",
-            width: "2px",
-            left: `${playheadPosition}%`,
-          }}
-        />
-      </div>
-    </div>
+    </>
   );
 };
 

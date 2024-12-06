@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 // Import your global CSS file here
 import './globals.css';
+import { Toaster } from 'sonner';
 
 export const metadata: Metadata = {
   title: "Editor",
@@ -16,6 +17,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
+        <Toaster position='top-right'/>
         {children}
       </body>
     </html>

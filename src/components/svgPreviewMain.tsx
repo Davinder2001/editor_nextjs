@@ -9,6 +9,7 @@ interface PreviewProps {
     applyLayerStyles:()=> void;
     selectedSvg: any;
     selectedLayers: any;
+    handleWalkingAnimation:()=>void
 }
 
 const SvgPreviewMain = ({backgroundImage, svgContainerRef, startDrag, onDrag, stopDrag, svgPosition, applyLayerStyles, selectedSvg, selectedLayers }) => {

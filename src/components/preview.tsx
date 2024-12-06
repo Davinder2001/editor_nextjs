@@ -22,6 +22,8 @@ import TimeLine from "./timeLine";
         slideForTimeline : any;
         playWalkingAnimation: () => void;
         selectedSvgIndex:number,
+        handleWalkingAnimation:()=>void
+        CurrentAnimationType:any
         
     }
 
@@ -46,6 +48,8 @@ import TimeLine from "./timeLine";
         svgContainerRefs,
         selectedSvgIndex,
         handleSvgClick,
+        handleWalkingAnimation,
+    
     }: PreviewProps) {
         // console.log(`selectedSvgIndex in preview`)
         // console.log(selectedSvgIndex)
@@ -187,7 +191,6 @@ import TimeLine from "./timeLine";
         return (
             <>
                 {selectedSvg ? (
-                  
                     <>
                             <h1 className="main-heading">Preview</h1>
                         <SvgPreviewMain backgroundImage={backgroundImage}
@@ -202,18 +205,20 @@ import TimeLine from "./timeLine";
                          
 
                             {/* Timeline and Play/Pause Button */}
-                                    <TimeLine    
-                                    
+                                    <TimeLine               
                                         timelineRef={timelineRef}
                                         playheadPosition={playheadPosition}
                                         slideForTimeline={slideForTimeline}
-                                        // playWalkingAnimation={playWalkingAnimation}
+                                        playWalkingAnimation={playWalkingAnimation}
                                         svgContainerRefs={svgContainerRefs} 
                                         selectedSvg={selectedSvg}
                                         selectedSvgIndex={selectedSvgIndex}
                                         handleSvgClick={handleSvgClick}
                                         togglePlayPause={togglePlayPause}  
                                         isPlaying={isPlaying}
+                                        handleWalkingAnimation={handleWalkingAnimation}
+                                        svgContainerRef={svgContainerRef} 
+                                       
                            />
 
                        
