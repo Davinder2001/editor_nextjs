@@ -1,7 +1,7 @@
 'use client';
 
 import Animations from "@/components/animations";
-import AnimatedSvg from "@/components/demo";
+
 import Layers from "@/components/layers";
 // import Layers from "@/components/layers";
 import Preview from "@/components/preview";
@@ -33,13 +33,24 @@ const Page: React.FC = () => {
   const svgContainerRefs = useRef<(HTMLDivElement | null)[]>([null, null, null, null]); // Array of refs for 4 containers
   const [selectedSvgIndex, setSelectedSvgIndex] = useState<number>(0); // Store selected index
   const [currentIndex, setCurrentIndex] = useState(100);
-  
+
+  const [activityLog, setActivityLog] = useState<
+    { type: string; slideIndex: number; animationType?: string }[]
+  >([]);
+  const [currentReplayIndex, setCurrentReplayIndex] = useState<number | null>(null);
+
+
+
+   
 
 
 
 
-  
- 
+
+
+
+
+
 
 
 
@@ -90,46 +101,46 @@ const Page: React.FC = () => {
 
 
 
-  let animationStarted = false; 
-  let initialTimestamp = 0; 
-  
+  let animationStarted = false;
+  let initialTimestamp = 0;
+
   const animate = (timestamp: number) => {
     if (!animationStarted) {
-      initialTimestamp = timestamp; 
+      initialTimestamp = timestamp;
       animationStarted = true;
     }
-  
+
     const elapsedTime = timestamp - initialTimestamp;
-  
-  
+
+
     if (elapsedTime >= animationDuration) {
       console.log("Animation completed.");
-      animationStarted = false; 
+      animationStarted = false;
       return;
     }
-  
+
     if (isPaused) return;
-  
+
     // Ensure the SVG container exists
     const svgElement = svgContainerRef.current?.querySelector("svg");
     if (!svgElement) {
       console.warn("SVG element not found in the container.");
       return;
     }
-  
+
     // Select specific elements for animation
     const leftHand = svgElement.querySelector("#hand-details-back");
     const rightHand = svgElement.querySelector("#hand-details-front");
-  
+
     const leftLeg = svgElement.querySelector("#pant-back-details");
     const rightLeg = svgElement.querySelector("#pant-front-details");
-  
+
     const legFront = svgElement.querySelector("#leg-front");
     const legBack = svgElement.querySelector("#leg-back");
-  
+
     const footFront = svgElement.querySelector("#shoe-front");
     const footBack = svgElement.querySelector("#shoe-back");
-  
+
     // Log warnings if specific elements are missing
     if (
       !leftHand ||
@@ -144,49 +155,49 @@ const Page: React.FC = () => {
       console.error("Some elements are missing in the SVG.");
       return;
     }
-  
+
     // Animation logic
     const stepDuration = 1000;
     const elapsed = elapsedTime % stepDuration;
     const progress = elapsed / stepDuration;
-  
+
     // Calculate swing values
     const handSwing = Math.sin(progress * 2 * Math.PI) * 20; // Hand swing amplitude: 20 degrees
     const legSwing = Math.cos(progress * 2 * Math.PI) * 20; // Leg swing amplitude: 20 degrees
-  
+
     const legFrontSwing = Math.cos(progress * 2 * Math.PI) * 20; // Leg swing amplitude: 20 degrees
     const legBackSwing = Math.cos(progress * 2 * Math.PI) * 20; // Leg swing amplitude: 20 degrees
-  
-    const footFrontSwing = Math.cos(progress*  2  *Math.PI) * 20;
+
+    const footFrontSwing = Math.cos(progress * 2 * Math.PI) * 20;
     const footBackSwing = Math.cos(progress * 2 * Math.PI) * 20;
-  
+
     leftHand.setAttribute("transform", `rotate(${handSwing} 920 400)`);
     rightHand.setAttribute("transform", `rotate(${-handSwing} 960 400)`);
-  
+
     // Leg rotate
     leftLeg.setAttribute("transform", `rotate(${legSwing} 1000 500)`);
     rightLeg.setAttribute("transform", `rotate(${-legSwing} 1000 500)`);
-  
+
     // Rotate
     legFront.setAttribute("transform", `rotate(${-legFrontSwing} 1000 500)`);
     legBack.setAttribute("transform", `rotate(${legBackSwing} 1000 500)`);
-  
+
     // Feet rotate
     footFront.setAttribute("transform", `rotate(${-footFrontSwing} 1000 500)`);
     footBack.setAttribute("transform", `rotate(${footBackSwing} 1000 500)`);
-  
+
     // Request next frame
     animationFrameId.current = requestAnimationFrame(animate);
   };
-  
+
   // Function to trigger animation
   const wlkingAnimationPlay = () => {
     if (!animationStarted) {
       animationFrameId.current = requestAnimationFrame(animate);
     }
   };
-  
-  
+
+
 
 
 
@@ -359,44 +370,127 @@ const Page: React.FC = () => {
 
   // } 
 
+  // const addSlideToTimeline = (event: React.MouseEvent<HTMLButtonElement>) => {
+  //   const svgIndex = parseInt(event.currentTarget.getAttribute('data-index') || '0', 10);
+  //   if (selectedSvg) {
+  //     const newSlide = {
+  //       svg: selectedSvg,
+  //       animationType: null,
+  //       index: currentIndex,  
+  //       svgIndex,  
+  //     };
+  //     setAddSlideRimeline((prevSlides) => [...prevSlides, newSlide]);
+  //     setCurrentIndex((prevIndex) => prevIndex + 1); 
+  //   }
+  // };
+
+
+
   const addSlideToTimeline = (event: React.MouseEvent<HTMLButtonElement>) => {
-    const svgIndex = parseInt(event.currentTarget.getAttribute('data-index') || '0', 10);
+    const svgIndex = parseInt(event.currentTarget.getAttribute("data-index") || "0", 10);
     if (selectedSvg) {
       const newSlide = {
         svg: selectedSvg,
         animationType: null,
-        index: currentIndex,  
-        svgIndex,  
+        index: currentIndex,
+        svgIndex,
       };
       setAddSlideRimeline((prevSlides) => [...prevSlides, newSlide]);
-      setCurrentIndex((prevIndex) => prevIndex + 1); 
+      setCurrentIndex((prevIndex) => prevIndex + 1);
+
+      // Log the slide addition
+      setActivityLog((prevLog) => [
+        ...prevLog,
+        { type: "addSlide", slideIndex: currentIndex },
+      ]);
     }
   };
 
 
 
+  // const handleWalkingAnimation = () => {
+  //   if (selectedSvgIndex !== null) { // Check if a slide is selected
+  //     setAddSlideRimeline((prevSlides) => {
+  //       const updatedSlides = prevSlides.map((slide) => {
+  //         if (slide.index === selectedSvgIndex) { // Match using `slide.index` or `slide.id`
+  //           return {
+  //             ...slide,
+  //             animationType: slide.animationType === WALKING ? null : WALKING,
+  //           };
+  //         }
+  //         return slide;
+  //       });
+
+  //       return updatedSlides;
+  //     });
+  //   } else {
+  //     console.warn("No slide selected for walking animation.");
+  //   }
+  // };
+
 
 
   const handleWalkingAnimation = () => {
-    if (selectedSvgIndex !== null) { // Check if a slide is selected
-      setAddSlideRimeline((prevSlides) => {
-        const updatedSlides = prevSlides.map((slide) => {
-          if (slide.index === selectedSvgIndex) { // Match using `slide.index` or `slide.id`
+    if (selectedSvgIndex !== null) {
+      setAddSlideRimeline((prevSlides) =>
+        prevSlides.map((slide) => {
+          if (slide.index === selectedSvgIndex) {
+            // Log the animation assignment
+            setActivityLog((prevLog) => [
+              ...prevLog,
+              { type: "assignAnimation", slideIndex: selectedSvgIndex, animationType: WALKING },
+            ]);
             return {
               ...slide,
               animationType: slide.animationType === WALKING ? null : WALKING,
             };
           }
           return slide;
-        });
+        })
+      );
+    }
+  };
+
+
+  const replayActivities = () => {
+    if (activityLog.length === 0) {
+      console.warn("No activities to replay.");
+      return;
+    }
   
-        return updatedSlides;
-      });
-    } else {
-      console.warn("No slide selected for walking animation.");
+    activityLog.forEach((activity, i) => {
+      setTimeout(() => {
+        if (activity.type === "addSlide") {
+          console.log(`Replaying: Added slide at index ${activity.slideIndex}`);
+          setCurrentReplayIndex(activity.slideIndex); // Highlight the slide
+        } else if (activity.type === "assignAnimation") {
+          console.log(
+            `Replaying: Assigned ${activity.animationType} animation to slide at index ${activity.slideIndex}`
+          );
+          setCurrentReplayIndex(activity.slideIndex); // Highlight the slide
+          playAnimationForSlide(activity.slideIndex, activity.animationType);
+        }
+      }, i * 3000); // Delay of 3 seconds between activities
+    });
+  
+    setTimeout(() => setCurrentReplayIndex(null), activityLog.length * 3000);
+  };
+  
+  
+
+  const playAnimationForSlide = (slideIndex: number, animationType?: string) => {
+    const slide = slideForTimeline.find((slide) => slide.index === slideIndex);
+    if (!slide) return;
+  
+    setSelectedSvg(slide.svg); // Show the slide in the preview
+    if (animationType === WALKING) {
+      console.log(`Playing walking animation for slide at index ${slideIndex}`);
+      wlkingAnimationPlay(); // Trigger your walking animation function
     }
   };
   
+  
+
 
 
 
@@ -410,7 +504,9 @@ const Page: React.FC = () => {
 
   return (
     <>
-
+      <button onClick={replayActivities} style={{ marginTop: "20px" }}>
+  Replay Activities
+</button>
 
       <div className="container">
         <div className="frame-container">
@@ -538,6 +634,7 @@ const Page: React.FC = () => {
               handleSvgClick={handleSvgClick}
               selectedSvgIndex={selectedSvgIndex}
               handleWalkingAnimation={handleWalkingAnimation}
+              currentReplayIndex={currentReplayIndex}
 
 
             />

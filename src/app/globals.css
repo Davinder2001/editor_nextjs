@@ -1,4 +1,19 @@
 /* Main container css */
+
+.outer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+
+
+
+
+
+
+
+
 .active {
   border: 1px solid green!important;
 }

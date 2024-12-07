@@ -24,6 +24,8 @@ import TimeLine from "./timeLine";
         selectedSvgIndex:number,
         handleWalkingAnimation:()=>void
         CurrentAnimationType:any
+        replayActivities:()=>void
+       
         
     }
 
@@ -49,6 +51,8 @@ import TimeLine from "./timeLine";
         selectedSvgIndex,
         handleSvgClick,
         handleWalkingAnimation,
+        replayActivities,
+        currentReplayIndex
     
     }: PreviewProps) {
         // console.log(`selectedSvgIndex in preview`)
@@ -218,6 +222,8 @@ import TimeLine from "./timeLine";
                                         isPlaying={isPlaying}
                                         handleWalkingAnimation={handleWalkingAnimation}
                                         svgContainerRef={svgContainerRef} 
+                                        replayActivities={replayActivities}
+                                        currentReplayIndex={currentReplayIndex}
                                        
                            />
 
