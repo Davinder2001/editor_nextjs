@@ -1,4 +1,4 @@
-    import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import SvgPreviewMain from "./svgPreviewMain";
 import TimeLine from "./timeLine";
 
@@ -34,7 +34,6 @@ import TimeLine from "./timeLine";
         selectedSvg,
         backgroundImage,
         svgContainerRef,
-        svgContainerRef2,
         setSelectedSvg,
         setBackgroundImage,
         isPlaying,

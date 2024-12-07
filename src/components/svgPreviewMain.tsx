@@ -48,8 +48,6 @@ const SvgPreviewMain = ({backgroundImage, svgContainerRef, startDrag, onDrag, st
                                         style={{ maxHeight: "600px" }}
                                     />
                                 </div>
-
-                                
                             </div>
     </>
   )
