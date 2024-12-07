@@ -32,17 +32,22 @@ const Page: React.FC = () => {
   const timelineRef = useRef<HTMLDivElement | null>(null);
   const svgContainerRefs = useRef<(HTMLDivElement | null)[]>([null, null, null, null]); // Array of refs for 4 containers
   const [selectedSvgIndex, setSelectedSvgIndex] = useState<number>(0); // Store selected index
+  const [currentIndex, setCurrentIndex] = useState(100);
   
 
 
-  
-  
-    
 
 
+  
  
- 
-  
+
+
+
+
+
+
+
+
 
 
 
@@ -85,91 +90,104 @@ const Page: React.FC = () => {
 
 
 
+  let animationStarted = false; 
+  let initialTimestamp = 0; 
+  
   const animate = (timestamp: number) => {
-    if (startTime === null) {
-      setStartTime(timestamp);
+    if (!animationStarted) {
+      initialTimestamp = timestamp; 
+      animationStarted = true;
     }
-    const elapsedTime = timestamp - (startTime ?? 0);
-
-
+  
+    const elapsedTime = timestamp - initialTimestamp;
+  
+  
     if (elapsedTime >= animationDuration) {
       console.log("Animation completed.");
+      animationStarted = false; 
       return;
     }
-
+  
     if (isPaused) return;
-
+  
     // Ensure the SVG container exists
     const svgElement = svgContainerRef.current?.querySelector("svg");
     if (!svgElement) {
       console.warn("SVG element not found in the container.");
       return;
     }
-
+  
     // Select specific elements for animation
     const leftHand = svgElement.querySelector("#hand-details-back");
     const rightHand = svgElement.querySelector("#hand-details-front");
-
+  
     const leftLeg = svgElement.querySelector("#pant-back-details");
     const rightLeg = svgElement.querySelector("#pant-front-details");
-
+  
     const legFront = svgElement.querySelector("#leg-front");
     const legBack = svgElement.querySelector("#leg-back");
-
+  
     const footFront = svgElement.querySelector("#shoe-front");
     const footBack = svgElement.querySelector("#shoe-back");
-
-
+  
     // Log warnings if specific elements are missing
-    if (!leftHand || !rightHand || !leftLeg || !rightLeg || !legFront || !legBack || !footFront || !footBack) {
+    if (
+      !leftHand ||
+      !rightHand ||
+      !leftLeg ||
+      !rightLeg ||
+      !legFront ||
+      !legBack ||
+      !footFront ||
+      !footBack
+    ) {
       console.error("Some elements are missing in the SVG.");
       return;
     }
-
+  
     // Animation logic
     const stepDuration = 1000;
     const elapsed = elapsedTime % stepDuration;
     const progress = elapsed / stepDuration;
-
+  
     // Calculate swing values
-    const handSwing = Math.sin(progress * 2 * Math.PI) * 20;  // Hand swing amplitude: 20 degrees
-    const legSwing = Math.cos(progress * 2 * Math.PI) * 20;   // Leg swing amplitude: 20 degrees
-
-    const legFrontSwing = Math.cos(progress * 2 * Math.PI) * 20;   // Leg swing amplitude: 20 degrees
-    const legBackSwing = Math.cos(progress * 2 * Math.PI) * 20;   // Leg swing amplitude: 20 degrees
-
-    const footFrontSwing = Math.cos(progress * 2 * Math.PI) * 20;
+    const handSwing = Math.sin(progress * 2 * Math.PI) * 20; // Hand swing amplitude: 20 degrees
+    const legSwing = Math.cos(progress * 2 * Math.PI) * 20; // Leg swing amplitude: 20 degrees
+  
+    const legFrontSwing = Math.cos(progress * 2 * Math.PI) * 20; // Leg swing amplitude: 20 degrees
+    const legBackSwing = Math.cos(progress * 2 * Math.PI) * 20; // Leg swing amplitude: 20 degrees
+  
+    const footFrontSwing = Math.cos(progress*  2  *Math.PI) * 20;
     const footBackSwing = Math.cos(progress * 2 * Math.PI) * 20;
-
-
+  
     leftHand.setAttribute("transform", `rotate(${handSwing} 920 400)`);
     rightHand.setAttribute("transform", `rotate(${-handSwing} 960 400)`);
-
+  
     // Leg rotate
     leftLeg.setAttribute("transform", `rotate(${legSwing} 1000 500)`);
     rightLeg.setAttribute("transform", `rotate(${-legSwing} 1000 500)`);
-
+  
     // Rotate
     legFront.setAttribute("transform", `rotate(${-legFrontSwing} 1000 500)`);
     legBack.setAttribute("transform", `rotate(${legBackSwing} 1000 500)`);
-
+  
     // Feet rotate
     footFront.setAttribute("transform", `rotate(${-footFrontSwing} 1000 500)`);
     footBack.setAttribute("transform", `rotate(${footBackSwing} 1000 500)`);
-
+  
     // Request next frame
     animationFrameId.current = requestAnimationFrame(animate);
   };
-
-
-
+  
+  // Function to trigger animation
   const wlkingAnimationPlay = () => {
-    if (animationFrameId.current) {
-      cancelAnimationFrame(animationFrameId.current);  
+    if (!animationStarted) {
+      animationFrameId.current = requestAnimationFrame(animate);
     }
-    animationFrameId.current = requestAnimationFrame(animate);
   };
   
+  
+
 
 
 
@@ -255,11 +273,11 @@ const Page: React.FC = () => {
 
   const handleSvgClick = (svg: string, index: number) => {
     setSelectedSvg(svg);
-    setSelectedLayers([]);   
+    setSelectedLayers([]);
     setSelectedSvgIndex(index);
-       
+
   };
-  
+
 
 
   // console.log(`selectedSvgIndex in left and timeline`)
@@ -340,26 +358,30 @@ const Page: React.FC = () => {
   //   setAddSlideRimeline(getSlideToTimeline); // Update state with the selected SVG value
 
   // } 
-  const addSlideToTimeline = () => {
+
+  const addSlideToTimeline = (event: React.MouseEvent<HTMLButtonElement>) => {
+    const svgIndex = parseInt(event.currentTarget.getAttribute('data-index') || '0', 10);
     if (selectedSvg) {
-      const newSlide = { svg: selectedSvg, animationType: null };
+      const newSlide = {
+        svg: selectedSvg,
+        animationType: null,
+        index: currentIndex,  
+        svgIndex,  
+      };
       setAddSlideRimeline((prevSlides) => [...prevSlides, newSlide]);
+      setCurrentIndex((prevIndex) => prevIndex + 1); 
     }
   };
-  
-  
+
+
+
+
 
   const handleWalkingAnimation = () => {
-    if (
-      selectedSvgIndex !== null &&
-      selectedSvgIndex >= 0 &&
-      selectedSvgIndex < slideForTimeline.length
-    ) {
-      
-  
+    if (selectedSvgIndex !== null) { // Check if a slide is selected
       setAddSlideRimeline((prevSlides) => {
-        const updatedSlides = prevSlides.map((slide, index) => {
-          if (index === selectedSvgIndex) {
+        const updatedSlides = prevSlides.map((slide) => {
+          if (slide.index === selectedSvgIndex) { // Match using `slide.index` or `slide.id`
             return {
               ...slide,
               animationType: slide.animationType === WALKING ? null : WALKING,
@@ -368,19 +390,19 @@ const Page: React.FC = () => {
           return slide;
         });
   
-        
         return updatedSlides;
       });
     } else {
-      
+      console.warn("No slide selected for walking animation.");
     }
   };
   
-  
-  
-  
-  
-  
+
+
+
+
+
+
 
 
 
@@ -388,146 +410,148 @@ const Page: React.FC = () => {
 
   return (
     <>
-           
 
-    <div className="container">
-      <div className="frame-container">
-        <div className="left-side">
-          <h1 className="main-heading">Upload</h1>
-          <div className="choose_file-container">
-            <label htmlFor="file-upload" className="custom-file-upload">
-              Upload SVGs
-            </label>
-            <input
-              id="file-upload"
-              type="file"
-              accept=".svg"
-              multiple
-              onChange={handleUpload}
-              className="hidden"
-            />
-          </div>
-          <div className="choose_file-container">
-            <label htmlFor="background-upload" className="custom-file-upload">
-              Upload Background
-            </label>
-            <input
-              id="background-upload"
-              type="file"
-              accept="image/*"
-              onChange={handleBackgroundUpload}
-              className="hidden"
-            />
-          </div>
-          <div className="svg-thumb-container">
-            {svgDataList.length > 0 ? (
-              svgDataList.map((svg, index) => (
-                <div
-                  key={index}
-                  style={{
-                    position: "relative",
-                    height: "200px",
-                    border: "1px solid #ccc",
-                    marginBottom: "50px",
-                    cursor: "pointer",
-                  }}
-                  className={selectedSvgIndex === index ? "active" : ""}
-                >
+
+      <div className="container">
+        <div className="frame-container">
+          <div className="left-side">
+            <h1 className="main-heading">Upload</h1>
+            <div className="choose_file-container">
+              <label htmlFor="file-upload" className="custom-file-upload">
+                Upload SVGs
+              </label>
+              <input
+                id="file-upload"
+                type="file"
+                accept=".svg"
+                multiple
+                onChange={handleUpload}
+                className="hidden"
+              />
+            </div>
+            <div className="choose_file-container">
+              <label htmlFor="background-upload" className="custom-file-upload">
+                Upload Background
+              </label>
+              <input
+                id="background-upload"
+                type="file"
+                accept="image/*"
+                onChange={handleBackgroundUpload}
+                className="hidden"
+              />
+            </div>
+            <div className="svg-thumb-container">
+              {svgDataList.length > 0 ? (
+                svgDataList.map((svg, index) => (
                   <div
-                    onClick={() => handleSvgClick(svg, index)}
-                    dangerouslySetInnerHTML={{ __html: svg }}
+                    key={index}
                     style={{
-                      width: "100%",
-                      height: "100%",
+                      position: "relative",
+                      height: "200px",
+                      border: "1px solid #ccc",
+                      marginBottom: "50px",
+                      cursor: "pointer",
                     }}
-                  />
+                    className={selectedSvgIndex === index ? "active" : ""}
+                  >
+                    <div
+                      onClick={() => handleSvgClick(svg, index)}
+                      dangerouslySetInnerHTML={{ __html: svg }}
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                      }}
+                    />
 
 
-                  <div className="add-and-delete-buttons">
-                    <button
-                      onClick={() => addSlideToTimeline()}
-                      style={{
-                        padding: "12px 10px",
-                        backgroundColor: "#4CAF50", // Green for "Add Slide"
-                        color: "white",
-                        border: "none",
-                        cursor: "pointer",
-                        width: "50%"
-                      }}
-                    >
-                      Add Slide
-                    </button>
-                    <button
-                      onClick={() => handleDeleteSvg()} // Delete SVG
-                      style={{
-                        padding: "12px 10px",
-                        backgroundColor: "#f44336", // Red for "Delete"
-                        color: "white",
-                        border: "none",
-                        cursor: "pointer",
-                        width: "50%"
-                      }}
-                    >
-                      Delete
-                    </button>
+                    <div className="add-and-delete-buttons">
+                      <button
+                        onClick={(event) => addSlideToTimeline(event)}
+                        data-index={index} // Pass the index dynamically
+                        style={{
+                          padding: "12px 10px",
+                          backgroundColor: "#4CAF50",
+                          color: "white",
+                          border: "none",
+                          cursor: "pointer",
+                          width: "50%",
+                        }}
+                      >
+                        Add Slide
+                      </button>
+
+                      <button
+                        onClick={() => handleDeleteSvg()} // Delete SVG
+                        style={{
+                          padding: "12px 10px",
+                          backgroundColor: "#f44336", // Red for "Delete"
+                          color: "white",
+                          border: "none",
+                          cursor: "pointer",
+                          width: "50%"
+                        }}
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))
-            ) : (
-              <p>No SVGs uploaded yet.</p>
-            )}
-          </div>
-          <div className="layers-prev-container">
-            <h1 className="main-heading">Animations</h1>
-            <div className="layersOuter">
-              {/* <Layers selectedSvg={selectedSvg}
+                ))
+              ) : (
+                <p>No SVGs uploaded yet.</p>
+              )}
+            </div>
+            <div className="layers-prev-container">
+              <h1 className="main-heading">Animations</h1>
+              <div className="layersOuter">
+                {/* <Layers selectedSvg={selectedSvg}
                       parseSvgLayers={parseSvgLayers}
                       selectedLayers={selectedLayers}
                       handleLayerClick={handleLayerClick}
               /> */}
-              <Animations playWalkingAnimation={wlkingAnimationPlay} addAnimation={addAnimation} handleWalkingAnimation={handleWalkingAnimation} />
+                <Animations playWalkingAnimation={wlkingAnimationPlay} addAnimation={addAnimation} handleWalkingAnimation={handleWalkingAnimation} />
+              </div>
             </div>
           </div>
-        </div>
-        <div className="right-side">
-          <Preview
-            setSvgDataList={setSvgDataList}
-            selectedSvg={selectedSvg}
-            backgroundImage={backgroundImage}
-            svgContainerRef={svgContainerRef}
-            svgContainerRef2={svgContainerRef2}
-            setSelectedSvg={setSelectedSvg}
-            setBackgroundImage={setBackgroundImage}
-            isPlaying={isPlaying}
-            togglePlayPause={togglePlayPause}
-            selectedLayers={selectedLayers}
-            timelineRef={timelineRef}
-            currentTime={currentTime}
-            setCurrentTime={setCurrentTime}
-            durationInputRef={durationInputRef}
-            playAnimation={playAnimation}
-            pauseAnimation={pauseAnimation}
-            slideForTimeline={slideForTimeline}
-            playWalkingAnimation={wlkingAnimationPlay}
-            svgContainerRefs={svgContainerRefs}
-            addAnimation={addAnimation}
-            handleSvgClick={handleSvgClick}
-            selectedSvgIndex={selectedSvgIndex}
-            handleWalkingAnimation={handleWalkingAnimation}
-           
+          <div className="right-side">
+            <Preview
+              setSvgDataList={setSvgDataList}
+              selectedSvg={selectedSvg}
+              backgroundImage={backgroundImage}
+              svgContainerRef={svgContainerRef}
+              svgContainerRef2={svgContainerRef2}
+              setSelectedSvg={setSelectedSvg}
+              setBackgroundImage={setBackgroundImage}
+              isPlaying={isPlaying}
+              togglePlayPause={togglePlayPause}
+              selectedLayers={selectedLayers}
+              timelineRef={timelineRef}
+              currentTime={currentTime}
+              setCurrentTime={setCurrentTime}
+              durationInputRef={durationInputRef}
+              playAnimation={playAnimation}
+              pauseAnimation={pauseAnimation}
+              slideForTimeline={slideForTimeline}
+              playWalkingAnimation={wlkingAnimationPlay}
+              svgContainerRefs={svgContainerRefs}
+              addAnimation={addAnimation}
+              handleSvgClick={handleSvgClick}
+              selectedSvgIndex={selectedSvgIndex}
+              handleWalkingAnimation={handleWalkingAnimation}
 
-          />
 
-        </div>
-        <div className="leayrs-container">
-          <Layers selectedSvg={selectedSvg}
-            parseSvgLayers={parseSvgLayers}
-            selectedLayers={selectedLayers}
-            handleLayerClick={handleLayerClick}
-          />
+            />
+
+          </div>
+          <div className="leayrs-container">
+            <Layers selectedSvg={selectedSvg}
+              parseSvgLayers={parseSvgLayers}
+              selectedLayers={selectedLayers}
+              handleLayerClick={handleLayerClick}
+            />
+          </div>
         </div>
       </div>
-    </div>
     </>
   );
 };

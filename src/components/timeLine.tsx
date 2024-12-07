@@ -6,8 +6,7 @@ interface PreviewProps {
   slideForTimeline: { svg: string; animationType: string | null }[];
   selectedSvgIndex: number | null;
   handleSvgClick: (svg: string, index: number) => void;
-  playWalkingAnimation: () => void; // Pass your existing function as a prop
-  
+  playWalkingAnimation: () => void;  
 }
 
 const TimeLine: React.FC<PreviewProps> = ({
@@ -23,24 +22,24 @@ const TimeLine: React.FC<PreviewProps> = ({
 
  
   const togglePlayPause = () => {
-    if (
-      selectedSvgIndex !== null &&
-      slideForTimeline[selectedSvgIndex]?.animationType === WALKING 
-    ) {
+    // Find the slide matching the selectedSvgIndex
+    const selectedSlide = slideForTimeline.find((slide) => slide.index === selectedSvgIndex);
+  
+    if (selectedSlide && selectedSlide.animationType === WALKING) {
       if (currentPlayingIndex !== null && currentPlayingIndex !== selectedSvgIndex) {
         console.log("Resetting animation for index:", currentPlayingIndex);
       }
   
-      toast.success(`Playing  animation for index: ${selectedSvgIndex}`);
-      playWalkingAnimation();  
-      setCurrentPlayingIndex(selectedSvgIndex);  
-    }  else {
-      console.log(
-        toast.error(`Can't Playing animation for index: ${selectedSvgIndex} please select  ${WALKING},${SITTING} animation type first`)
-       
+      toast.success(`Playing animation for index: ${selectedSvgIndex}`);
+      playWalkingAnimation();
+      setCurrentPlayingIndex(selectedSvgIndex);
+    } else {
+      toast.error(
+        `Can't play animation for index: ${selectedSvgIndex}. Please select ${WALKING}, ${SITTING} animation type first.`
       );
     }
   };
+  
   
 
   return (
@@ -48,14 +47,14 @@ const TimeLine: React.FC<PreviewProps> = ({
       <button onClick={togglePlayPause}>Play</button>
 
      <div className="svg-container-for-timeline">
-  {slideForTimeline.map((slide, index) => (
-    <div key={index + 100} style={{ marginBottom: "10px" }}>
+  {slideForTimeline.map((slide) => (
+    <div key={slide?.index} style={{ marginBottom: "10px" }}>
       <div
         dangerouslySetInnerHTML={{ __html: slide.svg }}
-        className={selectedSvgIndex === index + 100 ? "timeline active" : "timeline"} // Apply active class
-        onClick={() => handleSvgClick(slide.svg, index)} // Offset index by 100
+        className={selectedSvgIndex === slide.index + 100 ? "timeline active" : "timeline"} // Apply active class
+        onClick={() => handleSvgClick(slide.svg, slide?.index)} // Offset index by 100
       />
-      <p>{slide.animationType}</p>
+      <p>{slide?.animationType}</p>
     </div>
   ))}
 </div>
