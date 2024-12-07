@@ -1,4 +1,4 @@
-    import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import SvgPreviewMain from "./svgPreviewMain";
 import TimeLine from "./timeLine";
 
@@ -23,7 +23,10 @@ import TimeLine from "./timeLine";
         playWalkingAnimation: () => void;
         selectedSvgIndex:number,
         handleWalkingAnimation:()=>void
-        CurrentAnimationType:any
+        // CurrentAnimationType:string
+        svgContainerRefs:any
+        addAnimation:any
+        handleSvgClick:any
         
     }
 
@@ -32,7 +35,6 @@ import TimeLine from "./timeLine";
         selectedSvg,
         backgroundImage,
         svgContainerRef,
-        svgContainerRef2,
         setSelectedSvg,
         setBackgroundImage,
         isPlaying,

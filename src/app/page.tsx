@@ -1,31 +1,23 @@
 'use client';
 
 import Animations from "@/components/animations";
-import AnimatedSvg from "@/components/demo";
 import Layers from "@/components/layers";
-// import Layers from "@/components/layers";
 import Preview from "@/components/preview";
 import { ANIMATION_TIME_LINE, WALKING } from "@/utils/animationsType";
-
-// import SelectSvg from "@/components/selectSvg";
 import React, { useState, useEffect, useRef } from "react";
 
 const Page: React.FC = () => {
   const [svgDataList, setSvgDataList] = useState<string[]>([]);
   const [selectedSvg, setSelectedSvg] = useState<string | null>(null);
-  // const [slideForTimeline, setAddSlideRimeline] = useState<string | null>(null);
   const [slideForTimeline, setAddSlideRimeline] = useState<{ svg: string, animationType: string | null }[]>([]);
   const [selectedLayers, setSelectedLayers] = useState<string[]>([]);
   const [backgroundImage, setBackgroundImage] = useState<string | null>(null);
-  const [contextMenuPosition, setContextMenuPosition] = useState<{ x: number; y: number } | null>(null);
   const [animationDuration, setAnimationDuration] = useState(ANIMATION_TIME_LINE);
   const [isPaused, setIsPaused] = useState(false);
-  const [startTime, setStartTime] = useState<number | null>(null); // Start time for animation, type updated
   const [pausedTime, setPausedTime] = useState<number | null>(null); // Paused time state with correct type
   const svgContainerRef = useRef<HTMLDivElement | null>(null); // Container for SVG content
   const svgContainerRef2 = useRef<HTMLDivElement | null>(null); // Container for SVG content
   const durationInputRef = useRef<HTMLInputElement | null>(null);
-  // const durationInputRef2 = useRef<HTMLInputElement | null>(null);
   const animationFrameId = useRef<number | null>(null);
   const [currentTime, setCurrentTime] = useState(0); // Current time in seconds
   const [isPlaying, setIsPlaying] = useState(false); // Play/Pause state
@@ -34,14 +26,6 @@ const Page: React.FC = () => {
   const [selectedSvgIndex, setSelectedSvgIndex] = useState<number>(0); // Store selected index
   const [currentIndex, setCurrentIndex] = useState(100);
   
-
-
-
-
-  
- 
-
-
 
 
 
@@ -279,32 +263,6 @@ const Page: React.FC = () => {
   };
 
 
-
-  // console.log(`selectedSvgIndex in left and timeline`)
-  // console.log(selectedSvgIndex)
-
-  // const handleLayerClick = (layerId: string) => {
-  //   setSelectedLayers([layerId]); // Select only the clicked layer
-  // };
-
-
-  // const parseSvgLayers = (svg: string) => {
-  //   const parser = new DOMParser();
-  //   const svgDoc = parser.parseFromString(svg, "image/svg+xml");
-
-  //   const getLayers = svgDoc.documentElement.querySelectorAll(":scope > g");
-
-  //   const layersWithChildren = Array.from(getLayers).map((layer, index) => {
-  //     return {
-  //       index: index, // Index of the layer
-  //       id: layer.id || `Layer ${index}`, // Name of the layer
-  //       children: Array.from(layer.children) // Array of children for this layer
-  //     };
-  //   });
-
-  //   return layersWithChildren;
-  // };
-
   // Handle the play/pause functionality for the timeline
   const togglePlayPause = () => {
     setIsPlaying((prev) => !prev);
@@ -332,12 +290,6 @@ const Page: React.FC = () => {
 
 
 
-  // const handleContextMenu = (e: React.MouseEvent, svg: string) => {
-  //   e.preventDefault();
-  //   setSelectedSvg(svg);
-  //   setContextMenuPosition({ x: e.clientX, y: e.clientY });
-  // };
-
   const handleDeleteSvg = () => {
     if (selectedSvg) {
       // Remove from state
@@ -350,14 +302,7 @@ const Page: React.FC = () => {
       // Reset selected SVG
       setSelectedSvg(null);
     }
-    setContextMenuPosition(null); // Hide context menu
   };
-  // const addSlideToTimeline = () => {
-
-  //   const getSlideToTimeline = selectedSvg;
-  //   setAddSlideRimeline(getSlideToTimeline); // Update state with the selected SVG value
-
-  // } 
 
   const addSlideToTimeline = (event: React.MouseEvent<HTMLButtonElement>) => {
     const svgIndex = parseInt(event.currentTarget.getAttribute('data-index') || '0', 10);
@@ -397,10 +342,6 @@ const Page: React.FC = () => {
     }
   };
   
-
-
-
-
 
 
 
@@ -504,11 +445,6 @@ const Page: React.FC = () => {
             <div className="layers-prev-container">
               <h1 className="main-heading">Animations</h1>
               <div className="layersOuter">
-                {/* <Layers selectedSvg={selectedSvg}
-                      parseSvgLayers={parseSvgLayers}
-                      selectedLayers={selectedLayers}
-                      handleLayerClick={handleLayerClick}
-              /> */}
                 <Animations playWalkingAnimation={wlkingAnimationPlay} addAnimation={addAnimation} handleWalkingAnimation={handleWalkingAnimation} />
               </div>
             </div>
@@ -538,7 +474,7 @@ const Page: React.FC = () => {
               handleSvgClick={handleSvgClick}
               selectedSvgIndex={selectedSvgIndex}
               handleWalkingAnimation={handleWalkingAnimation}
-
+              
 
             />
 
