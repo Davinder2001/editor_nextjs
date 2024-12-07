@@ -1,6 +1,7 @@
 'use client';
 
 import Animations from "@/components/animations";
+import AnimatedSvg from "@/components/demo";
 import Layers from "@/components/layers";
 // import Layers from "@/components/layers";
 import Preview from "@/components/preview";
@@ -34,8 +35,7 @@ const Page: React.FC = () => {
   
 
 
-  console.log(`animationDuration`)
-  console.log(animationDuration)
+  
   
     
 
@@ -89,7 +89,7 @@ const Page: React.FC = () => {
     if (startTime === null) {
       setStartTime(timestamp);
     }
-    const elapsedTime = timestamp - (startTime ?? 3);
+    const elapsedTime = timestamp - (startTime ?? 0);
 
 
     if (elapsedTime >= animationDuration) {
@@ -355,7 +355,7 @@ const Page: React.FC = () => {
       selectedSvgIndex >= 0 &&
       selectedSvgIndex < slideForTimeline.length
     ) {
-      console.log("Button clicked for SVG at index:", selectedSvgIndex);
+      
   
       setAddSlideRimeline((prevSlides) => {
         const updatedSlides = prevSlides.map((slide, index) => {
@@ -368,11 +368,11 @@ const Page: React.FC = () => {
           return slide;
         });
   
-        console.log("Updated slideForTimeline:", updatedSlides);
+        
         return updatedSlides;
       });
     } else {
-      console.log("Invalid selectedSvgIndex:", selectedSvgIndex);
+      
     }
   };
   
@@ -387,6 +387,9 @@ const Page: React.FC = () => {
 
 
   return (
+    <>
+           
+
     <div className="container">
       <div className="frame-container">
         <div className="left-side">
@@ -442,7 +445,7 @@ const Page: React.FC = () => {
 
                   <div className="add-and-delete-buttons">
                     <button
-                      onClick={() => addSlideToTimeline(svg)}
+                      onClick={() => addSlideToTimeline()}
                       style={{
                         padding: "12px 10px",
                         backgroundColor: "#4CAF50", // Green for "Add Slide"
@@ -455,7 +458,7 @@ const Page: React.FC = () => {
                       Add Slide
                     </button>
                     <button
-                      onClick={() => handleDeleteSvg(svg)} // Delete SVG
+                      onClick={() => handleDeleteSvg()} // Delete SVG
                       style={{
                         padding: "12px 10px",
                         backgroundColor: "#f44336", // Red for "Delete"
@@ -481,7 +484,7 @@ const Page: React.FC = () => {
                       parseSvgLayers={parseSvgLayers}
                       selectedLayers={selectedLayers}
                       handleLayerClick={handleLayerClick}
-                       /> */}
+              /> */}
               <Animations playWalkingAnimation={wlkingAnimationPlay} addAnimation={addAnimation} handleWalkingAnimation={handleWalkingAnimation} />
             </div>
           </div>
@@ -525,6 +528,7 @@ const Page: React.FC = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

@@ -19,13 +19,13 @@ const TimeLine: React.FC<PreviewProps> = ({
 }) => {
   const [currentPlayingIndex, setCurrentPlayingIndex] = useState<number | null>(
     null
-  ); // Track the currently playing SVG index
+  );  
 
  
   const togglePlayPause = () => {
     if (
       selectedSvgIndex !== null &&
-      slideForTimeline[selectedSvgIndex]?.animationType === WALKING // Match against the constant
+      slideForTimeline[selectedSvgIndex]?.animationType === WALKING 
     ) {
       if (currentPlayingIndex !== null && currentPlayingIndex !== selectedSvgIndex) {
         console.log("Resetting animation for index:", currentPlayingIndex);
@@ -47,18 +47,18 @@ const TimeLine: React.FC<PreviewProps> = ({
     <>
       <button onClick={togglePlayPause}>Play</button>
 
-      <div className="svg-container-for-timeline">
-        {slideForTimeline.map((slide, index) => (
-          <div key={index} style={{ marginBottom: "10px" }}>
-            <div
-              dangerouslySetInnerHTML={{ __html: slide.svg }}
-              className={selectedSvgIndex === index ? "timeline" : ""}
-              onClick={() => handleSvgClick(slide.svg, index)}
-            />
-            <p>{slide.animationType}</p>
-          </div>
-        ))}
-      </div>
+     <div className="svg-container-for-timeline">
+  {slideForTimeline.map((slide, index) => (
+    <div key={index + 100} style={{ marginBottom: "10px" }}>
+      <div
+        dangerouslySetInnerHTML={{ __html: slide.svg }}
+        className={selectedSvgIndex === index + 100 ? "timeline active" : "timeline"} // Apply active class
+        onClick={() => handleSvgClick(slide.svg, index)} // Offset index by 100
+      />
+      <p>{slide.animationType}</p>
+    </div>
+  ))}
+</div>
     </>
   );
 };
