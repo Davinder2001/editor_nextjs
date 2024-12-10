@@ -5,9 +5,9 @@ interface PreviewProps {
   svgContainerRef: React.RefObject<HTMLCanvasElement>;
   svgPosition: { x: number; y: number };
   setSvgPosition: React.Dispatch<React.SetStateAction<{ x: number; y: number }>>;
-  applyLayerStyles: (svg: any, layers: any) => string;
+  applyLayerStyles: (svg: string, layersToHighlight: string[]) =>string;
   selectedSvg: string | null;
-  selectedLayers: any;
+  selectedLayers: string[];
 
 }
 

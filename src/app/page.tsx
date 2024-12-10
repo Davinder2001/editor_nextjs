@@ -29,7 +29,7 @@ const Page: React.FC = () => {
   const [isPaused, setIsPaused] = useState(false);
   const [startTime, setStartTime] = useState<number | null>(null); // Start time for animation, type updated
   const [pausedTime, setPausedTime] = useState<number | null>(null); // Paused time state with correct type
-  const svgContainerRef = useRef<HTMLDivElement | null>(null); // Container for SVG content
+  const svgContainerRef = useRef<HTMLCanvasElement | null>(null);
  
  
  
@@ -50,6 +50,10 @@ const Page: React.FC = () => {
   const [playheadPosition, setPlayheadPosition] = useState(0);
 
  
+
+  console.log(contextMenuPosition)
+  console.log(startTime)
+  console.log(currentTime)
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const recordedChunks = useRef<Blob[]>([]);
@@ -481,11 +485,11 @@ const Page: React.FC = () => {
   };
 
 
-  const pauseAnimation = () => {
-    setIsPaused(true);
-    setPausedTime(performance.now()); // Save pause time
-    if (animationFrameId.current) cancelAnimationFrame(animationFrameId.current); // Stop animation
-  };
+  // const pauseAnimation = () => {
+  //   setIsPaused(true);
+  //   setPausedTime(performance.now()); // Save pause time
+  //   if (animationFrameId.current) cancelAnimationFrame(animationFrameId.current); // Stop animation
+  // };
 
 
   const handleUpload = (event: React.ChangeEvent<HTMLInputElement>): void => {
@@ -685,39 +689,7 @@ const Page: React.FC = () => {
 
 
 
-  const applyLayerStyles = (svg: string, layersToHighlight: string[]) => {
-    const parser = new DOMParser();
-    const svgDoc = parser.parseFromString(svg, "image/svg+xml");
   
-    svgDoc.querySelectorAll("g").forEach((layer) => {
-      const layerId =
-        layer.id || `layer-${Array.from(layer.parentElement?.children || []).indexOf(layer)}`;
-  
-      if (layersToHighlight.includes(layerId)) {
-        layer.setAttribute("stroke", "red");
-        layer.setAttribute("stroke-width", "4");
-        Array.from(layer.children).forEach((child) => {
-          if (
-            layersToHighlight.includes(
-              child.id || `${layerId}-child-${Array.from(layer.children).indexOf(child)}`
-            )
-          ) {
-            child.setAttribute("stroke", "red");
-            child.setAttribute("stroke-width", "4");
-          }
-        });
-      } else {
-        layer.removeAttribute("stroke");
-        layer.removeAttribute("stroke-width");
-        Array.from(layer.children).forEach((child) => {
-          child.removeAttribute("stroke");
-          child.removeAttribute("stroke-width");
-        });
-      }
-    });
-  
-    return svgDoc.documentElement.outerHTML;
-  };
   
 
 
@@ -1000,8 +972,8 @@ const Page: React.FC = () => {
               selectedSvg={selectedSvg}
               backgroundImage={backgroundImage}
               svgContainerRef={svgContainerRef}
-            
-              setSelectedSvg={setSelectedSvg}
+           
+              
               setBackgroundImage={setBackgroundImage}
               isPlaying={isPlaying}
               togglePlayPause={togglePlayPause}
@@ -1017,7 +989,7 @@ const Page: React.FC = () => {
             
               handleSvgClick={handleSvgClick}
               selectedSvgIndex={selectedSvgIndex}
-              handleWalkingAnimation={handleWalkingAnimation}
+              
               currentReplayIndex={currentReplayIndex}
               svgPosition={svgPosition}
                setSvgPosition={setSvgPosition}

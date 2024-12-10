@@ -1,5 +1,5 @@
 interface Timeline{
-  slideForTimeline:[],
+  slideForTimeline:{ svg: string; animationType: string | null; index: number; }[],
   selectedSvgIndex:number,
   handleSvgClick:(svg: string, index: number)=>void,
   playWalkingAnimation:()=>void,
@@ -28,6 +28,7 @@ const TimeLine: React.FC <Timeline>= ({
   seconds,
    
 }) => {
+  console.log(selectedSvgIndex)
   return (
     <div className="timeline-container">
       <h3>Timeline:</h3>

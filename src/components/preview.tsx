@@ -1,31 +1,31 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect } from "react";
 import SvgPreviewMain from "./svgPreviewMain";
 import TimeLine from "./timeLine";
 
 interface PreviewProps {
-  setSvgDataList: any;
-  selectedSvg: any;
-  backgroundImage: any;
-  svgContainerRef: any;
-  setSelectedSvg: React.Dispatch<React.SetStateAction<string | null>>;
-  setBackgroundImage: any;
+  setSvgDataList: React.Dispatch<React.SetStateAction<string[]>>;
+  selectedSvg: string | null;
+   svgContainerRef: React.RefObject<HTMLCanvasElement> ;
+  // setSelectedSvg: React.Dispatch<React.SetStateAction<string | null>>;
+  backgroundImage: string | null;
+  setBackgroundImage: React.Dispatch<React.SetStateAction<string | null>>;
   isPlaying: boolean;
   togglePlayPause: () => void;
-  selectedLayers: any;
- 
+  selectedLayers: string[];
+
   playAnimation: (duration: number) => void;
-  slideForTimeline: any;
+  slideForTimeline: { svg: string; animationType: string | null; index: number; }[];
   playWalkingAnimation: () => void;
   selectedSvgIndex: number;
-  handleWalkingAnimation: () => void;
+ 
   replayActivities: () => void;
   downloadVideo: () => void;
-  svgPosition:any
-  setSvgPosition:any
-  handleSvgClick:any
-  playheadPosition:number
-  seconds:number
-  currentReplayIndex:null|number
+  svgPosition: { x: number; y: number };
+  setSvgPosition: React.Dispatch<React.SetStateAction<{ x: number; y: number }>>
+  handleSvgClick:(svg: string, index: number)=>void,
+  playheadPosition: number
+  seconds: number
+  currentReplayIndex: null | number
 }
 
 const Preview: React.FC<PreviewProps> = ({
@@ -33,34 +33,34 @@ const Preview: React.FC<PreviewProps> = ({
   selectedSvg,
   backgroundImage,
   svgContainerRef,
-  setSelectedSvg,
-  setBackgroundImage,
- 
-  selectedLayers,
- 
   
+  setBackgroundImage,
+
+  selectedLayers,
+
+
   slideForTimeline,
   playWalkingAnimation,
   selectedSvgIndex,
-  handleWalkingAnimation,
+  
   replayActivities,
   downloadVideo,
   svgPosition,
   setSvgPosition,
-  handleSvgClick ,
+  handleSvgClick,
   playheadPosition,
   seconds,
   currentReplayIndex
 }) => {
- 
-  const isDragging = useRef(false);
-  const dragStart = useRef({ x: 0, y: 0 });
 
-  
+  // const isDragging = useRef(false);
+  // const dragStart = useRef({ x: 0, y: 0 });
 
- 
 
- 
+
+
+
+
 
   useEffect(() => {
     const savedSVGs = localStorage.getItem("uploadedSVGs");
@@ -69,13 +69,13 @@ const Preview: React.FC<PreviewProps> = ({
       setSvgDataList(svgList);
       // setSelectedSvg(svgList[0] || null); 
     }
-  
+
     const savedBackground = localStorage.getItem("backgroundImage");
     if (savedBackground) {
       setBackgroundImage(savedBackground);
     }
   }, []); // Dependencies are left empty because this effect runs only once on mount
-  
+
 
   const applyLayerStyles = (svg: string, layersToHighlight: string[]) => {
     const parser = new DOMParser();
@@ -124,18 +124,18 @@ const Preview: React.FC<PreviewProps> = ({
             selectedSvg={selectedSvg}
             selectedLayers={selectedLayers}
             setSvgPosition={setSvgPosition}
-          
+
           />
 
           {/* Timeline */}
           <TimeLine
-      currentReplayIndex={currentReplayIndex}
+            currentReplayIndex={currentReplayIndex}
             slideForTimeline={slideForTimeline}
             playWalkingAnimation={playWalkingAnimation}
-        
+
             selectedSvgIndex={selectedSvgIndex}
-            
-           
+
+
             replayActivities={replayActivities}
             downloadVideo={downloadVideo}
             handleSvgClick={handleSvgClick}
