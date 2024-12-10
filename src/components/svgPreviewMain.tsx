@@ -1,56 +1,120 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
+
 interface PreviewProps {
-    backgroundImage: any;
-    svgContainerRef: any;
-    startDrag: any;
-    onDrag: ()=> void;
-    stopDrag:()=> void;
-    svgPosition: number;
-    applyLayerStyles:()=> void;
-    selectedSvg: any;
-    selectedLayers: any;
-    handleWalkingAnimation:()=>void
+  backgroundImage: string | null;
+  svgContainerRef: React.RefObject<HTMLCanvasElement>;
+  svgPosition: { x: number; y: number };
+  setSvgPosition: React.Dispatch<React.SetStateAction<{ x: number; y: number }>>;
+  applyLayerStyles: (svg: any, layers: any) => string;
+  selectedSvg: string | null;
+  selectedLayers: any;
 }
 
-const SvgPreviewMain = ({backgroundImage, svgContainerRef, startDrag, onDrag, stopDrag, svgPosition, applyLayerStyles, selectedSvg, selectedLayers }) => {
+const SvgPreviewMain: React.FC<PreviewProps> = ({
+  backgroundImage,
+  svgContainerRef,
+  svgPosition,
+  setSvgPosition,
+  applyLayerStyles,
+  selectedSvg,
+  selectedLayers,
+}) => {
+  const isDragging = useRef(false);
+  const dragStart = useRef({ x: 0, y: 0 });
+
+  const startDrag = (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent default drag behavior
+    e.stopPropagation(); // Prevent propagation to parent elements
+
+    isDragging.current = true;
+    dragStart.current = {
+      x: e.clientX - svgPosition.x,
+      y: e.clientY - svgPosition.y,
+    };
+  };
+
+  const onDrag = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!isDragging.current) return;
+
+    setSvgPosition({
+      x: e.clientX - dragStart.current.x,
+      y: e.clientY - dragStart.current.y,
+    });
+  };
+
+  const stopDrag = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    isDragging.current = false;
+  };
+
+  useEffect(() => {
+    if (!svgContainerRef.current || !selectedSvg) {
+      return;
+    }
+
+    const canvas = svgContainerRef.current;
+    const ctx = canvas.getContext("2d");
+
+    if (!ctx) {
+      console.error("Canvas context could not be initialized.");
+      return;
+    }
+
+    // Set canvas dimensions
+    canvas.width = 800; // Adjust as needed
+    canvas.height = 600; // Adjust as needed
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Load the SVG content dynamically
+    const svgContent = applyLayerStyles(selectedSvg, selectedLayers);
+    const img = new Image();
+    const svgBlob = new Blob([svgContent], { type: "image/svg+xml" });
+    const url = URL.createObjectURL(svgBlob);
+
+    img.onload = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
+      ctx.drawImage(img, svgPosition.x, svgPosition.y, canvas.width, canvas.height);
+      URL.revokeObjectURL(url); // Clean up the object URL
+    };
+
+    img.onerror = () => {
+      console.error("Failed to load SVG image.");
+    };
+
+    img.src = url;
+  }, [svgContainerRef, selectedSvg, selectedLayers, svgPosition, applyLayerStyles]);
+
   return (
-    <>
-        {/* Preview of svg */}
-        <div
-                                className="right-side-inner"
-                                style={{
-                                    backgroundImage: backgroundImage ? `url(${backgroundImage})` : "none",
-                                    backgroundSize: "cover",
-                                    backgroundPosition: "center",
-                                    border: "1px solid #ccc",
-                                    padding: "16px",
-                                    overflow: "hidden",
-                                }}
-                            >
-                                <div
-                                    ref={svgContainerRef}
-                                    className="svg-preview-container"
-                                    onMouseDown={startDrag}
-                                    onMouseMove={onDrag}
-                                    onMouseUp={stopDrag}
-                                    onMouseLeave={stopDrag}
-                                    style={{
-                                        position: "relative",
-                                        cursor: "move",
-                                        left: `${svgPosition.x}px`,
-                                        top: `${svgPosition.y}px`,
-                                    }}
-                                >
-                                    <div
-                                        dangerouslySetInnerHTML={{
-                                            __html: applyLayerStyles(selectedSvg, selectedLayers),
-                                        }}
-                                        style={{ maxHeight: "600px" }}
-                                    />
-                                </div>
-                            </div>
-    </>
-  )
-}
+    <div
+      className="right-side-inner"
+      style={{
+        backgroundImage: backgroundImage ? `url(${backgroundImage})` : "none",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        border: "1px solid #ccc",
+        padding: "16px",
+        overflow: "hidden",
+      }}
+    >
+      <canvas
+        ref={svgContainerRef}
+        className="svg-preview-container"
+        onMouseDown={startDrag}
+        onMouseMove={onDrag}
+        onMouseUp={stopDrag}
+        onMouseLeave={stopDrag}
+        style={{
+          cursor: "move",
+          border: "1px solid #000",
+        }}
+      />
+    </div>
+  );
+};
 
-export default SvgPreviewMain
+export default SvgPreviewMain;
