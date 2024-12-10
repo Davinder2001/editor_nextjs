@@ -3,9 +3,10 @@ interface PreviewProps {
   playWalkingAnimation: () => void;
   addAnimation: () => void;
   handleWalkingAnimation: () => void;
+  handlehandstandAnimation: () => void;
 }
 
-const Animations = ({ addAnimation,handleWalkingAnimation }: PreviewProps) => {
+const Animations = ({ handleWalkingAnimation,handlehandstandAnimation }: PreviewProps) => {
   return (<>
     <button className=''
       style={{ marginBottom: "10px", padding: '10px', width: '100%' }}
@@ -16,14 +17,11 @@ const Animations = ({ addAnimation,handleWalkingAnimation }: PreviewProps) => {
 
     <button className=''
       style={{ marginBottom: "10px", padding: '10px', width: '100%' }}
-      onClick={addAnimation}
+      onClick={()=>handlehandstandAnimation()}
     >
-      Add
+      hand stand
     </button>
-    <button className=''
-      style={{ marginBottom: "10px", padding: '10px', width: '100%' }}>
-      Jumping
-    </button>
+   
   </>
   )
 }

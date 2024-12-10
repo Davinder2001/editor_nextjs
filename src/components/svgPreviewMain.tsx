@@ -8,6 +8,7 @@ interface PreviewProps {
   applyLayerStyles: (svg: any, layers: any) => string;
   selectedSvg: string | null;
   selectedLayers: any;
+
 }
 
 const SvgPreviewMain: React.FC<PreviewProps> = ({
@@ -18,6 +19,7 @@ const SvgPreviewMain: React.FC<PreviewProps> = ({
   applyLayerStyles,
   selectedSvg,
   selectedLayers,
+  
 }) => {
   const isDragging = useRef(false);
   const dragStart = useRef({ x: 0, y: 0 });

@@ -5,7 +5,7 @@ import Animations from "@/components/animations";
 import Layers from "@/components/layers";
 // import Layers from "@/components/layers";
 import Preview from "@/components/preview";
-import { ANIMATION_TIME_LINE, WALKING } from "@/utils/animationsType";
+import { ANIMATION_TIME_LINE, HANDSTAND, WALKING } from "@/utils/animationsType";
 
 // import SelectSvg from "@/components/selectSvg";
 import React, { useState, useEffect, useRef } from "react";
@@ -25,7 +25,7 @@ const Page: React.FC = () => {
   const svgContainerRef = useRef<HTMLDivElement | null>(null); // Container for SVG content
   const svgContainerRef2 = useRef<HTMLDivElement | null>(null); // Container for SVG content
   const durationInputRef = useRef<HTMLInputElement | null>(null);
-  // const durationInputRef2 = useRef<HTMLInputElement | null>(null);
+ 
   const animationFrameId = useRef<number | null>(null);
   const [currentTime, setCurrentTime] = useState(1); // Current time in seconds
   const [isPlaying, setIsPlaying] = useState(false); // Play/Pause state
@@ -42,8 +42,7 @@ const Page: React.FC = () => {
   const [svgPosition, setSvgPosition] = useState({ x: 0, y: 0 });
   const [playheadPosition, setPlayheadPosition] = useState(null);
 
-  console.log(`playheadPosition`)
-  console.log(playheadPosition)
+ 
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const recordedChunks = useRef<Blob[]>([]);
@@ -95,23 +94,6 @@ const Page: React.FC = () => {
   
     console.log("Video downloaded...");
   };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -172,7 +154,7 @@ const Page: React.FC = () => {
     }
   
     if (isPaused) {
-      cancelAnimationFrame(animationFrameId.current!); // Stop if paused
+      cancelAnimationFrame(animationFrameId.current!);  
       return;
     }
   
@@ -270,6 +252,182 @@ const Page: React.FC = () => {
     }
   };
   
+
+
+
+  ////////////////////////// hand stand animation
+
+
+  const handstand = (timestamp: number) => {
+    if (!animationStarted) {
+      initialTimestamp = timestamp;
+      animationStarted = true;
+    }
+  
+    const elapsedTime = timestamp - initialTimestamp;
+  
+    if (elapsedTime >= animationDuration) {
+      console.log("Animation completed.");
+      animationStarted = false;
+      cancelAnimationFrame(animationFrameId.current!);
+      return;
+    }
+  
+    if (isPaused) {
+      cancelAnimationFrame(animationFrameId.current!);
+      return;
+    }
+  
+    const canvas = svgContainerRef.current;
+    if (!canvas) {
+      console.warn("Canvas not found.");
+      return;
+    }
+  
+    const ctx = canvas.getContext("2d");
+    if (!ctx || !selectedSvg) {
+      console.warn("Canvas context or SVG not available.");
+      return;
+    }
+  
+    // Parse the SVG and retrieve elements
+    const parser = new DOMParser();
+    const svgDoc = parser.parseFromString(selectedSvg, "image/svg+xml");
+    const svgElement = svgDoc.documentElement;
+  
+    // Select specific elements for animation
+    const leftHand = svgElement.querySelector("#hand-details-back");
+    const rightHand = svgElement.querySelector("#hand-details-front");
+  
+    // Ensure all elements exist
+    if (!leftHand || !rightHand) {
+      console.warn("Some elements are missing in the SVG.");
+      return;
+    }
+  
+    // Keyframe data for hands
+    const animations = {
+      "hand-details-back": {
+        keys: [
+          { t: 0, v: 0 },
+          { t: 400, v: -52.081355 },
+          { t: 1200, v: -94.55654 },
+          { t: 1700, v: -151.389937 },
+          { t: 2300, v: -60.488341 },
+          { t: 3000, v: 2.015952 },
+        ],
+        origin: { x: 933.544556, y: 375.9555 },
+      },
+      "hand-details-front": {
+        keys: [
+          { t: 0, v: 4.969917 },
+          { t: 400, v: -61.364093 },
+          { t: 1200, v: -85.395581 },
+          { t: 1700, v: -158.456814 },
+          { t: 2300, v: -43.159225 },
+          { t: 3000, v: 5.235948 },
+        ],
+        origin: { x: 933.544556, y: 381.769245 },
+      },
+    };
+  
+    // Interpolation function for keyframes
+    const interpolate = (keys: { t: number; v: number }[], currentTime: number) => {
+      let prevKey = keys[0];
+      let nextKey = keys[0];
+  
+      for (let i = 0; i < keys.length; i++) {
+        if (currentTime >= keys[i].t) {
+          prevKey = keys[i];
+        }
+        if (currentTime < keys[i].t) {
+          nextKey = keys[i];
+          break;
+        }
+      }
+  
+      const timeDiff = nextKey.t - prevKey.t || 1; // Prevent division by zero
+      const valueDiff = nextKey.v - prevKey.v;
+      const progress = (currentTime - prevKey.t) / timeDiff;
+  
+      return prevKey.v + valueDiff * progress;
+    };
+  
+    // Animation logic
+    const stepDuration = 3000; // Total animation loop duration
+    const elapsed = elapsedTime % stepDuration;
+  
+    // Apply transformations to hands
+    Object.entries(animations).forEach(([id, { keys, origin }]) => {
+      const element = svgElement.querySelector(`#${id}`);
+      if (element) {
+        const rotationValue = interpolate(keys, elapsed);
+        element.setAttribute(
+          "transform",
+          `rotate(${rotationValue} ${origin.x} ${origin.y})`
+        );
+      }
+    });
+  
+    // Serialize the updated SVG
+    const updatedSvg = new XMLSerializer().serializeToString(svgDoc);
+    const svgBlob = new Blob([updatedSvg], { type: "image/svg+xml;charset=utf-8" });
+    const url = URL.createObjectURL(svgBlob);
+  
+    const img = new Image();
+    img.onload = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
+      ctx.drawImage(img, svgPosition.x, svgPosition.y, canvas.width, canvas.height); // Draw updated SVG
+      URL.revokeObjectURL(url);
+    };
+  
+    img.onerror = () => {
+      console.error("Failed to load updated SVG image.");
+    };
+  
+    img.src = url;
+  
+    // Request the next frame
+    animationFrameId.current = requestAnimationFrame(handstand);
+  };
+
+  const handStandanimationPlay = () => {
+    if (!animationStarted) {
+      animationFrameId.current = requestAnimationFrame(handstand);
+    }
+  };
+
+   
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   
 
 
@@ -564,30 +722,88 @@ const Page: React.FC = () => {
   };
 
 
+
+
+  const handlehandstandAnimation = () => {
+    if (selectedSvgIndex !== null) {
+      setAddSlideRimeline((prevSlides) =>
+        prevSlides.map((slide) => {
+          if (slide.index === selectedSvgIndex) {
+            // Log the animation assignment
+            setActivityLog((prevLog) => [
+              ...prevLog,
+              { type: "assignAnimation", slideIndex: selectedSvgIndex, animationType: HANDSTAND },
+            ]);
+            return {
+              ...slide,
+              animationType: slide.animationType === HANDSTAND ? null : HANDSTAND,
+            };
+          }
+          return slide;
+        })
+      );
+    }
+  };
+  
+
+
   const replayActivities = () => {
     const canvas = svgContainerRef.current;
     if (!canvas) {
       console.warn("Canvas not found.");
       return;
     }
-
+  
     const ctx = canvas.getContext("2d");
     if (!ctx) {
       console.warn("Canvas context not available.");
       return;
     }
-
+  
     if (activityLog.length === 0) {
       console.warn("No activities to replay.");
       return;
     }
-
+  
     console.log("Starting replay and recording...");
     startRecording(); // Start recording
-
+  
     const totalDuration = activityLog.length * 1000; // Assuming each activity takes 1 second
     let currentTime = 0;
-
+  
+    const renderActivity = (activity: { type: string; slideIndex: number; animationType?: string }) => {
+      const slide = slideForTimeline.find((e) => e.index === activity.slideIndex);
+  
+      if (!slide) {
+        console.warn(`Slide not found for index ${activity.slideIndex}`);
+        return;
+      }
+  
+      // Update the selected SVG for preview
+      setSelectedSvg(slide.svg);
+  
+      // Render the SVG or animation
+      if (activity.type === "addSlide") {
+        const img = new Image();
+        const svgBlob = new Blob([slide.svg], { type: "image/svg+xml" });
+        const url = URL.createObjectURL(svgBlob);
+  
+        img.onload = () => {
+          ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height); // Render the SVG
+          URL.revokeObjectURL(url); // Clean up
+        };
+  
+        img.onerror = (e) => {
+          console.error("Error loading SVG image:", e);
+        };
+  
+        img.src = url;
+      } else if (activity.type === "assignAnimation") {
+        playAnimationForSlide(activity.slideIndex, activity.animationType);
+      }
+    };
+  
     const replayStep = (index: number) => {
       if (index >= activityLog.length) {
         setCurrentReplayIndex(null); // Clear highlight after replaying all activities
@@ -595,64 +811,26 @@ const Page: React.FC = () => {
         console.log("Replay completed.");
         return;
       }
-
+  
       const activity = activityLog[index];
-      console.log("Activity:", activity);
-
-      // Find the correct slide in slideForTimeline using the slideIndex from the activity
-      const slide = slideForTimeline.find((e) => e.index === activity.slideIndex);
-
-      // Check if slide exists
-      if (!slide) {
-        console.warn(`Slide not found for index ${activity.slideIndex}`);
-        replayStep(index + 1); // Skip to the next activity
-        return;
-      }
-
-      // Update the selected SVG for preview and highlight the slide in the timeline
-      setSelectedSvg(slide.svg);
       setCurrentReplayIndex(activity.slideIndex);
-
-      // Clear the canvas before rendering the new SVG
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      if (activity.type === "addSlide") {
-        // Render the SVG to Canvas
-        const svg = slide.svg; // Get the SVG content from the slide
-        if (svg) {
-          const img = new Image();
-          const svgBlob = new Blob([svg], { type: "image/svg+xml" });
-          const url = URL.createObjectURL(svgBlob);
-
-          img.onload = () => {
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            URL.revokeObjectURL(url); // Cleanup
-          };
-
-          img.onerror = (e) => {
-            console.error("Error loading SVG image:", e);
-          };
-
-          img.src = url;
-        }
-      } else if (activity.type === "assignAnimation") {
-        // Play walking animation on canvas
-        playAnimationForSlide(activity.slideIndex, activity.animationType);
-      }
-
-      // Update the timeline progress and current time in seconds
+  
+      renderActivity(activity);
+  
+      // Update the timeline progress
       setPlayheadPosition((currentTime / totalDuration) * 40);
       setSeconds(Math.floor(currentTime / 1000));
-
-      // Move to the next activity after a short delay
+  
+      // Move to the next activity
       setTimeout(() => {
         currentTime += 1000; // Increment current time by activity duration (1 second)
         replayStep(index + 1);
       }, 1000); // Delay between each replay step (1 second)
     };
-
+  
     replayStep(0); // Start replaying from the first activity
   };
+  
 
   
   
@@ -660,14 +838,18 @@ const Page: React.FC = () => {
   
   const playAnimationForSlide = (slideIndex: number, animationType?: string) => {
     const slide = slideForTimeline.find((slide) => slide.index === slideIndex);
-
+  
     if (!slide) return;
   
     if (animationType === WALKING) {
       console.log(`Playing walking animation for slide at index ${slideIndex}`);
-      wlkingAnimationPlay(); // Trigger your walking animation function
+      wlkingAnimationPlay();
+    } else if (animationType === HANDSTAND) {
+      console.log(`Playing handstand animation for slide at index ${slideIndex}`);
+      handStandanimationPlay();
     }
   };
+  
   
   
   
@@ -780,12 +962,8 @@ const Page: React.FC = () => {
             <div className="layers-prev-container">
               <h1 className="main-heading">Animations</h1>
               <div className="layersOuter">
-                {/* <Layers selectedSvg={selectedSvg}
-                      parseSvgLayers={parseSvgLayers}
-                      selectedLayers={selectedLayers}
-                      handleLayerClick={handleLayerClick}
-              /> */}
-                <Animations playWalkingAnimation={wlkingAnimationPlay} addAnimation={addAnimation} handleWalkingAnimation={handleWalkingAnimation} />
+               
+                <Animations playWalkingAnimation={wlkingAnimationPlay} addAnimation={addAnimation} handleWalkingAnimation={handleWalkingAnimation} handlehandstandAnimation={handlehandstandAnimation}/>
               </div>
             </div>
           </div>

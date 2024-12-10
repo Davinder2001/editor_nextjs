@@ -57,7 +57,7 @@ const TimeLine: React.FC = ({
           backgroundColor: "#f0f0f0",
           border: "1px solid #ccc",
           marginBottom: "20px",
-          transition: "left 0.2s linear",
+           transition: "left 0.2s linear",
         }}
       >
         <div
