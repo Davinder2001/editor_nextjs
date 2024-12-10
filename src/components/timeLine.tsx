@@ -1,23 +1,42 @@
-const TimeLine: React.FC = ({
+interface Timeline{
+  slideForTimeline:[],
+  selectedSvgIndex:number,
+  handleSvgClick:(svg: string, index: number)=>void,
+  playWalkingAnimation:()=>void,
+   replayActivities:()=>void,
+  downloadVideo:()=>void,
+  playheadPosition:number,
+  seconds:number,
+  currentReplayIndex:null|number
+} 
+
+
+interface Slide {
+  index: number;
+  svg: string;
+  animationType?: string | null;
+}
+
+const TimeLine: React.FC <Timeline>= ({
   slideForTimeline,
   selectedSvgIndex,
   handleSvgClick,
-  playWalkingAnimation,
   currentReplayIndex,
   replayActivities,
   downloadVideo,
   playheadPosition,
   seconds,
+   
 }) => {
   return (
     <div className="timeline-container">
       <h3>Timeline:</h3>
       {/* Replay and Download Buttons */}
       <button onClick={replayActivities} style={{ marginTop: "20px" }}>
-        Replay Activities
+        Render TimeLine
       </button>
       <button onClick={downloadVideo} style={{ marginTop: "20px" }}>
-        Download
+        Download in .Mp4
       </button>
 
      
@@ -75,9 +94,9 @@ const TimeLine: React.FC = ({
         </p>
       </div>
 
-      {/* SVG Timeline */}
+    
       <div className="svg-container-for-timeline">
-        {slideForTimeline.map((slide, index) => {
+        {slideForTimeline.map((slide:Slide) => {
       
           return (
             <div key={slide.index} style={{ marginBottom: "10px" }}>

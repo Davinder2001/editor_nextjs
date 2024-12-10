@@ -1,5 +1,10 @@
 'use client';
 
+ 
+
+
+
+
 import Animations from "@/components/animations";
 
 import Layers from "@/components/layers";
@@ -13,8 +18,10 @@ import React, { useState, useEffect, useRef } from "react";
 const Page: React.FC = () => {
   const [svgDataList, setSvgDataList] = useState<string[]>([]);
   const [selectedSvg, setSelectedSvg] = useState<string | null>(null);
-  // const [slideForTimeline, setAddSlideRimeline] = useState<string | null>(null);
-  const [slideForTimeline, setAddSlideRimeline] = useState<{ svg: string, animationType: string | null }[]>([]);
+  const [slideForTimeline, setAddSlideRimeline] = useState<
+  { svg: string; animationType: string | null; index: number }[]
+>([]);
+
   const [selectedLayers, setSelectedLayers] = useState<string[]>([]);
   const [backgroundImage, setBackgroundImage] = useState<string | null>(null);
   const [contextMenuPosition, setContextMenuPosition] = useState<{ x: number; y: number } | null>(null);
@@ -23,24 +30,24 @@ const Page: React.FC = () => {
   const [startTime, setStartTime] = useState<number | null>(null); // Start time for animation, type updated
   const [pausedTime, setPausedTime] = useState<number | null>(null); // Paused time state with correct type
   const svgContainerRef = useRef<HTMLDivElement | null>(null); // Container for SVG content
-  const svgContainerRef2 = useRef<HTMLDivElement | null>(null); // Container for SVG content
-  const durationInputRef = useRef<HTMLInputElement | null>(null);
+ 
+ 
  
   const animationFrameId = useRef<number | null>(null);
   const [currentTime, setCurrentTime] = useState(1); // Current time in seconds
   const [isPlaying, setIsPlaying] = useState(false); // Play/Pause state
-  const timelineRef = useRef<HTMLDivElement | null>(null);
-  const svgContainerRefs = useRef<(HTMLDivElement | null)[]>([null, null, null, null]); // Array of refs for 4 containers
+ 
+  
   const [selectedSvgIndex, setSelectedSvgIndex] = useState<number>(0); // Store selected index
   const [currentIndex, setCurrentIndex] = useState(100);
-  const [Seconds, setSeconds] = useState(null);
+  const [Seconds, setSeconds] = useState(0);
 
   const [activityLog, setActivityLog] = useState<
     { type: string; slideIndex: number; animationType?: string }[]
   >([]);
   const [currentReplayIndex, setCurrentReplayIndex] = useState<number | null>(null);
-  const [svgPosition, setSvgPosition] = useState({ x: 0, y: 0 });
-  const [playheadPosition, setPlayheadPosition] = useState(null);
+  const [svgPosition, setSvgPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [playheadPosition, setPlayheadPosition] = useState(0);
 
  
 
@@ -50,12 +57,12 @@ const Page: React.FC = () => {
    
   const startRecording = () => {
     const canvas = svgContainerRef.current;
-    if (!canvas) {
-      console.error("Canvas not found for recording.");
+    if (!(canvas instanceof HTMLCanvasElement)) {
+      console.warn("Canvas not found or is not a valid HTMLCanvasElement.");
       return;
     }
   
-    const stream = canvas.captureStream(30); // Capture canvas at 30 FPS
+    const stream = canvas.captureStream(30);  
     mediaRecorderRef.current = new MediaRecorder(stream, {
       mimeType: "video/webm; codecs=vp9",
     });
@@ -94,6 +101,23 @@ const Page: React.FC = () => {
   
     console.log("Video downloaded...");
   };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -154,13 +178,13 @@ const Page: React.FC = () => {
     }
   
     if (isPaused) {
-      cancelAnimationFrame(animationFrameId.current!);  
+      cancelAnimationFrame(animationFrameId.current!); // Stop if paused
       return;
     }
   
     const canvas = svgContainerRef.current;
-    if (!canvas) {
-      console.warn("Canvas not found.");
+    if (!(canvas instanceof HTMLCanvasElement)) {
+      console.warn("Canvas not found or is not a valid HTMLCanvasElement.");
       return;
     }
   
@@ -279,8 +303,8 @@ const Page: React.FC = () => {
     }
   
     const canvas = svgContainerRef.current;
-    if (!canvas) {
-      console.warn("Canvas not found.");
+    if (!(canvas instanceof HTMLCanvasElement)) {
+      console.warn("Canvas not found or is not a valid HTMLCanvasElement.");
       return;
     }
   
@@ -517,9 +541,7 @@ const Page: React.FC = () => {
 
   const handleSvgClick = (svg: string, index: number) => {
     setSelectedSvg(svg);
-    setSelectedLayers([]);
     setSelectedSvgIndex(index);
-
   };
 
 
@@ -749,61 +771,28 @@ const Page: React.FC = () => {
 
   const replayActivities = () => {
     const canvas = svgContainerRef.current;
-    if (!canvas) {
-      console.warn("Canvas not found.");
+    if (!(canvas instanceof HTMLCanvasElement)) {
+      console.warn("Canvas not found or is not a valid HTMLCanvasElement.");
       return;
     }
-  
+
     const ctx = canvas.getContext("2d");
     if (!ctx) {
       console.warn("Canvas context not available.");
       return;
     }
-  
+
     if (activityLog.length === 0) {
       console.warn("No activities to replay.");
       return;
     }
-  
+
     console.log("Starting replay and recording...");
     startRecording(); // Start recording
-  
+
     const totalDuration = activityLog.length * 1000; // Assuming each activity takes 1 second
     let currentTime = 0;
-  
-    const renderActivity = (activity: { type: string; slideIndex: number; animationType?: string }) => {
-      const slide = slideForTimeline.find((e) => e.index === activity.slideIndex);
-  
-      if (!slide) {
-        console.warn(`Slide not found for index ${activity.slideIndex}`);
-        return;
-      }
-  
-      // Update the selected SVG for preview
-      setSelectedSvg(slide.svg);
-  
-      // Render the SVG or animation
-      if (activity.type === "addSlide") {
-        const img = new Image();
-        const svgBlob = new Blob([slide.svg], { type: "image/svg+xml" });
-        const url = URL.createObjectURL(svgBlob);
-  
-        img.onload = () => {
-          ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height); // Render the SVG
-          URL.revokeObjectURL(url); // Clean up
-        };
-  
-        img.onerror = (e) => {
-          console.error("Error loading SVG image:", e);
-        };
-  
-        img.src = url;
-      } else if (activity.type === "assignAnimation") {
-        playAnimationForSlide(activity.slideIndex, activity.animationType);
-      }
-    };
-  
+
     const replayStep = (index: number) => {
       if (index >= activityLog.length) {
         setCurrentReplayIndex(null); // Clear highlight after replaying all activities
@@ -811,26 +800,64 @@ const Page: React.FC = () => {
         console.log("Replay completed.");
         return;
       }
-  
+
       const activity = activityLog[index];
+    
+
+      // Find the correct slide in slideForTimeline using the slideIndex from the activity
+      const slide = slideForTimeline.find((e) => e.index === activity.slideIndex);
+
+      // Check if slide exists
+      if (!slide) {
+        console.warn(`Slide not found for index ${activity.slideIndex}`);
+        replayStep(index + 1); // Skip to the next activity
+        return;
+      }
+
+      // Update the selected SVG for preview and highlight the slide in the timeline
+      setSelectedSvg(slide.svg);
       setCurrentReplayIndex(activity.slideIndex);
-  
-      renderActivity(activity);
-  
-      // Update the timeline progress
+
+      // Clear the canvas before rendering the new SVG
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      if (activity.type === "addSlide") {
+        // Render the SVG to Canvas
+        const svg = slide.svg; // Get the SVG content from the slide
+        if (svg) {
+          const img = new Image();
+          const svgBlob = new Blob([svg], { type: "image/svg+xml" });
+          const url = URL.createObjectURL(svgBlob);
+
+          img.onload = () => {
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            URL.revokeObjectURL(url); // Cleanup
+          };
+
+          img.onerror = (e) => {
+            console.error("Error loading SVG image:", e);
+          };
+
+          img.src = url;
+        }
+      } else if (activity.type === "assignAnimation") {
+        // Play walking animation on canvas
+        playAnimationForSlide(activity.slideIndex, activity.animationType);
+      }
+
+      // Update the timeline progress and current time in seconds
       setPlayheadPosition((currentTime / totalDuration) * 40);
       setSeconds(Math.floor(currentTime / 1000));
-  
-      // Move to the next activity
+
+      // Move to the next activity after a short delay
       setTimeout(() => {
         currentTime += 1000; // Increment current time by activity duration (1 second)
         replayStep(index + 1);
       }, 1000); // Delay between each replay step (1 second)
     };
-  
+
     replayStep(0); // Start replaying from the first activity
   };
-  
 
   
   
@@ -973,22 +1000,21 @@ const Page: React.FC = () => {
               selectedSvg={selectedSvg}
               backgroundImage={backgroundImage}
               svgContainerRef={svgContainerRef}
-              svgContainerRef2={svgContainerRef2}
+            
               setSelectedSvg={setSelectedSvg}
               setBackgroundImage={setBackgroundImage}
               isPlaying={isPlaying}
               togglePlayPause={togglePlayPause}
               selectedLayers={selectedLayers}
-              timelineRef={timelineRef}
-              currentTime={currentTime}
-              setCurrentTime={setCurrentTime}
-              durationInputRef={durationInputRef}
+            
+           
+             
               playAnimation={playAnimation}
-              pauseAnimation={pauseAnimation}
+             
               slideForTimeline={slideForTimeline}
               playWalkingAnimation={wlkingAnimationPlay}
-              svgContainerRefs={svgContainerRefs}
-              addAnimation={addAnimation}
+            
+            
               handleSvgClick={handleSvgClick}
               selectedSvgIndex={selectedSvgIndex}
               handleWalkingAnimation={handleWalkingAnimation}

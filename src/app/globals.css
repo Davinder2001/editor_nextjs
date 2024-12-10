@@ -10,12 +10,63 @@
 .timeline-container {
   width: 100%;
   height: 10px;
-  background: #ddd;
+ 
   position: relative;
   margin-top: 10px;
 }
 
+.timeline-container button {
+  padding: 15px 20px;
+  margin-right: 10px;
+  background: #f49a03e0;
+  border: none;
+  border-radius: 28px;
+}
+.timeline-container button:hover {
+  background: #8989fb;
+  cursor: pointer;
+}
 
+
+body {
+  font-family: 'circular';
+}
+
+canvas.svg-preview-container {
+  height: 500px;
+}
+
+
+
+.svg-container-for-timeline p {
+  text-align: center;
+}
+
+.layersOuter button {
+  background: #f57622;
+  border: none;
+  border-radius: 29px;
+  padding: 18px !important;
+  cursor: pointer;
+  text-transform: capitalize;
+  font-weight: 600;
+}
+
+
+.layersOuter button:hover {
+  background: #6a6ad6;
+}
+.layersOuter button:focus {
+  background: #6a6ad6;
+  color: white;
+}
+
+body {
+  font-family: 'circular';
+}
+canvas{
+  border: none!important;
+}
 
 
 .active {
@@ -64,12 +115,17 @@
 .right-side {
   width: 60%;
 }
-
+.layers-container ul li ul li button {
+  color: #000!important;
+}
 .left-side {
   width: 20%;
 }
 .leayrs-container{
   width: 20%;
+}
+.layers-container ul li ul li {
+  overflow: hidden;
 }
 
   .main-heading {

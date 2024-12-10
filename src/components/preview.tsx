@@ -7,12 +7,12 @@ interface PreviewProps {
   selectedSvg: any;
   backgroundImage: any;
   svgContainerRef: any;
-  setSelectedSvg: any;
+  setSelectedSvg: React.Dispatch<React.SetStateAction<string | null>>;
   setBackgroundImage: any;
   isPlaying: boolean;
   togglePlayPause: () => void;
   selectedLayers: any;
-  timelineRef: React.RefObject<HTMLInputElement> | any;
+ 
   playAnimation: (duration: number) => void;
   slideForTimeline: any;
   playWalkingAnimation: () => void;
@@ -21,7 +21,11 @@ interface PreviewProps {
   replayActivities: () => void;
   downloadVideo: () => void;
   svgPosition:any
-  setSvgPosition:()=>void
+  setSvgPosition:any
+  handleSvgClick:any
+  playheadPosition:number
+  seconds:number
+  currentReplayIndex:null|number
 }
 
 const Preview: React.FC<PreviewProps> = ({
@@ -31,11 +35,10 @@ const Preview: React.FC<PreviewProps> = ({
   svgContainerRef,
   setSelectedSvg,
   setBackgroundImage,
-  isPlaying,
-  togglePlayPause,
+ 
   selectedLayers,
-  timelineRef,
-  playAnimation,
+ 
+  
   slideForTimeline,
   playWalkingAnimation,
   selectedSvgIndex,
@@ -46,43 +49,33 @@ const Preview: React.FC<PreviewProps> = ({
   setSvgPosition,
   handleSvgClick ,
   playheadPosition,
-  seconds
+  seconds,
+  currentReplayIndex
 }) => {
  
   const isDragging = useRef(false);
   const dragStart = useRef({ x: 0, y: 0 });
 
-  const startDrag = (e: React.MouseEvent) => {
-    isDragging.current = true;
-    dragStart.current = { x: e.clientX - svgPosition.x, y: e.clientY - svgPosition.y };
-  };
+  
 
-  const onDrag = (e: React.MouseEvent) => {
-    if (!isDragging.current) return;
+ 
 
-    setSvgPosition({
-      x: e.clientX - dragStart.current.x,
-      y: e.clientY - dragStart.current.y,
-    });
-  };
-
-  const stopDrag = () => {
-    isDragging.current = false;
-  };
+ 
 
   useEffect(() => {
     const savedSVGs = localStorage.getItem("uploadedSVGs");
     if (savedSVGs) {
-      const svgList = JSON.parse(savedSVGs);
+      const svgList: string[] = JSON.parse(savedSVGs); // Explicitly type the parsed data
       setSvgDataList(svgList);
-      setSelectedSvg(svgList[0] || null);
+      // setSelectedSvg(svgList[0] || null); 
     }
-
+  
     const savedBackground = localStorage.getItem("backgroundImage");
     if (savedBackground) {
       setBackgroundImage(savedBackground);
     }
-  }, [setSvgDataList, setSelectedSvg, setBackgroundImage]);
+  }, []); // Dependencies are left empty because this effect runs only once on mount
+  
 
   const applyLayerStyles = (svg: string, layersToHighlight: string[]) => {
     const parser = new DOMParser();
@@ -126,9 +119,6 @@ const Preview: React.FC<PreviewProps> = ({
           <SvgPreviewMain
             backgroundImage={backgroundImage}
             svgContainerRef={svgContainerRef}
-            startDrag={startDrag}
-            onDrag={onDrag}
-            stopDrag={stopDrag}
             svgPosition={svgPosition}
             applyLayerStyles={applyLayerStyles}
             selectedSvg={selectedSvg}
@@ -139,13 +129,13 @@ const Preview: React.FC<PreviewProps> = ({
 
           {/* Timeline */}
           <TimeLine
-            timelineRef={timelineRef}
+      currentReplayIndex={currentReplayIndex}
             slideForTimeline={slideForTimeline}
             playWalkingAnimation={playWalkingAnimation}
-            selectedSvg={selectedSvg}
+        
             selectedSvgIndex={selectedSvgIndex}
-            handleWalkingAnimation={handleWalkingAnimation}
-            svgContainerRef={svgContainerRef}
+            
+           
             replayActivities={replayActivities}
             downloadVideo={downloadVideo}
             handleSvgClick={handleSvgClick}

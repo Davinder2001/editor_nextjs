@@ -67,9 +67,7 @@ const SvgPreviewMain: React.FC<PreviewProps> = ({
       return;
     }
 
-    // Set canvas dimensions
-    canvas.width = 800; // Adjust as needed
-    canvas.height = 600; // Adjust as needed
+ 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // Load the SVG content dynamically
@@ -105,6 +103,8 @@ const SvgPreviewMain: React.FC<PreviewProps> = ({
     >
       <canvas
         ref={svgContainerRef}
+        height={600}
+        width={800}
         className="svg-preview-container"
         onMouseDown={startDrag}
         onMouseMove={onDrag}
