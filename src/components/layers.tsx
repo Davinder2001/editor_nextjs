@@ -30,13 +30,8 @@ const Layers: React.FC<PreviewProps> = ({
                 onClick={() => handleLayerClick(layer.id)}
                 style={{
                   background: selectedLayers.includes(layer.id)
-                    ? "lightblue"
-                    : "transparent",
-                  padding: "12px",
-                  cursor: "pointer",
-                  margin: "4px 0",
-                  width: "100%",
-                  color: "black", // Main layer in black
+                    ? "#f49a03e0"
+                    : "#f57622"
                 }}
               >
                 {layer.id}

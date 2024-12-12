@@ -61,11 +61,35 @@ canvas.svg-preview-container {
 .svg-container-for-timeline p {
   text-align: center;
 }
+.leayrs-container button {
+  border-radius: 5px;
+  padding: 14px !important;
+  cursor: pointer;
+  text-transform: capitalize;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+
+.leayrs-container button:hover {
+  background: #6a6ad6;
+}
+.leayrs-container button:focus {
+  background: #6a6ad6;
+  color: white;
+}
+
+.svg-container-for-timeline .timeline svg {
+  cursor: pointer;
+}
+.svg-container-for-timeline p {
+  text-transform: capitalize;
+}
 
 .layersOuter button {
   background: #f57622;
   border: none;
-  border-radius: 29px;
+  border-radius: 5px;
   padding: 18px !important;
   cursor: pointer;
   text-transform: capitalize;
@@ -81,13 +105,31 @@ canvas.svg-preview-container {
   color: white;
 }
 
+
 body {
   font-family: 'circular';
 }
 canvas{
   border: none!important;
 }
+.choose_file-container label {
+  background: #f57622;
+  border: none;
+  border-radius: 5px;
+  padding: 18px !important;
+  cursor: pointer;
+  text-transform: capitalize;
+  font-weight: 600;
+  width: 85%;
+}
 
+.choose_file-container label:hover {
+  background: #6a6ad6;
+}
+.choose_file-container label:focus {
+  background: #6a6ad6;
+  color: white;
+}
 
 .active {
   border: 1px solid green!important;

@@ -37,7 +37,7 @@ const TimeLine: React.FC<Timeline> = ({
         Download as Mp4
       </button>
       <button style={{ marginBottom: "10px" }} onClick={playPauseAni}>
-        Play/Pause
+        Play
       </button>
 
       {/* Time Ruler */}
@@ -101,7 +101,8 @@ const TimeLine: React.FC<Timeline> = ({
           }
           onClick={() => handleSvgClick(slide.svg, slide.index)}
         />
-        <p> Animation:{slide.animationType || "No Animation"}</p>
+ 
+        <p> {slide.animationType}</p>
       </div>
     ))
   ) : (
