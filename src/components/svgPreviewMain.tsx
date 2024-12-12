@@ -92,15 +92,10 @@ const SvgPreviewMain: React.FC<PreviewProps> = ({
   return (
     <div
       className="right-side-inner"
-      style={{
-        backgroundImage: backgroundImage ? `url(${backgroundImage})` : "none",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        border: "1px solid #ccc",
-        padding: "16px",
-        overflow: "hidden",
-      }}
+       
+      
     >
+      <img src={backgroundImage||''} alt="" />
       <canvas
         ref={svgContainerRef}
         height={600}

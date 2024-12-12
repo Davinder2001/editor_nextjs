@@ -69,7 +69,6 @@ const Page: React.FC = () => {
 
 
   const handlePlayPauseForSelectedSlide = () => {
-
     if (selectedSvgIndex === null) {
       console.warn("No slide selected.");
       return;
@@ -95,7 +94,7 @@ const Page: React.FC = () => {
       })
     );
   
-    // Automatically reset after animation duration to allow replay
+   
     setTimeout(() => {
       setAddSlideRimeline((prevSlides) =>
         prevSlides.map((slide) =>
@@ -105,25 +104,10 @@ const Page: React.FC = () => {
     }, ANIMATION_TIME_LINE);
   };
   
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
  
-
-  // console.log(contextMenuPosition)
-  // console.log(startTime)
-  // console.log(currentTime)
+  console.log(contextMenuPosition)
+  console.log(startTime)
+  console.log(currentTime)
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const recordedChunks = useRef<Blob[]>([]);
@@ -134,6 +118,25 @@ const Page: React.FC = () => {
     if (!(canvas instanceof HTMLCanvasElement)) {
       console.warn("Canvas not found or is not a valid HTMLCanvasElement.");
       return;
+    }
+  
+    const ctx = canvas.getContext("2d");
+    if (!ctx) {
+      console.warn("Canvas context not available.");
+      return;
+    }
+  
+    if (backgroundImage) {
+      const bgImg = new Image();
+      bgImg.src = backgroundImage;
+  
+      bgImg.onload = () => {
+        ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height); // Draw background image
+      };
+  
+      bgImg.onerror = () => {
+        console.error("Failed to load background image.");
+      };
     }
   
     const stream = canvas.captureStream(30);  
@@ -150,6 +153,7 @@ const Page: React.FC = () => {
     mediaRecorderRef.current.start();
     console.log("Recording started...");
   };
+  
   
   const stopRecording = () => {
     if (mediaRecorderRef.current) {
@@ -541,7 +545,7 @@ const Page: React.FC = () => {
       setIsPaused(false);
       setPausedTime(null);
     } else {
-      setStartTime(null); 
+      setStartTime(null); // Reset start time for a fresh animation
     }
 
     animationFrameId.current = requestAnimationFrame(animate);
@@ -975,6 +979,8 @@ const Page: React.FC = () => {
 // };
 
 
+
+
 const replayActivities = () => {
   const canvas = svgContainerRef.current;
   if (!(canvas instanceof HTMLCanvasElement)) {
@@ -999,43 +1005,84 @@ const replayActivities = () => {
   startRecording(); // Start recording
 
   const totalDuration = filteredSlides.reduce((sum, slide) => sum + slide.duration, 0);
-  let elapsedTime = 0; // Tracks elapsed time in milliseconds
-  let currentIndex = 0; // Tracks the current slide index
+  let elapsedTime = draggedSeconds !== null ? draggedSeconds * 1000 : 0; // Start from dragged position if available
+  let currentIndex = 0;
 
-  // Adjust for dragged position
+  // Find the starting slide based on the dragged position
   if (draggedSeconds !== null) {
-    elapsedTime = draggedSeconds * 1000; // Convert to milliseconds
-    currentIndex = filteredSlides.findIndex(
-      (slide, index) =>
-        elapsedTime >=
-        filteredSlides.slice(0, index).reduce((sum, s) => sum + s.duration, 0) &&
-        elapsedTime <
-        filteredSlides.slice(0, index + 1).reduce((sum, s) => sum + s.duration, 0)
-    );
-    currentIndex = Math.max(0, currentIndex); // Ensure index is valid
+    currentIndex = filteredSlides.findIndex((slide, index) => {
+      const start = filteredSlides.slice(0, index).reduce((sum, s) => sum + s.duration, 0);
+      const end = start + slide.duration;
+      return elapsedTime >= start && elapsedTime < end;
+    });
+    currentIndex = Math.max(0, currentIndex); // Ensure valid index
   }
 
-  const replayStep = (index: number) => {
+  // Reference to the playhead element
+  const playheadElement = document.querySelector(".playhead");
+
+  const drawBackground = () => {
+    if (backgroundImage) {
+      const bgImg = new Image();
+      bgImg.src = backgroundImage;
+
+      bgImg.onload = () => {
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height); // Add white background
+        ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height); // Draw the background image
+      };
+
+      bgImg.onerror = () => {
+        console.error("Failed to load background image.");
+      };
+    } else {
+      ctx.fillStyle = "#fff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height); // Default white background
+    }
+  };
+
+  // Progress bar logic with updates every second
+  const updatePlayhead = setInterval(() => {
+    elapsedTime += 1000; // Increment by 1 second
+    const progress = Math.min((elapsedTime / totalDuration) * 100, 100);
+
+    if (playheadElement) {
+      playheadElement.style.left = `${progress}%`; // Update the playhead visually
+    }
+
+    if (elapsedTime >= totalDuration) {
+      clearInterval(updatePlayhead); // Stop when total duration is reached
+    }
+  }, 1000);
+
+  const replayStep = (index) => {
     if (index >= filteredSlides.length) {
-      setCurrentReplayIndex(null); // Clear highlight
-      stopRecording(); // Stop recording
+      stopRecording();
+      clearInterval(updatePlayhead);
       console.log("Replay completed.");
       return;
     }
 
     const slide = filteredSlides[index];
 
-    setCurrentReplayIndex(slide.index);
+    // Highlight the current slide visually
+    const slideElements = document.querySelectorAll(".svg-container-for-timeline .timeline");
+    slideElements.forEach((el, idx) => {
+      el.classList.toggle("active", idx === slide.index);
+    });
 
     const img = new Image();
     const svgBlob = new Blob([slide.svg], { type: "image/svg+xml" });
     const url = URL.createObjectURL(svgBlob);
 
     img.onload = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
+      drawBackground(); // Redraw the background
+
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height); // Draw the current SVG
       URL.revokeObjectURL(url);
 
+      // Trigger animations for the current slide
       if (slide.animationType === WALKING) {
         wlkingAnimationPlay(slide.svg);
       } else if (slide.animationType === HANDSTAND) {
@@ -1043,10 +1090,15 @@ const replayActivities = () => {
       }
 
       setTimeout(() => {
-        elapsedTime += slide.duration;
-        const progress = Math.min((elapsedTime / totalDuration) * 100, 100);
-        setPlayheadPosition(progress);
-        replayStep(index + 1);
+        const slideEndTime = filteredSlides
+          .slice(0, index + 1)
+          .reduce((sum, s) => sum + s.duration, 0);
+
+        if (elapsedTime < slideEndTime) {
+          elapsedTime = slideEndTime; // Sync elapsedTime with the slide's end
+        }
+
+        replayStep(index + 1); // Move to the next slide
       }, slide.duration);
     };
 
@@ -1058,78 +1110,56 @@ const replayActivities = () => {
     img.src = url;
   };
 
-  replayStep(currentIndex);  
+  drawBackground(); // Draw the background at the start
+  replayStep(currentIndex); // Start replaying from the correct slide
 };
 
 
 
 
 
+const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+  setDragging(true);
+};
 
+const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+  if (!dragging) return;
 
+  const timelineElement = e.currentTarget;
+  const rect = timelineElement.getBoundingClientRect();
+  const offsetX = e.clientX - rect.left;
 
+  const timelineWidth = rect.width;
+  const totalDurationInSeconds = slideForTimeline
+    .filter((slide) => slide.animationType)
+    .reduce((sum, slide) => sum + slide.duration, 0) / 1000;
 
+  const newSeconds = Math.max(
+    0,
+    Math.min((offsetX / timelineWidth) * totalDurationInSeconds, totalDurationInSeconds)
+  );
 
-  const playAnimationForSlide = (slideIndex: number, animationType?: string) => {
-    const slide = slideForTimeline.find((slide) => slide.index === slideIndex);
-  
-    if (!slide) return;
-  
-    if (animationType === WALKING) {
-      console.log(`Playing walking animation for slide at index ${slideIndex}`);
-      wlkingAnimationPlay(slide.svg);
-    } else if (animationType === HANDSTAND) {
-      console.log(`Playing handstand animation for slide at index ${slideIndex}`);
-      handStandanimationPlay(slide.svg);
-    }
-  };
-
-  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    setDragging(true);
-  };
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!dragging) return;
-
-    const timelineElement = e.currentTarget;
-    const rect = timelineElement.getBoundingClientRect();
-    const offsetX = e.clientX - rect.left;
-
-    const timelineWidth = rect.width;
-    const totalDurationInSeconds = slideForTimeline
-      .filter((slide) => slide.animationType)
-      .reduce((sum, slide) => sum + slide.duration, 0) / 1000;
-
-    const newSeconds = Math.max(
-      0,
-      Math.min((offsetX / timelineWidth) * totalDurationInSeconds, totalDurationInSeconds)
-    );
-
+  // Update dragged position and playhead position without triggering other updates
+  if (draggedSeconds !== newSeconds) {
     setDraggedSeconds(newSeconds);
     setPlayheadPosition((newSeconds / totalDurationInSeconds) * 100);
-  };
+  }
+};
 
-  const handleMouseUp = () => {
-    setDragging(false);
-  };
-  
-  
-  
-  
+
+const handleMouseUp = () => {
+  setDragging(false);
+};
 
 
 
 
 
-
-
-
-
-
-
-
+ 
   return (
     <>
+
+     
 
       <div className="container">
         <div className="frame-container">
@@ -1234,7 +1264,7 @@ const replayActivities = () => {
               selectedSvg={selectedSvg}
               backgroundImage={backgroundImage}
               svgContainerRef={svgContainerRef}
-              playPauseAni={handlePlayPauseForSelectedSlide}
+           
               
               setBackgroundImage={setBackgroundImage}
               isPlaying={isPlaying}
@@ -1262,6 +1292,7 @@ const replayActivities = () => {
               handleMouseDown={handleMouseDown}
               handleMouseMove={handleMouseMove}
               handleMouseUp={handleMouseUp}
+              playPauseAni={handlePlayPauseForSelectedSlide}
              
 
 

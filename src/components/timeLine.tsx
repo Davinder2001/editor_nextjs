@@ -1,129 +1,116 @@
-import React from 'react';
-import PlayHead from './playhead';
-
-interface Timeline {
-  slideForTimeline: { svg: string; animationType: string | null; duration: number; index: number }[];
-  // selectedSvgIndex: number;
-  handleSvgClick: (svg: string, index: number) => void;
-  replayActivities: () => void;
-  playPauseAni: () => void;
-  handleMouseDown: () => void;
-  handleMouseMove: () => void;
-  handleMouseUp: () => void;
-  downloadVideo: () => void;
-  playheadPosition: number;
-  // seconds: number;
-  currentReplayIndex: number | null;
-}
-
-interface Slide {
-  index: number;
-  svg: string;
-  animationType?: string | null;
-  duration: number; // Duration in milliseconds
-}
+import PlayHead from "./playhead";
 
 const TimeLine: React.FC<Timeline> = ({
   slideForTimeline,
-  // selectedSvgIndex,
-  playPauseAni,
+ 
   handleSvgClick,
   replayActivities,
   downloadVideo,
   playheadPosition,
-  // seconds,
   currentReplayIndex,
   handleMouseDown,
   handleMouseMove,
-  handleMouseUp
+  handleMouseUp,
+  playPauseAni
 }) => {
   // Filter slides with animations assigned
   const filteredSlides = slideForTimeline.filter((slide) => slide.animationType);
 
-
+  // Calculate cumulative durations (in milliseconds)
   const cumulativeDurations = filteredSlides.reduce<number[]>((acc, slide) => {
     const lastTime = acc.length > 0 ? acc[acc.length - 1] : 0;
-    const newTime = lastTime + slide.duration / 1000; // Convert ms to seconds
+    const newTime = lastTime + slide.duration; // Keep duration in milliseconds
     return [...acc, newTime];
   }, []);
 
-
-  const incrementalSeconds = Array.from(
-    { length: Math.ceil(cumulativeDurations[cumulativeDurations.length - 1] || 0) },
-    (_, i) => i + 1
-  );
+  // Total duration in milliseconds
+  const totalDurationInMs = cumulativeDurations[cumulativeDurations.length - 1] || 0;
+  const totalDurationInSeconds = Math.ceil(totalDurationInMs / 1000);
 
   return (
     <div className="timeline-container">
       <h3>Timeline:</h3>
-      {/* Replay and Download Buttons */}
-      <button onClick={replayActivities} style={{ marginTop: '20px' }}>
+      <button onClick={replayActivities} style={{ marginTop: "20px" }}>
         Render Timeline
       </button>
-      <button onClick={downloadVideo} style={{ marginTop: '20px' }}>
+      <button onClick={downloadVideo} style={{ marginTop: "20px" }}>
         Download as Mp4
       </button>
-      <button
-            className=""
-            style={{ marginBottom: "10px"}}
-            onClick={playPauseAni}
-          >
-            Play/Pause
-          </button>
-      
+      <button style={{ marginBottom: "10px" }} onClick={playPauseAni}>
+        Play/Pause
+      </button>
 
-      {/* Time Ruler with Incremental Seconds */}
+      {/* Time Ruler */}
       {filteredSlides.length > 0 && (
         <div
           className="time-ruler"
           style={{
-            display: 'flex',
-            position: 'relative',
-            height: '40px',
-            marginTop: '10px',
-            marginBottom: '10px',
-            borderBottom: '1px solid gray',
+            position: "relative",
+            height: "50px",
+            marginTop: "10px",
+            borderTop: "1px solid gray"
           }}
         >
-          {incrementalSeconds.map((time, index) => (
-            <div
-              key={index}
-              style={{
-                width: `${100 / incrementalSeconds.length}%`,
-                textAlign: 'center',
-                fontSize: '12px',
-              }}
-            >
-              <span>{time}s</span>
-            </div>
-          ))}
+          {Array.from(
+            { length: totalDurationInMs / 100 + 1 }, // Include the last increment
+            (_, i) => i * 100
+          ).map((time, index) => {
+            const isSecond = time % 1000 === 0; // Check if the tick is a whole second
+            return (
+              <div
+                key={index}
+                style={{
+                  position: "absolute",
+                  left: `${(time / totalDurationInMs) * 100}%`,
+                  height: isSecond ? "20px" : "10px",
+                  borderLeft: "2px solid gray",
+                  transform: "translateX(-50%)",
+                  fontSize: "10px"
+                }}
+              >
+                {isSecond && (
+                  <span style={{ position: "absolute", top: "25px" }}>
+                    {time / 1000}
+                  </span>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
 
-
-      <PlayHead playheadPosition={playheadPosition}
-        cumulativeDurations={cumulativeDurations} handleMouseDown={handleMouseDown}
+      <PlayHead
+        playheadPosition={playheadPosition}
+        cumulativeDurations={cumulativeDurations}
+        handleMouseDown={handleMouseDown}
         handleMouseMove={handleMouseMove}
         handleMouseUp={handleMouseUp}
-
       />
 
       {/* SVG Slides */}
       <div className="svg-container-for-timeline">
-        {slideForTimeline.map((slide: Slide, index) => (
-          <div key={slide.index} style={{ marginBottom: '10px' }}>
-            <div
-              dangerouslySetInnerHTML={{ __html: slide.svg }}
-              className={
-                currentReplayIndex === slide.index ? 'timeline active' : 'timeline'
-              }
-              onClick={() => handleSvgClick(slide.svg, slide.index)}
-            />
-            <p>Animation: {slide.animationType || 'None'}</p>
-
-          </div>
-        ))}
+  {slideForTimeline.length > 0 ? (
+    slideForTimeline.map((slide: Slide) => (
+      <div key={slide.index} style={{ marginBottom: "10px" }} className="timeline-wrapper">
+        <div
+          dangerouslySetInnerHTML={{ __html: slide.svg }}
+          className={
+            currentReplayIndex === slide.index
+              ? "timeline active"
+              : "timeline"
+          }
+          onClick={() => handleSvgClick(slide.svg, slide.index)}
+        />
+        <p> Animation:{slide.animationType || "No Animation"}</p>
       </div>
+    ))
+  ) : (
+    <p style={{ textAlign: "center", color: "gray", fontSize: "14px" }}>
+      No slides in the timeline.
+    </p>
+  )}
+</div>
+
     </div>
   );
 };

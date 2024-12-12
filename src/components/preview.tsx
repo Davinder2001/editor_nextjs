@@ -12,7 +12,7 @@ interface PreviewProps {
   isPlaying: boolean;
   togglePlayPause: () => void;
   selectedLayers: string[];
-  playPauseAni: () => void;
+
   playAnimation: (duration: number) => void;
   slideForTimeline: { svg: string; animationType: string | null; index: number; }[];
   playWalkingAnimation: () => void;
@@ -33,7 +33,7 @@ const Preview: React.FC<PreviewProps> = ({
   selectedSvg,
   backgroundImage,
   svgContainerRef,
-  playPauseAni,
+  
   setBackgroundImage,
 
   selectedLayers,
@@ -54,6 +54,7 @@ const Preview: React.FC<PreviewProps> = ({
   handleMouseDown ,
   handleMouseMove ,
   handleMouseUp ,
+  playPauseAni
 }) => {
 
   // const isDragging = useRef(false);
@@ -135,7 +136,7 @@ const Preview: React.FC<PreviewProps> = ({
             currentReplayIndex={currentReplayIndex}
             slideForTimeline={slideForTimeline}
             playWalkingAnimation={playWalkingAnimation}
-            playPauseAni={playPauseAni}
+
             selectedSvgIndex={selectedSvgIndex}
 
 
@@ -147,6 +148,7 @@ const Preview: React.FC<PreviewProps> = ({
             handleMouseDown={handleMouseDown}
             handleMouseMove={handleMouseMove}
             handleMouseUp={handleMouseUp}
+            playPauseAni={playPauseAni}
           />
         </>
       ) : (
