@@ -69,6 +69,7 @@ const Page: React.FC = () => {
 
 
   const handlePlayPauseForSelectedSlide = () => {
+
     if (selectedSvgIndex === null) {
       console.warn("No slide selected.");
       return;
@@ -120,9 +121,9 @@ const Page: React.FC = () => {
 
  
 
-  console.log(contextMenuPosition)
-  console.log(startTime)
-  console.log(currentTime)
+  // console.log(contextMenuPosition)
+  // console.log(startTime)
+  // console.log(currentTime)
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const recordedChunks = useRef<Blob[]>([]);
@@ -540,7 +541,7 @@ const Page: React.FC = () => {
       setIsPaused(false);
       setPausedTime(null);
     } else {
-      setStartTime(null); // Reset start time for a fresh animation
+      setStartTime(null); 
     }
 
     animationFrameId.current = requestAnimationFrame(animate);
@@ -1129,15 +1130,6 @@ const replayActivities = () => {
 
   return (
     <>
-  <button
-  className=""
-  style={{ marginBottom: "10px", padding: "10px", width: "100%" }}
-  onClick={() => handlePlayPauseForSelectedSlide()}
->
-  Play/Pause Selected Animation
-</button>
-
-
 
       <div className="container">
         <div className="frame-container">
@@ -1242,7 +1234,7 @@ const replayActivities = () => {
               selectedSvg={selectedSvg}
               backgroundImage={backgroundImage}
               svgContainerRef={svgContainerRef}
-           
+              playPauseAni={handlePlayPauseForSelectedSlide}
               
               setBackgroundImage={setBackgroundImage}
               isPlaying={isPlaying}

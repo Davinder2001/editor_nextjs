@@ -43,7 +43,7 @@ const Layers: React.FC<PreviewProps> = ({
               </button>
 
               {/* Children */}
-              {layer.children.length > 0 && (
+              {/* {layer.children.length > 0 && (
                 <ul style={{ paddingLeft: "16px" }}>
                   {layer.children.map((child, childIndex) => (
                     <li key={`${layer.id}-child-${childIndex}`}>
@@ -71,7 +71,7 @@ const Layers: React.FC<PreviewProps> = ({
                     </li>
                   ))}
                 </ul>
-              )}
+              )} */}
             </li>
           ))}
       </ul>

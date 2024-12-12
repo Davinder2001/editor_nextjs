@@ -3,12 +3,16 @@ import PlayHead from './playhead';
 
 interface Timeline {
   slideForTimeline: { svg: string; animationType: string | null; duration: number; index: number }[];
-  selectedSvgIndex: number;
+  // selectedSvgIndex: number;
   handleSvgClick: (svg: string, index: number) => void;
   replayActivities: () => void;
+  playPauseAni: () => void;
+  handleMouseDown: () => void;
+  handleMouseMove: () => void;
+  handleMouseUp: () => void;
   downloadVideo: () => void;
   playheadPosition: number;
-  seconds: number;
+  // seconds: number;
   currentReplayIndex: number | null;
 }
 
@@ -21,12 +25,13 @@ interface Slide {
 
 const TimeLine: React.FC<Timeline> = ({
   slideForTimeline,
-  selectedSvgIndex,
+  // selectedSvgIndex,
+  playPauseAni,
   handleSvgClick,
   replayActivities,
   downloadVideo,
   playheadPosition,
-  seconds,
+  // seconds,
   currentReplayIndex,
   handleMouseDown,
   handleMouseMove,
@@ -58,6 +63,14 @@ const TimeLine: React.FC<Timeline> = ({
       <button onClick={downloadVideo} style={{ marginTop: '20px' }}>
         Download as Mp4
       </button>
+      <button
+            className=""
+            style={{ marginBottom: "10px"}}
+            onClick={playPauseAni}
+          >
+            Play/Pause
+          </button>
+      
 
       {/* Time Ruler with Incremental Seconds */}
       {filteredSlides.length > 0 && (
