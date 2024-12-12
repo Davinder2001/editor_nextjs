@@ -1,120 +1,115 @@
-interface Timeline{
-  slideForTimeline:{ svg: string; animationType: string | null; index: number; }[],
-  selectedSvgIndex:number,
-  handleSvgClick:(svg: string, index: number)=>void,
-  playWalkingAnimation:()=>void,
-   replayActivities:()=>void,
-  downloadVideo:()=>void,
-  playheadPosition:number,
-  seconds:number,
-  currentReplayIndex:null|number
-} 
+import React from 'react';
+import PlayHead from './playhead';
 
+interface Timeline {
+  slideForTimeline: { svg: string; animationType: string | null; duration: number; index: number }[];
+  selectedSvgIndex: number;
+  handleSvgClick: (svg: string, index: number) => void;
+  replayActivities: () => void;
+  downloadVideo: () => void;
+  playheadPosition: number;
+  seconds: number;
+  currentReplayIndex: number | null;
+}
 
 interface Slide {
   index: number;
   svg: string;
   animationType?: string | null;
+  duration: number; // Duration in milliseconds
 }
 
-const TimeLine: React.FC <Timeline>= ({
+const TimeLine: React.FC<Timeline> = ({
   slideForTimeline,
   selectedSvgIndex,
   handleSvgClick,
-  currentReplayIndex,
   replayActivities,
   downloadVideo,
   playheadPosition,
   seconds,
-   
+  currentReplayIndex,
+  handleMouseDown,
+        handleMouseMove,
+        handleMouseUp
 }) => {
-  console.log(selectedSvgIndex)
+  // Filter slides with animations assigned
+  const filteredSlides = slideForTimeline.filter((slide) => slide.animationType);
+
+  
+  const cumulativeDurations = filteredSlides.reduce<number[]>((acc, slide) => {
+    const lastTime = acc.length > 0 ? acc[acc.length - 1] : 0;
+    const newTime = lastTime + slide.duration / 1000; // Convert ms to seconds
+    return [...acc, newTime];
+  }, []);
+
+  
+  const incrementalSeconds = Array.from(
+    { length: Math.ceil(cumulativeDurations[cumulativeDurations.length - 1] || 0) },
+    (_, i) => i + 1
+  );
+
   return (
     <div className="timeline-container">
       <h3>Timeline:</h3>
       {/* Replay and Download Buttons */}
-      <button onClick={replayActivities} style={{ marginTop: "20px" }}>
-        Render TimeLine
+      <button onClick={replayActivities} style={{ marginTop: '20px' }}>
+        Render Timeline
       </button>
-      <button onClick={downloadVideo} style={{ marginTop: "20px" }}>
-        Download in .Mp4
+      <button onClick={downloadVideo} style={{ marginTop: '20px' }}>
+        Download as Mp4
       </button>
 
-     
-      <div
-  className="time-ruler"
-  style={{
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginTop: "10px",
-    marginBottom: "10px",
-    position: "relative",
-    height: "30px",
-    borderBottom: "1px solid gray",
-  }}
->
-  {[...Array(30)].map((_, index) => (
-    <div
-      key={index}
-      style={{
-        width: "3.33%",
-        textAlign: "center",
-        position: "relative",
-      }}
-    >
-      <span style={{ fontSize: "12px" }}>{index}s</span>
-    </div>
-  ))}
-  </div>
-
-      {/* Playhead */}
-      <div
-        className="timeline"
-        style={{
-          position: "relative",
-          height: "30px",
-          backgroundColor: "#f0f0f0",
-          border: "1px solid #ccc",
-          marginBottom: "20px",
-           transition: "left 0.2s linear",
-        }}
-      >
+      {/* Time Ruler with Incremental Seconds */}
+      {filteredSlides.length > 0 && (
         <div
-          className="playhead"
+          className="time-ruler"
           style={{
-            position: "absolute",
-            left: `${playheadPosition}%`,
-            width: "2px",
-            height: "100%",
-            backgroundColor: "red",
+            display: 'flex',
+            position: 'relative',
+            height: '40px',
+            marginTop: '10px',
+            marginBottom: '10px',
+            borderBottom: '1px solid gray',
           }}
-        ></div>
-        <p style={{ position: "absolute", left: `${playheadPosition}%` }}>
-          {seconds + 1}s
-        </p>
-      </div>
+        >
+          {incrementalSeconds.map((time, index) => (
+            <div
+              key={index}
+              style={{
+                width: `${100 / incrementalSeconds.length}%`,
+                textAlign: 'center',
+                fontSize: '12px',
+              }}
+            >
+              <span>{time}s</span>
+            </div>
+          ))}
+        </div>
+      )}
 
     
-      <div className="svg-container-for-timeline">
-        {slideForTimeline.map((slide:Slide) => {
+      <PlayHead playheadPosition={playheadPosition}
+        cumulativeDurations={cumulativeDurations}  handleMouseDown={handleMouseDown}
+        handleMouseMove={handleMouseMove}
+        handleMouseUp={handleMouseUp}
       
-          return (
-            <div key={slide.index} style={{ marginBottom: "10px" }}>
-              <div
-                dangerouslySetInnerHTML={{ __html: slide.svg }}
-                className={
-                  currentReplayIndex === slide.index
-                    ? "timeline active"
-                    : "timeline"
-                }
-                onClick={() => handleSvgClick(slide.svg, slide.index)}
-              />
-              
-              <p>Animation: {slide.animationType || "None"}</p>
-            </div>
-          );
-        })}
+        />
+
+      {/* SVG Slides */}
+      <div className="svg-container-for-timeline">
+        {slideForTimeline.map((slide: Slide, index) => (
+          <div key={slide.index} style={{ marginBottom: '10px' }}>
+            <div
+              dangerouslySetInnerHTML={{ __html: slide.svg }}
+              className={
+                currentReplayIndex === slide.index ? 'timeline active' : 'timeline'
+              }
+              onClick={() => handleSvgClick(slide.svg, slide.index)}
+            />
+            <p>Animation: {slide.animationType || 'None'}</p>
+
+          </div>
+        ))}
       </div>
     </div>
   );

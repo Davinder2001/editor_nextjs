@@ -19,8 +19,8 @@ const Page: React.FC = () => {
   const [svgDataList, setSvgDataList] = useState<string[]>([]);
   const [selectedSvg, setSelectedSvg] = useState<string | null>(null);
   const [slideForTimeline, setAddSlideRimeline] = useState<
-  { svg: string; animationType: string | null; index: number }[]
->([]);
+  { svg: string; animationType: string | null; duration: number; index: number }[]
+  >([]);
 
   const [selectedLayers, setSelectedLayers] = useState<string[]>([]);
   const [backgroundImage, setBackgroundImage] = useState<string | null>(null);
@@ -48,6 +48,12 @@ const Page: React.FC = () => {
   const [currentReplayIndex, setCurrentReplayIndex] = useState<number | null>(null);
   const [svgPosition, setSvgPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [playheadPosition, setPlayheadPosition] = useState(0);
+
+
+
+
+  const [dragging, setDragging] = useState(false);
+  const [draggedSeconds, setDraggedSeconds] = useState<number | null>(null);
 
  
 
@@ -652,6 +658,7 @@ const Page: React.FC = () => {
         svg: selectedSvg,
         animationType: null,
         index: currentIndex,
+        duration: 0,
         svgIndex,
       };
       setAddSlideRimeline((prevSlides) => [...prevSlides, newSlide]);
@@ -707,6 +714,7 @@ const Page: React.FC = () => {
             return {
               ...slide,
               animationType: slide.animationType === WALKING ? null : WALKING,
+              duration: ANIMATION_TIME_LINE,
             };
           }
           return slide;
@@ -731,6 +739,7 @@ const Page: React.FC = () => {
             return {
               ...slide,
               animationType: slide.animationType === HANDSTAND ? null : HANDSTAND,
+              duration:ANIMATION_TIME_LINE,
             };
           }
           return slide;
@@ -741,100 +750,171 @@ const Page: React.FC = () => {
   
 
 
-  const replayActivities = () => {
-    const canvas = svgContainerRef.current;
-    if (!(canvas instanceof HTMLCanvasElement)) {
-      console.warn("Canvas not found or is not a valid HTMLCanvasElement.");
+//  const replayActivities = () => {
+//   const canvas = svgContainerRef.current;
+//   if (!(canvas instanceof HTMLCanvasElement)) {
+//     console.warn("Canvas not found or is not a valid HTMLCanvasElement.");
+//     return;
+//   }
+
+//   const ctx = canvas.getContext("2d");
+//   if (!ctx) {
+//     console.warn("Canvas context not available.");
+//     return;
+//   }
+
+//   // Filter slides with assigned animations
+//   const filteredSlides = slideForTimeline.filter((slide) => slide.animationType);
+  
+//   if (filteredSlides.length === 0) {
+//     console.warn("No animations assigned for replay.");
+//     return;
+//   }
+
+//   console.log("Starting replay and recording...");
+//   startRecording(); // Start recording
+
+//   const totalDuration = filteredSlides.reduce((sum, slide) => sum + slide.duration, 0);
+//   let elapsedTime = 0; // Tracks elapsed time in milliseconds
+
+//   const replayStep = (index: number) => {
+//     if (index >= filteredSlides.length) {
+//       setCurrentReplayIndex(null); // Clear highlight
+//       stopRecording(); // Stop recording
+//       console.log("Replay completed.");
+//       return;
+//     }
+
+//     const slide = filteredSlides[index];
+
+//     // Highlight the current slide
+//     setCurrentReplayIndex(slide.index);
+
+//     // Render the slide and play animation
+//     const img = new Image();
+//     const svgBlob = new Blob([slide.svg], { type: "image/svg+xml" });
+//     const url = URL.createObjectURL(svgBlob);
+
+//     img.onload = () => {
+//       ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
+//       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+//       URL.revokeObjectURL(url); // Cleanup
+
+//       // Play the assigned animation
+//       if (slide.animationType === WALKING) {
+//         wlkingAnimationPlay();
+//       } else if (slide.animationType === HANDSTAND) {
+//         handStandanimationPlay();
+//       }
+
+//       // Move to the next slide after its duration
+//       setTimeout(() => {
+//         elapsedTime += slide.duration; // Update elapsed time
+//         const progress = Math.min((elapsedTime / totalDuration) * 100, 100);
+//         setPlayheadPosition(progress); // Update playhead position
+//         replayStep(index + 1); // Proceed to the next slide
+//       }, slide.duration);
+//     };
+
+//     img.onerror = (e) => {
+//       console.error("Error loading SVG image:", e);
+//       replayStep(index + 1); // Skip to the next slide on error
+//     };
+
+//     img.src = url;
+//   };
+
+//   replayStep(0); // Start the replay
+// };
+
+const replayActivities = () => {
+  const canvas = svgContainerRef.current;
+  if (!(canvas instanceof HTMLCanvasElement)) {
+    console.warn("Canvas not found or is not a valid HTMLCanvasElement.");
+    return;
+  }
+
+  const ctx = canvas.getContext("2d");
+  if (!ctx) {
+    console.warn("Canvas context not available.");
+    return;
+  }
+
+  const filteredSlides = slideForTimeline.filter((slide) => slide.animationType);
+
+  if (filteredSlides.length === 0) {
+    console.warn("No animations assigned for replay.");
+    return;
+  }
+
+  console.log("Starting replay and recording...");
+  startRecording(); // Start recording
+
+  const totalDuration = filteredSlides.reduce((sum, slide) => sum + slide.duration, 0);
+  let elapsedTime = 0; // Tracks elapsed time in milliseconds
+  let currentIndex = 0; // Tracks the current slide index
+
+  // Adjust for dragged position
+  if (draggedSeconds !== null) {
+    elapsedTime = draggedSeconds * 1000; // Convert to milliseconds
+    currentIndex = filteredSlides.findIndex(
+      (slide, index) =>
+        elapsedTime >=
+        filteredSlides.slice(0, index).reduce((sum, s) => sum + s.duration, 0) &&
+        elapsedTime <
+        filteredSlides.slice(0, index + 1).reduce((sum, s) => sum + s.duration, 0)
+    );
+    currentIndex = Math.max(0, currentIndex); // Ensure index is valid
+  }
+
+  const replayStep = (index: number) => {
+    if (index >= filteredSlides.length) {
+      setCurrentReplayIndex(null); // Clear highlight
+      stopRecording(); // Stop recording
+      console.log("Replay completed.");
       return;
     }
 
-    const ctx = canvas.getContext("2d");
-    if (!ctx) {
-      console.warn("Canvas context not available.");
-      return;
-    }
+    const slide = filteredSlides[index];
 
-    if (activityLog.length === 0) {
-      console.warn("No activities to replay.");
-      return;
-    }
+    setCurrentReplayIndex(slide.index);
 
-    console.log("Starting replay and recording...");
-    startRecording(); // Start recording
+    const img = new Image();
+    const svgBlob = new Blob([slide.svg], { type: "image/svg+xml" });
+    const url = URL.createObjectURL(svgBlob);
 
-    const totalDuration = activityLog.length * 1000; // Assuming each activity takes 1 second
-    let currentTime = 0;
-
-    const replayStep = (index: number) => {
-      if (index >= activityLog.length) {
-        setCurrentReplayIndex(null); // Clear highlight after replaying all activities
-        stopRecording(); // Stop recording
-        console.log("Replay completed.");
-        return;
-      }
-
-      const activity = activityLog[index];
-    
-
-      // Find the correct slide in slideForTimeline using the slideIndex from the activity
-      const slide = slideForTimeline.find((e) => e.index === activity.slideIndex);
-
-      // Check if slide exists
-      if (!slide) {
-        console.warn(`Slide not found for index ${activity.slideIndex}`);
-        replayStep(index + 1); // Skip to the next activity
-        return;
-      }
-
-      // Update the selected SVG for preview and highlight the slide in the timeline
-      setSelectedSvg(slide.svg);
-      setCurrentReplayIndex(activity.slideIndex);
-
-      // Clear the canvas before rendering the new SVG
+    img.onload = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      URL.revokeObjectURL(url);
 
-      if (activity.type === "addSlide") {
-        // Render the SVG to Canvas
-        const svg = slide.svg; // Get the SVG content from the slide
-        if (svg) {
-          const img = new Image();
-          const svgBlob = new Blob([svg], { type: "image/svg+xml" });
-          const url = URL.createObjectURL(svgBlob);
-
-          img.onload = () => {
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            URL.revokeObjectURL(url); // Cleanup
-          };
-
-          img.onerror = (e) => {
-            console.error("Error loading SVG image:", e);
-          };
-
-          img.src = url;
-        }
-      } else if (activity.type === "assignAnimation") {
-        // Play walking animation on canvas
-        playAnimationForSlide(activity.slideIndex, activity.animationType);
+      if (slide.animationType === WALKING) {
+        wlkingAnimationPlay();
+      } else if (slide.animationType === HANDSTAND) {
+        handStandanimationPlay();
       }
 
-      // Update the timeline progress and current time in seconds
-      setPlayheadPosition((currentTime / totalDuration) * 40);
-      setSeconds(Math.floor(currentTime / 1000));
-
-      // Move to the next activity after a short delay
       setTimeout(() => {
-        currentTime += 1000; // Increment current time by activity duration (1 second)
+        elapsedTime += slide.duration;
+        const progress = Math.min((elapsedTime / totalDuration) * 100, 100);
+        setPlayheadPosition(progress);
         replayStep(index + 1);
-      }, 1000); // Delay between each replay step (1 second)
+      }, slide.duration);
     };
 
-    replayStep(0); // Start replaying from the first activity
+    img.onerror = (e) => {
+      console.error("Error loading SVG image:", e);
+      replayStep(index + 1);
+    };
+
+    img.src = url;
   };
 
-  
-  
-  
-  
+  replayStep(currentIndex);  
+};
+
+
+
   const playAnimationForSlide = (slideIndex: number, animationType?: string) => {
     const slide = slideForTimeline.find((slide) => slide.index === slideIndex);
   
@@ -847,6 +927,35 @@ const Page: React.FC = () => {
       console.log(`Playing handstand animation for slide at index ${slideIndex}`);
       handStandanimationPlay();
     }
+  };
+
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    setDragging(true);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!dragging) return;
+
+    const timelineElement = e.currentTarget;
+    const rect = timelineElement.getBoundingClientRect();
+    const offsetX = e.clientX - rect.left;
+
+    const timelineWidth = rect.width;
+    const totalDurationInSeconds = slideForTimeline
+      .filter((slide) => slide.animationType)
+      .reduce((sum, slide) => sum + slide.duration, 0) / 1000;
+
+    const newSeconds = Math.max(
+      0,
+      Math.min((offsetX / timelineWidth) * totalDurationInSeconds, totalDurationInSeconds)
+    );
+
+    setDraggedSeconds(newSeconds);
+    setPlayheadPosition((newSeconds / totalDurationInSeconds) * 100);
+  };
+
+  const handleMouseUp = () => {
+    setDragging(false);
   };
   
   
@@ -997,6 +1106,9 @@ const Page: React.FC = () => {
               downloadVideo={downloadVideo}
               playheadPosition={playheadPosition}
               seconds={Seconds}
+              handleMouseDown={handleMouseDown}
+              handleMouseMove={handleMouseMove}
+              handleMouseUp={handleMouseUp}
              
 
 

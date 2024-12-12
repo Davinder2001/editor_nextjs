@@ -50,7 +50,10 @@ const Preview: React.FC<PreviewProps> = ({
   handleSvgClick,
   playheadPosition,
   seconds,
-  currentReplayIndex
+  currentReplayIndex,
+  handleMouseDown ,
+  handleMouseMove ,
+  handleMouseUp ,
 }) => {
 
   // const isDragging = useRef(false);
@@ -141,6 +144,9 @@ const Preview: React.FC<PreviewProps> = ({
             handleSvgClick={handleSvgClick}
             playheadPosition={playheadPosition}
             seconds={seconds}
+            handleMouseDown={handleMouseDown}
+            handleMouseMove={handleMouseMove}
+            handleMouseUp={handleMouseUp}
           />
         </>
       ) : (
