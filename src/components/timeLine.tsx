@@ -29,20 +29,20 @@ const TimeLine: React.FC<Timeline> = ({
   seconds,
   currentReplayIndex,
   handleMouseDown,
-        handleMouseMove,
-        handleMouseUp
+  handleMouseMove,
+  handleMouseUp
 }) => {
   // Filter slides with animations assigned
   const filteredSlides = slideForTimeline.filter((slide) => slide.animationType);
 
-  
+
   const cumulativeDurations = filteredSlides.reduce<number[]>((acc, slide) => {
     const lastTime = acc.length > 0 ? acc[acc.length - 1] : 0;
     const newTime = lastTime + slide.duration / 1000; // Convert ms to seconds
     return [...acc, newTime];
   }, []);
 
-  
+
   const incrementalSeconds = Array.from(
     { length: Math.ceil(cumulativeDurations[cumulativeDurations.length - 1] || 0) },
     (_, i) => i + 1
@@ -87,13 +87,13 @@ const TimeLine: React.FC<Timeline> = ({
         </div>
       )}
 
-    
+
       <PlayHead playheadPosition={playheadPosition}
-        cumulativeDurations={cumulativeDurations}  handleMouseDown={handleMouseDown}
+        cumulativeDurations={cumulativeDurations} handleMouseDown={handleMouseDown}
         handleMouseMove={handleMouseMove}
         handleMouseUp={handleMouseUp}
-      
-        />
+
+      />
 
       {/* SVG Slides */}
       <div className="svg-container-for-timeline">
