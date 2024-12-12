@@ -19,8 +19,15 @@ const Page: React.FC = () => {
   const [svgDataList, setSvgDataList] = useState<string[]>([]);
   const [selectedSvg, setSelectedSvg] = useState<string | null>(null);
   const [slideForTimeline, setAddSlideRimeline] = useState<
-  { svg: string; animationType: string | null; duration: number; index: number }[]
-  >([]);
+  {
+    svg: string;
+    animationType: string | null;
+    duration: number;
+    index: number;
+    isPlaying: boolean; // New property to track play state
+  }[]
+>([]);
+
 
   const [selectedLayers, setSelectedLayers] = useState<string[]>([]);
   const [backgroundImage, setBackgroundImage] = useState<string | null>(null);
@@ -54,6 +61,58 @@ const Page: React.FC = () => {
 
   const [dragging, setDragging] = useState(false);
   const [draggedSeconds, setDraggedSeconds] = useState<number | null>(null);
+
+
+
+  const handlePlayPauseForSelectedSlide = () => {
+    if (selectedSvgIndex === null) {
+      console.warn("No slide selected.");
+      return;
+    }
+  
+    setAddSlideRimeline((prevSlides) =>
+      prevSlides.map((slide) => {
+        if (slide.index === selectedSvgIndex) {
+          if (slide.isPlaying) {
+            // Reset animation by toggling isPlaying state
+            return { ...slide, isPlaying: false };
+          } else {
+            // Play animation
+            if (slide.animationType === WALKING) {
+              wlkingAnimationPlay();
+            } else if (slide.animationType === HANDSTAND) {
+              handStandanimationPlay();
+            }
+            return { ...slide, isPlaying: true };
+          }
+        }
+        return slide;
+      })
+    );
+  
+    // Automatically reset after animation duration to allow replay
+    setTimeout(() => {
+      setAddSlideRimeline((prevSlides) =>
+        prevSlides.map((slide) =>
+          slide.index === selectedSvgIndex ? { ...slide, isPlaying: false } : slide
+        )
+      );
+    }, ANIMATION_TIME_LINE);
+  };
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+
 
  
 
@@ -659,6 +718,7 @@ const Page: React.FC = () => {
         animationType: null,
         index: currentIndex,
         duration: 0,
+        isPlaying: false,
         svgIndex,
       };
       setAddSlideRimeline((prevSlides) => [...prevSlides, newSlide]);
@@ -975,7 +1035,14 @@ const replayActivities = () => {
 
   return (
     <>
-  
+  <button
+  className=""
+  style={{ marginBottom: "10px", padding: "10px", width: "100%" }}
+  onClick={() => handlePlayPauseForSelectedSlide()}
+>
+  Play/Pause Selected Animation
+</button>
+
 
 
       <div className="container">
