@@ -10,7 +10,7 @@ canvas.svg-preview-container {
   
 }
 .choose_file-container label {
-  background: #f57622;
+  background: #00215E;
   border: none;
   border-radius: 5px;
   padding: 18px !important;
@@ -138,8 +138,9 @@ canvas.svg-preview-container {
 }
 
 .layersOuter button {
-  background: #f57622;
+  background: #227B94;
   border: none;
+  color: white !important;
   border-radius: 5px;
   padding: 18px !important;
   cursor: pointer;
@@ -147,6 +148,9 @@ canvas.svg-preview-container {
   font-weight: 600;
 }
 
+.timeline-container h3 {
+  display: none;
+}
 
 .layersOuter button:hover {
   background: #6a6ad6;
@@ -163,16 +167,8 @@ body {
 canvas{
   border: none!important;
 }
-.choose_file-container label {
-  background: #f57622;
-  border: none;
-  border-radius: 5px;
-  padding: 18px !important;
-  cursor: pointer;
-  text-transform: capitalize;
-  font-weight: 600;
-  width: 85%;
-}
+
+
 
 .choose_file-container label:hover {
   background: #6a6ad6;
@@ -206,6 +202,7 @@ canvas{
   border: none;
   box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2); 
   font-size: 15px;
+  background: #FFC55A !important;
 }
 .right-side-inner svg {
   height: 100%;
@@ -220,10 +217,16 @@ canvas{
   text-align: center;
 }
 
+.layers-container button:hover {
+  background: #00215E !important;
+  color: white;
+}
+
 .frame-container{
   display: flex;
-  gap: 10px;
-  /* grid-template-columns: 1fr 4fr 1fr; */
+      gap: 10px;
+      box-shadow: 2px 2px 18px #00000026;
+      padding: 15px;
 }
 .right-side {
   width: 60%;
