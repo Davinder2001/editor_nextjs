@@ -270,8 +270,9 @@ canvas{
   .svg-container-for-timeline {
     padding: 12px;
     border: 1px solid #80808059;
-    border-radius: 4px;
-}
+    border-radius: px;
+    margin-top: 0;
+  border-top: unset!important;}
 
   .choose_file-container input[type="file"] {
     display: none;

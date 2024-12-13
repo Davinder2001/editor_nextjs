@@ -730,6 +730,12 @@ const Page: React.FC = () => {
   
     const playheadElement = document.querySelector(".playhead");
   
+    const updatePlayhead = (progress: number) => {
+      if (playheadElement instanceof HTMLElement) {
+        playheadElement.style.left = `${progress}%`; // Update the playhead visually
+      }
+    };
+  
     const drawBackground = () => {
       if (backgroundImage) {
         const bgImg = new Image();
@@ -750,33 +756,18 @@ const Page: React.FC = () => {
       }
     };
   
-    const updatePlayhead = setInterval(() => {
-      elapsedTime += 1000; // Increment by 1 second
-      const progress = Math.min((elapsedTime / totalDuration) * 100, 100);
-  
-      if (playheadElement instanceof HTMLElement) {
-        playheadElement.style.left = `${progress}%`; // Update the playhead visually
-      }
-  
-      if (elapsedTime >= totalDuration) {
-        clearInterval(updatePlayhead); // Stop when total duration is reached
-      }
-    }, 1000);
-  
     const replayStep = (index: number) => {
       if (index >= filteredSlides.length) {
         setCurrentReplayIndex(null);
         stopRecording();
-        clearInterval(updatePlayhead);
         console.log("Replay completed.");
         return;
       }
-      
   
       const slide = filteredSlides[index];
       setCurrentReplayIndex(slide.index);
   
-      // Highlight the current slide visually by adding a red border class
+      // Highlight the current slide visually
       const slideElements = document.querySelectorAll(".svg-container-for-timeline .timeline-wrapper");
       slideElements.forEach((el, idx) => {
         if (el instanceof HTMLElement) {
@@ -807,9 +798,8 @@ const Page: React.FC = () => {
             .slice(0, index + 1)
             .reduce((sum, s) => sum + s.duration, 0);
   
-          if (elapsedTime < slideEndTime) {
-            elapsedTime = slideEndTime; // Sync elapsedTime with the slide's end
-          }
+          const progress = Math.min((slideEndTime / totalDuration) * 100, 100);
+          updatePlayhead(progress);
   
           replayStep(index + 1); // Move to the next slide
         }, slide.duration);
@@ -826,6 +816,8 @@ const Page: React.FC = () => {
     drawBackground(); // Draw the background at the start
     replayStep(currentIndex); // Start replaying from the correct slide
   };
+  
+  
   
 
 

@@ -24,7 +24,7 @@ const PlayHead: React.FC<PlayHeadProps> = ({
         style={{
           position: 'relative',
           height: '30px',
-          marginBottom: '20px',
+          marginTop: '-68px',
         }}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}

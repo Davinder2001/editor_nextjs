@@ -1,4 +1,4 @@
-import PlayHead from "./playhead";
+import React from "react";
 
 interface Slide {
   svg: string;
@@ -53,6 +53,9 @@ const TimeLine: React.FC<TimelineProps> = ({
   const totalDurationInMs = cumulativeDurations[cumulativeDurations.length - 1] || 0;
   const totalSeconds = Math.ceil(totalDurationInMs / 1000);
 
+  // Determine whether the ruler and playhead should be visible
+  const isRulerVisible = filteredSlides.length > 0;
+
   return (
     <div className="timeline-container">
       <h3>Timeline:</h3>
@@ -67,7 +70,7 @@ const TimeLine: React.FC<TimelineProps> = ({
       </button>
 
       {/* Time Ruler */}
-      {filteredSlides.length > 0 && (
+      {isRulerVisible && (
         <>
           <div
             className="time-ruler"
@@ -79,7 +82,6 @@ const TimeLine: React.FC<TimelineProps> = ({
               gridTemplateColumns: filteredSlides
                 .map((slide) => `${(slide.duration / totalDurationInMs) * 100}%`)
                 .join(" "),
-            
               borderTop: "1px solid gray",
             }}
           >
@@ -147,13 +149,36 @@ const TimeLine: React.FC<TimelineProps> = ({
         </>
       )}
 
-      <PlayHead
-        playheadPosition={playheadPosition}
-        cumulativeDurations={cumulativeDurations}
-        handleMouseDown={handleMouseDown}
-        handleMouseMove={handleMouseMove}
-        handleMouseUp={handleMouseUp}
-      />
+      {/* Playhead */}
+      {isRulerVisible && (
+        <div
+          className="timeline"
+          style={{
+            position: "relative",
+            height: "50px",
+            marginTop: "-68px",
+          }}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+        >
+          <div
+            className="playhead"
+            style={{
+              position: "absolute",
+              left: `${playheadPosition}%`,
+              width: "16px",
+              height: "16px",
+              backgroundColor: "#007bff",
+              borderRadius: "50%",
+              transform: "translate(-50%, -50%)",
+              top: "50%",
+              transition: "left 0.1s linear",
+              cursor: "grab",
+            }}
+          ></div>
+        </div>
+      )}
 
       {/* SVG Slides */}
       <div
@@ -183,11 +208,7 @@ const TimeLine: React.FC<TimelineProps> = ({
                 dangerouslySetInnerHTML={{ __html: slide.svg }}
                 onClick={() => handleSvgClick(slide.svg, slide.index)}
               />
-              <p
-                 
-              >
-                {slide.animationType}
-              </p>
+              <p>{slide.animationType}</p>
             </div>
           ))
         ) : (
