@@ -715,7 +715,7 @@ const Page: React.FC = () => {
     startRecording(); // Start recording
   
     const totalDuration = filteredSlides.reduce((sum, slide) => sum + slide.duration, 0);
-    let elapsedTime = draggedSeconds !== null ? draggedSeconds * 1000 : 0;
+    const elapsedTime = draggedSeconds !== null ? draggedSeconds * 1000 : 0;
     let currentIndex = 0;
   
     // Find the starting slide based on the dragged position
