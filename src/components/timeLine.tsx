@@ -1,8 +1,34 @@
 import PlayHead from "./playhead";
 
-const TimeLine: React.FC<Timeline> = ({
+interface Slide {
+  svg: string;
+  animationType: string | null;
+  duration: number;
+  index: number;
+  isPlaying: boolean;
+}
+
+interface TimelineProps {
+  slideForTimeline: {
+    svg: string;
+    animationType: string | null;
+    duration: number;
+    index: number;
+    isPlaying: boolean; // New property to track play state
+  }[]
+  handleSvgClick: (svg: string, index: number) => void; // Function to handle SVG click
+  replayActivities: () => void; // Function to replay activities
+  downloadVideo: () => void; // Function to download video
+  playheadPosition: number; // Position of the playhead
+  currentReplayIndex: number | null; // Index of the currently replaying slide
+  handleMouseDown: (event: React.MouseEvent<HTMLDivElement>) => void; // Mouse down handler
+  handleMouseMove: (event: React.MouseEvent<HTMLDivElement>) => void; // Mouse move handler
+  handleMouseUp: (event: React.MouseEvent<HTMLDivElement>) => void; // Mouse up handler
+  playPauseAni: () => void; // Function to toggle play/pause
+}
+
+const TimeLine: React.FC<TimelineProps> = ({
   slideForTimeline,
- 
   handleSvgClick,
   replayActivities,
   downloadVideo,
@@ -11,7 +37,7 @@ const TimeLine: React.FC<Timeline> = ({
   handleMouseDown,
   handleMouseMove,
   handleMouseUp,
-  playPauseAni
+  playPauseAni,
 }) => {
   // Filter slides with animations assigned
   const filteredSlides = slideForTimeline.filter((slide) => slide.animationType);
@@ -25,7 +51,7 @@ const TimeLine: React.FC<Timeline> = ({
 
   // Total duration in milliseconds
   const totalDurationInMs = cumulativeDurations[cumulativeDurations.length - 1] || 0;
-  const totalDurationInSeconds = Math.ceil(totalDurationInMs / 1000);
+
 
   return (
     <div className="timeline-container">
@@ -48,7 +74,7 @@ const TimeLine: React.FC<Timeline> = ({
             position: "relative",
             height: "50px",
             marginTop: "10px",
-            borderTop: "1px solid gray"
+            borderTop: "1px solid gray",
           }}
         >
           {Array.from(
@@ -65,7 +91,7 @@ const TimeLine: React.FC<Timeline> = ({
                   height: isSecond ? "20px" : "10px",
                   borderLeft: "2px solid gray",
                   transform: "translateX(-50%)",
-                  fontSize: "10px"
+                  fontSize: "10px",
                 }}
               >
                 {isSecond && (
@@ -89,29 +115,25 @@ const TimeLine: React.FC<Timeline> = ({
 
       {/* SVG Slides */}
       <div className="svg-container-for-timeline">
-  {slideForTimeline.length > 0 ? (
-    slideForTimeline.map((slide: Slide) => (
-      <div key={slide.index} style={{ marginBottom: "10px" }} className="timeline-wrapper">
-        <div
-          dangerouslySetInnerHTML={{ __html: slide.svg }}
-          className={
-            currentReplayIndex === slide.index
-              ? "timeline active"
-              : "timeline"
-          }
-          onClick={() => handleSvgClick(slide.svg, slide.index)}
-        />
- 
-        <p> {slide.animationType}</p>
+        {slideForTimeline.length > 0 ? (
+          slideForTimeline.map((slide: Slide) => (
+            <div key={slide.index} style={{ marginBottom: "10px" }} className="timeline-wrapper">
+              <div
+                dangerouslySetInnerHTML={{ __html: slide.svg }}
+                className={
+                  currentReplayIndex === slide.index ? "timeline active" : "timeline"
+                }
+                onClick={() => handleSvgClick(slide.svg, slide.index)}
+              />
+              <p>{slide.animationType}</p>
+            </div>
+          ))
+        ) : (
+          <p style={{ textAlign: "center", color: "gray", fontSize: "14px" }}>
+            No slides in the timeline.
+          </p>
+        )}
       </div>
-    ))
-  ) : (
-    <p style={{ textAlign: "center", color: "gray", fontSize: "14px" }}>
-      No slides in the timeline.
-    </p>
-  )}
-</div>
-
     </div>
   );
 };

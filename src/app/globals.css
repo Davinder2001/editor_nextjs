@@ -9,6 +9,24 @@ canvas.svg-preview-container {
   width: 100%;
   
 }
+.choose_file-container label {
+  background: #f57622;
+  border: none;
+  border-radius: 5px;
+  padding: 18px !important;
+  cursor: pointer;
+  text-transform: capitalize;
+  font-weight: 600;
+  width: 85%;
+}
+
+.choose_file-container label:hover {
+  background: #6a6ad6;
+}
+.choose_file-container label:focus {
+  background: #6a6ad6;
+  color: white;
+}
 .right-side-inner img {
   width: 100%;
   position: absolute;

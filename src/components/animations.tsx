@@ -1,29 +1,40 @@
 import React from 'react'
 interface PreviewProps {
-  playWalkingAnimation: () => void;
-  addAnimation: () => void;
+   addAnimation: () => void;
   handleWalkingAnimation: () => void;
   handlehandstandAnimation: () => void;
+ 
 }
 
-const Animations = ({ handleWalkingAnimation,handlehandstandAnimation }: PreviewProps) => {
-  return (<>
-    <button className=''
-      style={{ marginBottom: "10px", padding: '10px', width: '100%' }}
-      onClick={()=>{handleWalkingAnimation()}}
-    >
-      Walking
+
+const Animations = ({
+  
+ 
+  handleWalkingAnimation,
+  handlehandstandAnimation,
+   
+}: PreviewProps) => {
+  return (
+    <>
+     
+
+      <button
+        className=""
+        style={{ marginBottom: "10px", padding: "10px", width: "100%" }}
+        onClick={() => handleWalkingAnimation()}
+      >
+        Walking
       </button>
 
-    <button className=''
-      style={{ marginBottom: "10px", padding: '10px', width: '100%' }}
-      onClick={()=>handlehandstandAnimation()}
-    >
-      hand stand
-    </button>
-   
-  </>
-  )
-}
+      <button
+        className=""
+        style={{ marginBottom: "10px", padding: "10px", width: "100%" }}
+        onClick={() => handlehandstandAnimation()}
+      >
+        Hand Stand
+      </button>
+    </>
+  );
+};
 
-export default Animations
+export default Animations;

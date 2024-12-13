@@ -1,12 +1,20 @@
 import React from 'react';
 
-function PlayHead({
+interface PlayHeadProps {
+  playheadPosition: number; // Position of the playhead (percentage)
+  cumulativeDurations: number[]; // Array of cumulative durations for the timeline
+  handleMouseDown: (event: React.MouseEvent<HTMLDivElement>) => void; // Mouse down handler
+  handleMouseMove: (event: React.MouseEvent<HTMLDivElement>) => void; // Mouse move handler
+  handleMouseUp: (event: React.MouseEvent<HTMLDivElement>) => void; // Mouse up handler
+}
+
+const PlayHead: React.FC<PlayHeadProps> = ({
   playheadPosition,
   cumulativeDurations,
   handleMouseDown,
   handleMouseMove,
-  handleMouseUp
-}) {
+  handleMouseUp,
+}) => {
   const isRulerVisible = cumulativeDurations && cumulativeDurations.length > 0;
 
   return (
@@ -33,13 +41,12 @@ function PlayHead({
               height: '100%',
               backgroundColor: '#007bff',
               transition: 'left 0.1s linear',
-             
             }}
           ></div>
         )}
       </div>
     </>
   );
-}
+};
 
 export default PlayHead;

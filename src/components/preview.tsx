@@ -13,10 +13,16 @@ interface PreviewProps {
   togglePlayPause: () => void;
   selectedLayers: string[];
 
-  playAnimation: (duration: number) => void;
-  slideForTimeline: { svg: string; animationType: string | null; index: number; }[];
-  playWalkingAnimation: () => void;
-  selectedSvgIndex: number;
+  
+  slideForTimeline:  {
+    svg: string;
+    animationType: string | null;
+    duration: number;
+    index: number;
+    isPlaying: boolean;  
+  }[];
+ 
+  
  
   replayActivities: () => void;
   downloadVideo: () => void;
@@ -24,8 +30,12 @@ interface PreviewProps {
   setSvgPosition: React.Dispatch<React.SetStateAction<{ x: number; y: number }>>
   handleSvgClick:(svg: string, index: number)=>void,
   playheadPosition: number
-  seconds: number
+ 
   currentReplayIndex: null | number
+  handleMouseDown: (event: React.MouseEvent<HTMLDivElement>) => void; // Mouse down handler
+  handleMouseMove: (event: React.MouseEvent<HTMLDivElement>) => void; // Mouse move handler
+  handleMouseUp: (event: React.MouseEvent<HTMLDivElement>) => void; // Mouse up handler
+  playPauseAni:()=>void
 }
 
 const Preview: React.FC<PreviewProps> = ({
@@ -40,8 +50,8 @@ const Preview: React.FC<PreviewProps> = ({
 
 
   slideForTimeline,
-  playWalkingAnimation,
-  selectedSvgIndex,
+ 
+ 
   
   replayActivities,
   downloadVideo,
@@ -49,7 +59,7 @@ const Preview: React.FC<PreviewProps> = ({
   setSvgPosition,
   handleSvgClick,
   playheadPosition,
-  seconds,
+ 
   currentReplayIndex,
   handleMouseDown ,
   handleMouseMove ,
@@ -135,16 +145,16 @@ const Preview: React.FC<PreviewProps> = ({
           <TimeLine
             currentReplayIndex={currentReplayIndex}
             slideForTimeline={slideForTimeline}
-            playWalkingAnimation={playWalkingAnimation}
+          
 
-            selectedSvgIndex={selectedSvgIndex}
+           
 
 
             replayActivities={replayActivities}
             downloadVideo={downloadVideo}
             handleSvgClick={handleSvgClick}
             playheadPosition={playheadPosition}
-            seconds={seconds}
+          
             handleMouseDown={handleMouseDown}
             handleMouseMove={handleMouseMove}
             handleMouseUp={handleMouseUp}
