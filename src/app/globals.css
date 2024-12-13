@@ -261,13 +261,12 @@ canvas{
   .svg-container-for-timeline svg {
     width: 200px;
   }
+  
   .svg-container-for-timeline {
-    display: flex;
-    border: 1px solid rgb(201 199 199);
-    width: 95%;
-    justify-content: center;
-    padding: 20px;
-  }
+    padding: 12px;
+    border: 1px solid #80808059;
+    border-radius: 4px;
+}
 
   .choose_file-container input[type="file"] {
     display: none;

@@ -835,35 +835,39 @@ const Page: React.FC = () => {
   const handleMouseDown = () => {
     setDragging(true);
   };
-
+  
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!dragging) return;
-
+  
     const timelineElement = e.currentTarget;
     const rect = timelineElement.getBoundingClientRect();
     const offsetX = e.clientX - rect.left;
-
+  
     const timelineWidth = rect.width;
     const totalDurationInSeconds = slideForTimeline
       .filter((slide) => slide.animationType)
       .reduce((sum, slide) => sum + slide.duration, 0) / 1000;
-
+  
+    // Adjust for the width of the playhead circle (20px)
+    const playheadRadius = 10; // Half of the circle's width
+    const adjustedOffsetX = Math.max(0, Math.min(offsetX, timelineWidth)); // Ensure within bounds
+  
     const newSeconds = Math.max(
       0,
-      Math.min((offsetX / timelineWidth) * totalDurationInSeconds, totalDurationInSeconds)
+      Math.min(((adjustedOffsetX - playheadRadius) / (timelineWidth - 2 * playheadRadius)) * totalDurationInSeconds, totalDurationInSeconds)
     );
-
+  
     // Update dragged position and playhead position without triggering other updates
     if (draggedSeconds !== newSeconds) {
       setDraggedSeconds(newSeconds);
       setPlayheadPosition((newSeconds / totalDurationInSeconds) * 100);
     }
   };
-
-
+  
   const handleMouseUp = () => {
     setDragging(false);
   };
+  
 
 
 

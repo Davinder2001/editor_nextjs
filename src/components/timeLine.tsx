@@ -49,8 +49,9 @@ const TimeLine: React.FC<TimelineProps> = ({
     return [...acc, newTime];
   }, []);
 
-  // Total duration in milliseconds
+  // Total duration in milliseconds and seconds
   const totalDurationInMs = cumulativeDurations[cumulativeDurations.length - 1] || 0;
+  const totalSeconds = Math.ceil(totalDurationInMs / 1000);
 
   return (
     <div className="timeline-container">
@@ -67,41 +68,83 @@ const TimeLine: React.FC<TimelineProps> = ({
 
       {/* Time Ruler */}
       {filteredSlides.length > 0 && (
-        <div
-          className="time-ruler"
-          style={{
-            position: "relative",
-            height: "50px",
-            marginTop: "10px",
-            borderTop: "1px solid gray",
-          }}
-        >
-          {Array.from(
-            { length: totalDurationInMs / 100 + 1 }, // Include the last increment
-            (_, i) => i * 100
-          ).map((time, index) => {
-            const isSecond = time % 1000 === 0; // Check if the tick is a whole second
-            return (
+        <>
+          <div
+            className="time-ruler"
+            style={{
+              position: "relative",
+              marginTop: "10px",
+              height: "50px",
+              display: "grid",
+              gridTemplateColumns: filteredSlides
+                .map((slide) => `${(slide.duration / totalDurationInMs) * 100}%`)
+                .join(" "),
+            
+              borderTop: "1px solid gray",
+            }}
+          >
+            {filteredSlides.map((slide, slideIndex) => (
               <div
-                key={index}
+                key={slideIndex}
                 style={{
-                  position: "absolute",
-                  left: `${(time / totalDurationInMs) * 100}%`,
-                  height: isSecond ? "20px" : "10px",
-                  borderLeft: "2px solid gray",
-                  transform: "translateX(-50%)",
-                  fontSize: "10px",
+                  position: "relative",
+                  height: "100%",
                 }}
               >
-                {isSecond && (
-                  <span style={{ position: "absolute", top: "25px" }}>
-                    {time / 1000}
-                  </span>
-                )}
+                {Array.from({ length: Math.ceil(slide.duration / 100) }).map((_, tickIndex) => {
+                  const ms = tickIndex * 100; // Increment in milliseconds
+                  const isSecond = ms % 1000 === 0;
+
+                  return (
+                    <div
+                      key={tickIndex}
+                      style={{
+                        position: "absolute",
+                        left: `${(ms / slide.duration) * 100}%`,
+                        height: isSecond ? "20px" : "10px",
+                        borderLeft: "1px solid gray",
+                      }}
+                    />
+                  );
+                })}
+                {/* Ensure the last tick is added */}
+                <div
+                  style={{
+                    position: "absolute",
+                    right: 0,
+                    height: "20px",
+                    borderLeft: "1px solid gray",
+                  }}
+                />
               </div>
-            );
-          })}
-        </div>
+            ))}
+          </div>
+
+          {/* Seconds Labels */}
+          <div
+            style={{
+              position: "relative",
+              height: "20px",
+              display: "flex",
+              justifyContent: "space-between",
+              fontSize: "12px",
+              marginTop: "-25px", // Adjust to align better with the ruler
+              paddingRight: "2px", // Ensure last second fits
+            }}
+          >
+            {Array.from({ length: totalSeconds + 1 }).map((_, second) => (
+              <span
+                key={second}
+                style={{
+                  flex: "0 0 auto",
+                  textAlign: "center",
+                }}
+              >
+                {second}
+              </span>
+            ))}
+          </div>
+        </>
       )}
 
       <PlayHead
@@ -113,30 +156,52 @@ const TimeLine: React.FC<TimelineProps> = ({
       />
 
       {/* SVG Slides */}
-      <div className="svg-container-for-timeline">
-  {slideForTimeline.length > 0 ? (
-    slideForTimeline.map((slide: Slide) => (
       <div
-        key={slide.index}
-        
-        className={`timeline-wrapper ${
-          currentReplayIndex === slide.index ? "active" : ""
-        }`}
+        className="svg-container-for-timeline"
+        style={{
+          display: "grid",
+          gridTemplateColumns: filteredSlides
+            .map((slide) => `${(slide.duration / totalDurationInMs) * 100}%`)
+            .join(" "),
+          gap: "2px",
+          alignItems: "center",
+        }}
       >
-        <div
-          dangerouslySetInnerHTML={{ __html: slide.svg }}
-          onClick={() => handleSvgClick(slide.svg, slide.index)}  
-        />
-        <p>{slide.animationType}</p>
+        {slideForTimeline.length > 0 ? (
+          slideForTimeline.map((slide: Slide) => (
+            <div
+              key={slide.index}
+              className={`timeline-wrapper ${
+                currentReplayIndex === slide.index ? "active" : ""
+              }`}
+              style={{
+                border: "1px solid #ccc",
+                position: "relative",
+              }}
+            >
+              <div
+                dangerouslySetInnerHTML={{ __html: slide.svg }}
+                onClick={() => handleSvgClick(slide.svg, slide.index)}
+              />
+              <p
+                style={{
+                  position: "absolute",
+                  bottom: "-20px",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  fontSize: "10px",
+                }}
+              >
+                {slide.animationType}
+              </p>
+            </div>
+          ))
+        ) : (
+          <p style={{ textAlign: "center", color: "gray", fontSize: "14px" }}>
+            No slides in the timeline.
+          </p>
+        )}
       </div>
-    ))
-  ) : (
-    <p style={{ textAlign: "center", color: "gray", fontSize: "14px" }}>
-      No slides in the timeline.
-    </p>
-  )}
-</div>
-
     </div>
   );
 };
