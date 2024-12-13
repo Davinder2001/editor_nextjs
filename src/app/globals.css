@@ -35,6 +35,11 @@ canvas.svg-preview-container {
 .timeline-wrapper.active {
   border: 1px solid blue!important;
   transition: all 0.3s ease-in-out;
+  
+}
+.timeline-wrapper{
+  display: flex;
+  justify-content: center;
 }
 
 .timeline-wrapper p {

@@ -184,13 +184,7 @@ const TimeLine: React.FC<TimelineProps> = ({
                 onClick={() => handleSvgClick(slide.svg, slide.index)}
               />
               <p
-                style={{
-                  position: "absolute",
-                  bottom: "-20px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  fontSize: "10px",
-                }}
+                 
               >
                 {slide.animationType}
               </p>
