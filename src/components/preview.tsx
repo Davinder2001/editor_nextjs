@@ -145,10 +145,6 @@ const Preview: React.FC<PreviewProps> = ({
           <TimeLine
             currentReplayIndex={currentReplayIndex}
             slideForTimeline={slideForTimeline}
-          
-
-           
-
 
             replayActivities={replayActivities}
             downloadVideo={downloadVideo}

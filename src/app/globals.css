@@ -32,6 +32,31 @@ canvas.svg-preview-container {
   position: absolute;
   z-index: -1;
 }
+.timeline-wrapper.active {
+  border: 1px solid blue!important;
+  transition: all 0.3s ease-in-out;
+}
+
+.timeline-wrapper p {
+  position: absolute;
+  margin: 0;
+ 
+  right: 0;
+  left: 0;
+  bottom: 8px;
+   
+}
+
+.timeline-wrapper div {
+  margin: 0px 0px 10px 0px;
+}
+.timeline-wrapper {
+  cursor: pointer;
+  position: relative;
+}
+
+
+
 
 .right-side-inner {
 position: relative;

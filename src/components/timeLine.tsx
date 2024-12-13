@@ -15,7 +15,7 @@ interface TimelineProps {
     duration: number;
     index: number;
     isPlaying: boolean; // New property to track play state
-  }[]
+  }[];
   handleSvgClick: (svg: string, index: number) => void; // Function to handle SVG click
   replayActivities: () => void; // Function to replay activities
   downloadVideo: () => void; // Function to download video
@@ -51,7 +51,6 @@ const TimeLine: React.FC<TimelineProps> = ({
 
   // Total duration in milliseconds
   const totalDurationInMs = cumulativeDurations[cumulativeDurations.length - 1] || 0;
-
 
   return (
     <div className="timeline-container">
@@ -115,25 +114,29 @@ const TimeLine: React.FC<TimelineProps> = ({
 
       {/* SVG Slides */}
       <div className="svg-container-for-timeline">
-        {slideForTimeline.length > 0 ? (
-          slideForTimeline.map((slide: Slide) => (
-            <div key={slide.index} style={{ marginBottom: "10px" }} className="timeline-wrapper">
-              <div
-                dangerouslySetInnerHTML={{ __html: slide.svg }}
-                className={
-                  currentReplayIndex === slide.index ? "timeline active" : "timeline"
-                }
-                onClick={() => handleSvgClick(slide.svg, slide.index)}
-              />
-              <p>{slide.animationType}</p>
-            </div>
-          ))
-        ) : (
-          <p style={{ textAlign: "center", color: "gray", fontSize: "14px" }}>
-            No slides in the timeline.
-          </p>
-        )}
+  {slideForTimeline.length > 0 ? (
+    slideForTimeline.map((slide: Slide) => (
+      <div
+        key={slide.index}
+        
+        className={`timeline-wrapper ${
+          currentReplayIndex === slide.index ? "active" : ""
+        }`}
+      >
+        <div
+          dangerouslySetInnerHTML={{ __html: slide.svg }}
+          onClick={() => handleSvgClick(slide.svg, slide.index)}  
+        />
+        <p>{slide.animationType}</p>
       </div>
+    ))
+  ) : (
+    <p style={{ textAlign: "center", color: "gray", fontSize: "14px" }}>
+      No slides in the timeline.
+    </p>
+  )}
+</div>
+
     </div>
   );
 };
