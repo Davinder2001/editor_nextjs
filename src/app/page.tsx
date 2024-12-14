@@ -72,7 +72,7 @@ const Page: React.FC = () => {
       console.warn("No slide selected.");
       return;
     }
-    
+
 
     setAddSlideRimeline((prevSlides) =>
       prevSlides.map((slide) => {
@@ -620,7 +620,7 @@ const Page: React.FC = () => {
 
       setCurrentReplayIndex(currentIndex);
 
-      
+
       setActivityLog((prevLog) => [
         ...prevLog,
         { type: "addSlide", slideIndex: currentIndex },
@@ -697,27 +697,27 @@ const Page: React.FC = () => {
       console.warn("Canvas not found or is not a valid HTMLCanvasElement.");
       return;
     }
-  
+
     const ctx = canvas.getContext("2d");
     if (!ctx) {
       console.warn("Canvas context not available.");
       return;
     }
-  
+
     const filteredSlides = slideForTimeline.filter((slide) => slide.animationType);
-  
+
     if (filteredSlides.length === 0) {
       console.warn("No animations assigned for replay.");
       return;
     }
-  
+
     console.log("Starting replay and recording...");
     startRecording(); // Start recording
-  
+
     const totalDuration = filteredSlides.reduce((sum, slide) => sum + slide.duration, 0);
     let elapsedTime = draggedSeconds !== null ? draggedSeconds * 1000 : 0;
     let currentIndex = 0;
-  
+
     // Determine the starting slide based on the dragged position
     if (draggedSeconds !== null) {
       currentIndex = filteredSlides.findIndex((slide, index) => {
@@ -727,27 +727,27 @@ const Page: React.FC = () => {
       });
       currentIndex = Math.max(0, currentIndex); // Ensure valid index
     }
-  
+
     const playheadElement = document.querySelector(".playhead");
-  
-    const updatePlayhead = (currentElapsed:number) => {
+
+    const updatePlayhead = (currentElapsed: number) => {
       const progress = Math.min((currentElapsed / totalDuration) * 100, 100);
       if (playheadElement instanceof HTMLElement) {
         playheadElement.style.left = `${progress}%`; // Update the playhead visually
       }
     };
-  
+
     const drawBackground = () => {
       if (backgroundImage) {
         const bgImg = new Image();
         bgImg.src = backgroundImage;
-  
+
         bgImg.onload = () => {
           ctx.fillStyle = "#fff";
           ctx.fillRect(0, 0, canvas.width, canvas.height); // Add white background
           ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height); // Draw the background image
         };
-  
+
         bgImg.onerror = () => {
           console.error("Failed to load background image.");
         };
@@ -756,18 +756,18 @@ const Page: React.FC = () => {
         ctx.fillRect(0, 0, canvas.width, canvas.height); // Default white background
       }
     };
-  
-    const replayStep = (index:number) => {
+
+    const replayStep = (index: number) => {
       if (index >= filteredSlides.length) {
         setCurrentReplayIndex(null);
         stopRecording();
         console.log("Replay completed.");
         return;
       }
-  
+
       const slide = filteredSlides[index];
       setCurrentReplayIndex(slide.index);
-  
+
       // Highlight the current slide visually
       const slideElements = document.querySelectorAll(".svg-container-for-timeline .timeline-wrapper");
       slideElements.forEach((el, idx) => {
@@ -775,57 +775,58 @@ const Page: React.FC = () => {
           el.classList.toggle("red-border", idx === slide.index);
         }
       });
-  
+
       const img = new Image();
       const svgBlob = new Blob([slide.svg], { type: "image/svg+xml" });
       const url = URL.createObjectURL(svgBlob);
-  
+
       img.onload = () => {
+        // Ensure background is drawn first
+        drawBackground();
+
         ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
-        drawBackground(); // Redraw the background
-  
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height); // Draw the current SVG
         URL.revokeObjectURL(url);
-  
+
         // Trigger animations for the current slide
         if (slide.animationType === WALKING) {
           wlkingAnimationPlay(slide.svg);
         } else if (slide.animationType === HANDSTAND) {
           handStandanimationPlay(slide.svg);
         }
-  
+
         const animationStartTime = Date.now();
         const animationEndTime = animationStartTime + slide.duration;
-  
+
         // Progress updates every second
         const interval = setInterval(() => {
           const now = Date.now();
           elapsedTime += 1000; // Increment elapsed time by 1 second
           updatePlayhead(elapsedTime);
-  
+
           if (now >= animationEndTime) {
             clearInterval(interval); // Clear the interval when animation ends
             replayStep(index + 1); // Move to the next slide
           }
         }, 1000); // Update progress every second
       };
-  
+
       img.onerror = () => {
         console.error("Error loading SVG image:");
         replayStep(index + 1); // Skip to the next slide on error
       };
-  
+
       img.src = url;
     };
-  
+
     drawBackground(); // Draw the background at the start
     replayStep(currentIndex); // Start replaying from the correct slide
   };
-  
-  
-  
-  
-  
+
+
+
+
+
 
 
 
@@ -834,39 +835,39 @@ const Page: React.FC = () => {
   const handleMouseDown = () => {
     setDragging(true);
   };
-  
+
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!dragging) return;
-  
+
     const timelineElement = e.currentTarget;
     const rect = timelineElement.getBoundingClientRect();
     const offsetX = e.clientX - rect.left;
-  
+
     const timelineWidth = rect.width;
     const totalDurationInSeconds = slideForTimeline
       .filter((slide) => slide.animationType)
       .reduce((sum, slide) => sum + slide.duration, 0) / 1000;
-  
+
     // Adjust for the width of the playhead circle (20px)
     const playheadRadius = 10; // Half of the circle's width
     const adjustedOffsetX = Math.max(0, Math.min(offsetX, timelineWidth)); // Ensure within bounds
-  
+
     const newSeconds = Math.max(
       0,
       Math.min(((adjustedOffsetX - playheadRadius) / (timelineWidth - 2 * playheadRadius)) * totalDurationInSeconds, totalDurationInSeconds)
     );
-  
+
     // Update dragged position and playhead position without triggering other updates
     if (draggedSeconds !== newSeconds) {
       setDraggedSeconds(newSeconds);
       setPlayheadPosition((newSeconds / totalDurationInSeconds) * 100);
     }
   };
-  
+
   const handleMouseUp = () => {
     setDragging(false);
   };
-  
+
 
 
 

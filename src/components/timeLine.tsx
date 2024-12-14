@@ -72,7 +72,7 @@ const TimeLine: React.FC<TimelineProps> = ({
       </div>
     
 
-      {/* Time Ruler */}
+      
       {isRulerVisible && (
         <>
           <div
