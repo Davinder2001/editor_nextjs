@@ -715,10 +715,10 @@ const Page: React.FC = () => {
     startRecording(); // Start recording
   
     const totalDuration = filteredSlides.reduce((sum, slide) => sum + slide.duration, 0);
-    const elapsedTime = draggedSeconds !== null ? draggedSeconds * 1000 : 0;
+    let elapsedTime = draggedSeconds !== null ? draggedSeconds * 1000 : 0;
     let currentIndex = 0;
   
-    // Find the starting slide based on the dragged position
+    // Determine the starting slide based on the dragged position
     if (draggedSeconds !== null) {
       currentIndex = filteredSlides.findIndex((slide, index) => {
         const start = filteredSlides.slice(0, index).reduce((sum, s) => sum + s.duration, 0);
@@ -730,7 +730,8 @@ const Page: React.FC = () => {
   
     const playheadElement = document.querySelector(".playhead");
   
-    const updatePlayhead = (progress: number) => {
+    const updatePlayhead = (currentElapsed:number) => {
+      const progress = Math.min((currentElapsed / totalDuration) * 100, 100);
       if (playheadElement instanceof HTMLElement) {
         playheadElement.style.left = `${progress}%`; // Update the playhead visually
       }
@@ -756,7 +757,7 @@ const Page: React.FC = () => {
       }
     };
   
-    const replayStep = (index: number) => {
+    const replayStep = (index:number) => {
       if (index >= filteredSlides.length) {
         setCurrentReplayIndex(null);
         stopRecording();
@@ -793,21 +794,25 @@ const Page: React.FC = () => {
           handStandanimationPlay(slide.svg);
         }
   
-        setTimeout(() => {
-          const slideEndTime = filteredSlides
-            .slice(0, index + 1)
-            .reduce((sum, s) => sum + s.duration, 0);
+        const animationStartTime = Date.now();
+        const animationEndTime = animationStartTime + slide.duration;
   
-          const progress = Math.min((slideEndTime / totalDuration) * 100, 100);
-          updatePlayhead(progress);
+        // Progress updates every second
+        const interval = setInterval(() => {
+          const now = Date.now();
+          elapsedTime += 1000; // Increment elapsed time by 1 second
+          updatePlayhead(elapsedTime);
   
-          replayStep(index + 1); // Move to the next slide
-        }, slide.duration);
+          if (now >= animationEndTime) {
+            clearInterval(interval); // Clear the interval when animation ends
+            replayStep(index + 1); // Move to the next slide
+          }
+        }, 1000); // Update progress every second
       };
   
       img.onerror = () => {
         console.error("Error loading SVG image:");
-        replayStep(index + 1);
+        replayStep(index + 1); // Skip to the next slide on error
       };
   
       img.src = url;
@@ -816,6 +821,8 @@ const Page: React.FC = () => {
     drawBackground(); // Draw the background at the start
     replayStep(currentIndex); // Start replaying from the correct slide
   };
+  
+  
   
   
   
