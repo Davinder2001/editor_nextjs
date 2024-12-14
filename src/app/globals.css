@@ -129,7 +129,9 @@ canvas.svg-preview-container {
   background: #6a6ad6;
   color: white;
 }
-
+.timeline_buttons {
+  margin-top: 30px;
+}
 .svg-container-for-timeline .timeline svg {
   cursor: pointer;
 }

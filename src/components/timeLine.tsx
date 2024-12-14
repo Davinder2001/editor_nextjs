@@ -59,6 +59,7 @@ const TimeLine: React.FC<TimelineProps> = ({
   return (
     <div className="timeline-container">
       <h3>Timeline:</h3>
+      <div className="timeline_buttons">
       <button onClick={replayActivities} style={{ marginTop: "20px" }}>
         Render Timeline
       </button>
@@ -68,6 +69,8 @@ const TimeLine: React.FC<TimelineProps> = ({
       <button style={{ marginBottom: "10px" }} onClick={playPauseAni}>
         Play
       </button>
+      </div>
+    
 
       {/* Time Ruler */}
       {isRulerVisible && (
