@@ -227,35 +227,33 @@ const Page: React.FC = () => {
       initialTimestamp = timestamp;
       animationStarted = true;
     }
-
+  
     const elapsedTime = timestamp - initialTimestamp;
-
+  
     if (elapsedTime >= ANIMATION_TIME_LINE) {
       console.log("Animation completed.");
       animationStarted = false;
       cancelAnimationFrame(animationFrameId.current!); // Stop further animation
       return;
     }
-
-
-
+  
     const canvas = svgContainerRef.current;
     if (!(canvas instanceof HTMLCanvasElement)) {
       console.warn("Canvas not found or is not a valid HTMLCanvasElement.");
       return;
     }
-
+  
     const ctx = canvas.getContext("2d");
     if (!ctx) {
       console.warn("Canvas context not available.");
       return;
     }
-
+  
     // Parse the SVG and retrieve elements
     const parser = new DOMParser();
     const svgDoc = parser.parseFromString(svg, "image/svg+xml");
     const svgElement = svgDoc.documentElement;
-
+  
     // Select specific elements for animation
     const leftHand = svgElement.querySelector("#hand-details-back");
     const rightHand = svgElement.querySelector("#hand-details-front");
@@ -265,7 +263,7 @@ const Page: React.FC = () => {
     const legBack = svgElement.querySelector("#leg-back");
     const footFront = svgElement.querySelector("#shoe-front");
     const footBack = svgElement.querySelector("#shoe-back");
-
+  
     // Ensure all elements exist
     if (
       !leftHand ||
@@ -280,12 +278,12 @@ const Page: React.FC = () => {
       console.warn("Some elements are missing in the SVG.");
       return;
     }
-
-    // Animation logic
+  
+    // Animation logic for limb movement
     const stepDuration = 1000; // 1-second animation loop
     const elapsed = elapsedTime % stepDuration;
     const progress = elapsed / stepDuration;
-
+  
     // Calculate swing values
     const handSwing = Math.sin(progress * 2 * Math.PI) * 20;
     const legSwing = Math.cos(progress * 2 * Math.PI) * 20;
@@ -293,8 +291,8 @@ const Page: React.FC = () => {
     const legBackSwing = Math.cos(progress * 2 * Math.PI) * 20;
     const footFrontSwing = Math.cos(progress * 2 * Math.PI) * 20;
     const footBackSwing = Math.cos(progress * 2 * Math.PI) * 20;
-
-    // Apply transformations
+  
+    // Apply transformations to limbs
     leftHand.setAttribute("transform", `rotate(${handSwing} 920 400)`);
     rightHand.setAttribute("transform", `rotate(${-handSwing} 960 400)`);
     leftLeg.setAttribute("transform", `rotate(${legSwing} 1000 500)`);
@@ -303,30 +301,37 @@ const Page: React.FC = () => {
     legBack.setAttribute("transform", `rotate(${legBackSwing} 1000 500)`);
     footFront.setAttribute("transform", `rotate(${-footFrontSwing} 1000 500)`);
     footBack.setAttribute("transform", `rotate(${footBackSwing} 1000 500)`);
-
+  
+    // Horizontal movement: Move the SVG left to right
+    const canvasWidth = canvas.width;
+    const speed = 100; // Pixels per second
+    svgPosition.x = (elapsedTime / 1000) * speed % canvasWidth; // Loop back when reaching the edge
+  
     // Serialize the updated SVG
     const updatedSvg = new XMLSerializer().serializeToString(svgDoc);
     const svgBlob = new Blob([updatedSvg], { type: "image/svg+xml;charset=utf-8" });
     const url = URL.createObjectURL(svgBlob);
-
+  
     const img = new Image();
     img.onload = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
       ctx.drawImage(img, svgPosition.x, svgPosition.y, canvas.width, canvas.height); // Draw updated SVG
       URL.revokeObjectURL(url);
+      console.log(`SVG drawn at position x: ${svgPosition.x.toFixed(2)}`);
     };
-
+  
     img.onerror = () => {
       console.error("Failed to load updated SVG image.");
     };
-
+  
     img.src = url;
-
+  
     // Request the next frame
     animationFrameId.current = requestAnimationFrame((newTimestamp) =>
       animate(svg, newTimestamp)
     );
   };
+  
 
 
   // Function to trigger the walking animation
