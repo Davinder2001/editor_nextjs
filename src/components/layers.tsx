@@ -24,7 +24,7 @@ const Layers: React.FC<PreviewProps> = ({
       <ul>
         {selectedSvg &&
           parseSvgLayers(selectedSvg).map((layer) => (
-            <li key={layer.id} >
+            <li key={layer.id}>
               {/* Main Layer */}
               <button
                 onClick={() => handleLayerClick(layer.id)}

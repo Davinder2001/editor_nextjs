@@ -5,6 +5,9 @@
   flex-direction: column;
   gap: 10px;
 }
+.hidden {
+  display: none!important;
+}
 canvas.svg-preview-container {
   width: 100%;
   
