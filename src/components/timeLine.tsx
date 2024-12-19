@@ -155,7 +155,11 @@ const TimeLine: React.FC<TimelineProps> = ({
               >
                 <div
                   dangerouslySetInnerHTML={{ __html: slide.svg }}
-                  onClick={() => {handleSvgClick(slide.svg, slide.index),setLayerIndex(slide.index)}}
+                  onClick={() => {
+                    handleSvgClick(slide.svg, slide.index);
+                    setLayerIndex(slide.index);
+                  }}
+                  
                 />
               </div>
               <p>{slide.animationType || 'No Animation'}</p>
