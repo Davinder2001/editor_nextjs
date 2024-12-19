@@ -328,7 +328,21 @@ ul {
   list-style-type: none; 
   padding-left: 0;
 }
+.slide-container {
+  position: relative;
+}
 
+
+.slide-container p {
+  margin: 0;
+  position: absolute;
+  bottom: 2px;
+  left: 0;
+  right: 0;
+  background: #227B94;
+  color: #fff;
+  padding: 4px;
+}
 li {
   margin-left: 0; 
 }

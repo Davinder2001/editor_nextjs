@@ -4,160 +4,106 @@ interface Slide {
   svg: string;
   animationType: string | null;
   duration: number;
-  index: number;
+  index: number; // Unique index for each slide
   isPlaying: boolean;
 }
 
 interface TimelineProps {
-  slideForTimeline: {
-    svg: string;
-    animationType: string | null;
-    duration: number;
-    index: number;
-    isPlaying: boolean; // New property to track play state
-  }[];
-  handleSvgClick: (svg: string, index: number) => void; // Function to handle SVG click
-  replayActivities: () => void; // Function to replay activities
- 
-  playheadPosition: number; // Position of the playhead
-  currentReplayIndex: number | null; // Index of the currently replaying slide
-  handleMouseDown: (event: React.MouseEvent<HTMLDivElement>) => void; // Mouse down handler
-  handleMouseMove: (event: React.MouseEvent<HTMLDivElement>) => void; // Mouse move handler
-  handleMouseUp: (event: React.MouseEvent<HTMLDivElement>) => void; // Mouse up handler
-  playPauseAni: () => void; // Function to toggle play/pause
+  slideForTimeline: Slide[];
+  handleSvgClick: (svg: string, slideIndex: number) => void;
+  replayActivities: () => void;
+  playheadPosition: number;
+  currentReplayIndex: number | null;
+  handleMouseDown: (event: React.MouseEvent<HTMLDivElement>) => void;
+  handleMouseMove: (event: React.MouseEvent<HTMLDivElement>) => void;
+  handleMouseUp: (event: React.MouseEvent<HTMLDivElement>) => void;
+  playPauseAni: () => void;
+  setLayerIndex: React.Dispatch<React.SetStateAction<number|null>>; 
 }
 
 const TimeLine: React.FC<TimelineProps> = ({
   slideForTimeline,
   handleSvgClick,
   replayActivities,
-  
   playheadPosition,
   currentReplayIndex,
   handleMouseDown,
   handleMouseMove,
   handleMouseUp,
   playPauseAni,
+  setLayerIndex
+  
 }) => {
-  // Filter slides with animations assigned
-  const filteredSlides = slideForTimeline.filter((slide) => slide.animationType);
+  // Fixed duration per slide (e.g., 3 seconds)
+  const fixedDuration = 3000; // 3 seconds in milliseconds
 
-  // Calculate cumulative durations (in milliseconds)
-  const cumulativeDurations = filteredSlides.reduce<number[]>((acc, slide) => {
-    const lastTime = acc.length > 0 ? acc[acc.length - 1] : 0;
-    const newTime = lastTime + slide.duration; // Keep duration in milliseconds
-    return [...acc, newTime];
-  }, []);
-
-  // Total duration in milliseconds and seconds
-  const totalDurationInMs = cumulativeDurations[cumulativeDurations.length - 1] || 0;
+  // Total duration dynamically calculated based on slides
+  const totalDurationInMs = slideForTimeline.length * fixedDuration || 6000; // Default 6 seconds
   const totalSeconds = Math.ceil(totalDurationInMs / 1000);
-
-  // Determine whether the ruler and playhead should be visible
-  const isRulerVisible = filteredSlides.length > 0;
 
   return (
     <div className="timeline-container">
       <h3>Timeline:</h3>
       <div className="timeline_buttons">
-      <button onClick={replayActivities} style={{ marginTop: "20px" }}>
-        Render Timeline
-      </button>
-       
-      <button style={{ marginBottom: "10px" }} onClick={playPauseAni}>
-        Play
-      </button>
+        <button onClick={replayActivities} style={{ marginTop: "20px" }}>
+          Replay Activities
+        </button>
+        <button style={{ marginBottom: "10px" }} onClick={playPauseAni}>
+          Play / Pause
+        </button>
       </div>
-    
 
-      
-      {isRulerVisible && (
-        <>
-          <div
-            className="time-ruler"
-            style={{
-              position: "relative",
-              marginTop: "10px",
-              height: "50px",
-              display: "grid",
-              gridTemplateColumns: filteredSlides
-                .map((slide) => `${(slide.duration / totalDurationInMs) * 100}%`)
-                .join(" "),
-              borderTop: "1px solid gray",
-            }}
-          >
-            {filteredSlides.map((slide, slideIndex) => (
-              <div
-                key={slideIndex}
-                style={{
-                  position: "relative",
-                  height: "100%",
-                }}
-              >
-                {Array.from({ length: Math.ceil(slide.duration / 100) }).map((_, tickIndex) => {
-                  const ms = tickIndex * 100; // Increment in milliseconds
-                  const isSecond = ms % 1000 === 0;
+      {/* Ruler */}
+      <div
+        className="time-ruler-container"
+        style={{
+          position: "relative",
+          marginTop: "20px",
+          borderTop: "2px solid black", // Main ruler bar
+          height: "40px",
+        }}
+      >
+        {/* Major and Minor Ticks */}
+        {Array.from({ length: totalSeconds * 10 + 1 }).map((_, tickIndex) => {
+          const isMajorTick = tickIndex % 10 === 0; // Major tick for each second
+          const leftPosition = `${(tickIndex / (totalSeconds * 10)) * 100}%`; // Calculate position
 
-                  return (
-                    <div
-                      key={tickIndex}
-                      style={{
-                        position: "absolute",
-                        left: `${(ms / slide.duration) * 100}%`,
-                        height: isSecond ? "20px" : "10px",
-                        borderLeft: "1px solid gray",
-                      }}
-                    />
-                  );
-                })}
-                {/* Ensure the last tick is added */}
-                <div
+          return (
+            <div
+              key={`ruler-tick-${tickIndex}`} // Unique key for each tick
+              style={{
+                position: "absolute",
+                left: leftPosition,
+                height: isMajorTick ? "20px" : "10px",
+                borderLeft: "1px solid black",
+                top: 0,
+              }}
+            >
+              {isMajorTick && tickIndex / 10 <= totalSeconds && (
+                <span
                   style={{
                     position: "absolute",
-                    right: 0,
-                    height: "20px",
-                    borderLeft: "1px solid gray",
+                    top: "22px",
+                    fontSize: "12px",
+                    transform: "translateX(-50%)",
                   }}
-                />
-              </div>
-            ))}
-          </div>
+                >
+                  {tickIndex / 10}
+                </span>
+              )}
+            </div>
+          );
+        })}
+      </div>
 
-          {/* Seconds Labels */}
-          <div
-            style={{
-              position: "relative",
-              height: "20px",
-              display: "flex",
-              justifyContent: "space-between",
-              fontSize: "12px",
-              marginTop: "-25px", // Adjust to align better with the ruler
-              paddingRight: "2px", // Ensure last second fits
-            }}
-          >
-            {Array.from({ length: totalSeconds + 1 }).map((_, second) => (
-              <span
-                key={second}
-                style={{
-                  flex: "0 0 auto",
-                  textAlign: "center",
-                }}
-              >
-                {second}
-              </span>
-            ))}
-          </div>
-        </>
-      )}
-
-      {/* Playhead */}
-      {isRulerVisible && (
+      {/* Playhead - Show only if slides exist */}
+      {slideForTimeline.length > 0 && (
         <div
           className="timeline"
           style={{
             position: "relative",
             height: "50px",
-            marginTop: "-68px",
+            marginTop: "-65px", // Adjust to overlap correctly with the ruler
           }}
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
@@ -174,7 +120,6 @@ const TimeLine: React.FC<TimelineProps> = ({
               borderRadius: "50%",
               transform: "translate(-50%, -50%)",
               top: "50%",
-              transition: "left 0.1s linear",
               cursor: "grab",
             }}
           ></div>
@@ -186,30 +131,34 @@ const TimeLine: React.FC<TimelineProps> = ({
         className="svg-container-for-timeline"
         style={{
           display: "grid",
-          gridTemplateColumns: filteredSlides
-            .map((slide) => `${(slide.duration / totalDurationInMs) * 100}%`)
-            .join(" "),
+          gridTemplateColumns: `repeat(${totalSeconds / 3}, ${100 / (totalSeconds / 3)}%)`, // Align slides to the grid
           gap: "2px",
           alignItems: "center",
+          height: "135px", // Optional: Set a fixed height for visual consistency
+          marginTop: "10px",
         }}
       >
         {slideForTimeline.length > 0 ? (
           slideForTimeline.map((slide: Slide) => (
-            <div
-              key={slide.index}
-              className={`timeline-wrapper ${
-                currentReplayIndex === slide.index ? "active" : ""
-              }`}
-              style={{
-                border: "1px solid #ccc",
-                position: "relative",
-              }}
-            >
+            <div key={`slide-${slide.index}`} className="slide-container">
               <div
-                dangerouslySetInnerHTML={{ __html: slide.svg }}
-                onClick={() => handleSvgClick(slide.svg, slide.index)}
-              />
-              <p>{slide.animationType}</p>
+                className={`timeline-wrapper ${
+                  currentReplayIndex === slide.index ? "active" : ""
+                }`}
+                style={{
+                  border: "1px solid #ccc",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  backgroundColor: slide.index % 2 === 0 ? "#f9f9f9" : "#e3f2fd", // Alternate background for better visibility
+                }}
+              >
+                <div
+                  dangerouslySetInnerHTML={{ __html: slide.svg }}
+                  onClick={() => {handleSvgClick(slide.svg, slide.index),setLayerIndex(slide.index)}}
+                />
+              </div>
+              <p>{slide.animationType || 'No Animation'}</p>
             </div>
           ))
         ) : (

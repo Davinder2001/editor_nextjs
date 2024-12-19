@@ -28,6 +28,7 @@ interface PreviewProps {
   
   svgPosition: { x: number; y: number };
   setSvgPosition: React.Dispatch<React.SetStateAction<{ x: number; y: number }>>
+   
   handleSvgClick:(svg: string, index: number)=>void,
   playheadPosition: number
  
@@ -35,7 +36,8 @@ interface PreviewProps {
   handleMouseDown: (event: React.MouseEvent<HTMLDivElement>) => void; // Mouse down handler
   handleMouseMove: (event: React.MouseEvent<HTMLDivElement>) => void; // Mouse move handler
   handleMouseUp: (event: React.MouseEvent<HTMLDivElement>) => void; // Mouse up handler
-  playPauseAni:()=>void
+  playPauseAni:()=>void,
+  setLayerIndex: React.Dispatch<React.SetStateAction<number|null>>; 
 }
 
 const Preview: React.FC<PreviewProps> = ({
@@ -64,7 +66,11 @@ const Preview: React.FC<PreviewProps> = ({
   handleMouseDown ,
   handleMouseMove ,
   handleMouseUp ,
-  playPauseAni
+  playPauseAni,
+  setLayerIndex,
+  
+  
+  
 }) => {
 
   // const isDragging = useRef(false);
@@ -155,6 +161,7 @@ const Preview: React.FC<PreviewProps> = ({
             handleMouseMove={handleMouseMove}
             handleMouseUp={handleMouseUp}
             playPauseAni={playPauseAni}
+            setLayerIndex={setLayerIndex}
           />
         </>
       ) : (
