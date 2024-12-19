@@ -843,11 +843,6 @@ const Page: React.FC = () => {
 
 
 
-
-
-
-
-
   const handleMouseDown = () => {
     setDragging(true);
   };
@@ -885,11 +880,6 @@ const Page: React.FC = () => {
   };
 
 
-
-
-
-
-
   return (
     <>
 
@@ -899,6 +889,7 @@ const Page: React.FC = () => {
         <div className="frame-container">
           <div className="left-side">
             <h1 className="main-heading">Upload</h1>
+             
             <div className="choose_file-container">
               <label htmlFor="file-upload" className="custom-file-upload">
                 Upload SVGs
@@ -924,6 +915,8 @@ const Page: React.FC = () => {
                 className="hidden"
               />
             </div>
+
+        
             <div className="svg-thumb-container">
               {svgDataList.length > 0 ? (
                 svgDataList.map((svg, index) => (
@@ -1014,7 +1007,7 @@ const Page: React.FC = () => {
               svgPosition={svgPosition}
               setSvgPosition={setSvgPosition}
               replayActivities={replayActivities}
-             
+            
               playheadPosition={playheadPosition}
 
               handleMouseDown={handleMouseDown}

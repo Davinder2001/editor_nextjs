@@ -18,7 +18,8 @@ interface TimelineProps {
   }[];
   handleSvgClick: (svg: string, index: number) => void; // Function to handle SVG click
   replayActivities: () => void; // Function to replay activities
-   playheadPosition: number; // Position of the playhead
+ 
+  playheadPosition: number; // Position of the playhead
   currentReplayIndex: number | null; // Index of the currently replaying slide
   handleMouseDown: (event: React.MouseEvent<HTMLDivElement>) => void; // Mouse down handler
   handleMouseMove: (event: React.MouseEvent<HTMLDivElement>) => void; // Mouse move handler
@@ -30,7 +31,7 @@ const TimeLine: React.FC<TimelineProps> = ({
   slideForTimeline,
   handleSvgClick,
   replayActivities,
- 
+  
   playheadPosition,
   currentReplayIndex,
   handleMouseDown,
@@ -62,7 +63,7 @@ const TimeLine: React.FC<TimelineProps> = ({
       <button onClick={replayActivities} style={{ marginTop: "20px" }}>
         Render Timeline
       </button>
-      
+       
       <button style={{ marginBottom: "10px" }} onClick={playPauseAni}>
         Play
       </button>

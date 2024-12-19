@@ -25,7 +25,7 @@ interface PreviewProps {
   
  
   replayActivities: () => void;
- 
+  
   svgPosition: { x: number; y: number };
   setSvgPosition: React.Dispatch<React.SetStateAction<{ x: number; y: number }>>
   handleSvgClick:(svg: string, index: number)=>void,
@@ -147,7 +147,8 @@ const Preview: React.FC<PreviewProps> = ({
             slideForTimeline={slideForTimeline}
 
             replayActivities={replayActivities}
-             handleSvgClick={handleSvgClick}
+          
+            handleSvgClick={handleSvgClick}
             playheadPosition={playheadPosition}
           
             handleMouseDown={handleMouseDown}
