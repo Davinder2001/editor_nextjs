@@ -63,9 +63,9 @@ const Page: React.FC = () => {
   const [dragging, setDragging] = useState(false);
   const [draggedSeconds, setDraggedSeconds] = useState<number | null>(null);
 
-  const[layerIndex,setLayerIndex]=useState<number | null>(0)
+  const [layerIndex, setLayerIndex] = useState<number | null>(0)
 
-  
+
   console.log(layerIndex)
 
 
@@ -626,7 +626,7 @@ const Page: React.FC = () => {
       };
       setAddSlideRimeline((prevSlides) => [...prevSlides, newSlide]);
       setCurrentIndex((prevIndex) => prevIndex + 1);
-      setLayerIndex(currentIndex); 
+      setLayerIndex(currentIndex);
 
 
       setCurrentReplayIndex(currentIndex);
@@ -1013,7 +1013,7 @@ const Page: React.FC = () => {
               handleMouseUp={handleMouseUp}
               playPauseAni={handlePlayPauseForSelectedSlide}
               setLayerIndex={setLayerIndex}
-                
+
 
 
 
@@ -1021,23 +1021,23 @@ const Page: React.FC = () => {
             />
 
           </div>
-        
-            <div className="leayrs-container">
-              {slideForTimeline.length===0?('No Layers'):(slideForTimeline.map((slide) => (
-                 layerIndex===slide.index ? (
-                  <div key={slide.index} className="layer-slide-container">
-                    <h2>{`Svg Layers ${slide.index}`}</h2>
-                    <Layers
-                      selectedSvg={slide.svg}
-                      parseSvgLayers={parseSvgLayers}
-                      selectedLayers={selectedLayers}
-                      handleLayerClick={handleLayerClick}
-                    />
-                  </div>
-                ) :  null
-              )))}
-            </div>
-         
+
+          <div className="leayrs-container">
+            {slideForTimeline.length === 0 ? (<h2>Layers not Found</h2>) : (slideForTimeline.map((slide) => (
+              layerIndex === slide.index ? (
+                <div key={slide.index} className="layer-slide-container">
+                  <h2>{`Svg Layers ${slide.index}`}</h2>
+                  <Layers
+                    selectedSvg={slide.svg}
+                    parseSvgLayers={parseSvgLayers}
+                    selectedLayers={selectedLayers}
+                    handleLayerClick={handleLayerClick}
+                  />
+                </div>
+              ) : null
+            )))}
+          </div>
+
         </div>
       </div>
     </>
