@@ -5,7 +5,7 @@ interface PreviewProps {
   svgContainerRef: React.RefObject<HTMLCanvasElement>;
   svgPosition: { x: number; y: number };
   setSvgPosition: React.Dispatch<React.SetStateAction<{ x: number; y: number }>>;
-  applyLayerStyles: (svg: string, layersToHighlight: string[]) =>string;
+  applyLayerStyles: (svg: string, layersToHighlight: string[]) => string;
   selectedSvg: string | null;
   selectedLayers: string[];
 
@@ -19,7 +19,7 @@ const SvgPreviewMain: React.FC<PreviewProps> = ({
   applyLayerStyles,
   selectedSvg,
   selectedLayers,
-  
+
 }) => {
   const isDragging = useRef(false);
   const dragStart = useRef({ x: 0, y: 0 });
@@ -67,7 +67,7 @@ const SvgPreviewMain: React.FC<PreviewProps> = ({
       return;
     }
 
- 
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // Load the SVG content dynamically
@@ -92,10 +92,10 @@ const SvgPreviewMain: React.FC<PreviewProps> = ({
   return (
     <div
       className="right-side-inner"
-       
-      
+
+
     >
-      <img src={backgroundImage||''} alt="" />
+
       <canvas
         ref={svgContainerRef}
         height={600}
@@ -108,6 +108,9 @@ const SvgPreviewMain: React.FC<PreviewProps> = ({
         style={{
           cursor: "move",
           border: "1px solid #000",
+          backgroundImage: `url(${backgroundImage || ''})`,
+          backgroundSize: "cover", // Ensures the background image covers the canvas
+          backgroundPosition: "center", // Centers the image
         }}
       />
     </div>

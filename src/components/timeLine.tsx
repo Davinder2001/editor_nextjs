@@ -19,6 +19,7 @@ interface TimelineProps {
   handleMouseUp: (event: React.MouseEvent<HTMLDivElement>) => void;
   playPauseAni: () => void;
   setLayerIndex: React.Dispatch<React.SetStateAction<number|null>>; 
+  downloadVideo:()=>void
 }
 
 const TimeLine: React.FC<TimelineProps> = ({
@@ -31,7 +32,8 @@ const TimeLine: React.FC<TimelineProps> = ({
   handleMouseMove,
   handleMouseUp,
   playPauseAni,
-  setLayerIndex
+  setLayerIndex,
+  downloadVideo
   
 }) => {
   // Fixed duration per slide (e.g., 3 seconds)
@@ -48,8 +50,11 @@ const TimeLine: React.FC<TimelineProps> = ({
         <button onClick={replayActivities} style={{ marginTop: "20px" }}>
           Replay Activities
         </button>
+        <button style={{ marginBottom: "10px" }} onClick={downloadVideo}>
+          download
+        </button>
         <button style={{ marginBottom: "10px" }} onClick={playPauseAni}>
-          Play / Pause
+          Play
         </button>
       </div>
 
@@ -150,7 +155,7 @@ const TimeLine: React.FC<TimelineProps> = ({
                   display: "flex",
                   justifyContent: "center",
                   alignItems: "center",
-                  backgroundColor: slide.index % 2 === 0 ? "#f9f9f9" : "#e3f2fd", // Alternate background for better visibility
+                 
                 }}
               >
                 <div

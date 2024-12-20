@@ -1,18 +1,17 @@
-import React from "react";
-
 interface Layer {
-  id: string;
-  children: Array<{ id?: string }>;
+  id: string;  
 }
 
+ 
 interface LayersProps {
-  selectedSvg: string | null; // SVG string
-  parseSvgLayers: (svg: string) => Layer[]; // Function to parse SVG layers
-  selectedLayers: string[]; // Selected layers
-  handleLayerClick: (layerId: string) => void; // Layer click handler
+  selectedSvg: string | null;  
+  parseSvgLayers: (svg: string) => Layer[];  
+  selectedLayers: string[];  
+  handleLayerClick: (layerId: string) => void;  
 }
 
-const Layers: React.FC<LayersProps> = ({
+// LayersComponent
+const LayersComponent: React.FC<LayersProps> = ({
   selectedSvg,
   parseSvgLayers,
   selectedLayers,
@@ -44,4 +43,4 @@ const Layers: React.FC<LayersProps> = ({
   );
 };
 
-export default Layers;
+export default LayersComponent;

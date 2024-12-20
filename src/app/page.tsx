@@ -6,14 +6,16 @@
 
 
 import Animations from "@/components/animations";
+import LayersComponent from "@/components/layers";
 
-import Layers from "@/components/layers";
+ 
 // import Layers from "@/components/layers";
 import Preview from "@/components/preview";
-import { ANIMATION_TIME_LINE, HANDSTAND, WALKING } from "@/utils/animationsType";
+import { ANIMATION_TIME_LINE, HANDSTAND, IMAGE_SIZE, WALKING } from "@/utils/animationsType";
 
 // import SelectSvg from "@/components/selectSvg";
 import React, { useState, useEffect, useRef } from "react";
+import { toast } from "sonner";
 
 const Page: React.FC = () => {
   const [svgDataList, setSvgDataList] = useState<string[]>([]);
@@ -168,6 +170,11 @@ const Page: React.FC = () => {
   };
 
   const downloadVideo = () => {
+    if (!recordedChunks.current || recordedChunks.current.length === 0) {
+      console.warn("No recorded video available for download.");
+      return;
+    }
+
     const blob = new Blob(recordedChunks.current, { type: "video/mp4" });
     const url = URL.createObjectURL(blob);
 
@@ -186,6 +193,7 @@ const Page: React.FC = () => {
   };
 
 
+
   useEffect(() => {
     const savedSVGs = localStorage.getItem("uploadedSVGs");
     if (savedSVGs) {
@@ -200,26 +208,42 @@ const Page: React.FC = () => {
     }
   }, []);
 
+
+ 
+  
   const parseSvgLayers = (svg: string) => {
     const parser = new DOMParser();
     const svgDoc = parser.parseFromString(svg, "image/svg+xml");
-
-    const getLayers = svgDoc.documentElement.querySelectorAll(":scope > g");
-
-    const layersWithChildren = Array.from(getLayers).map((layer, index) => {
-      return {
-        index: index, // Index of the layer
-        id: layer.id || `Layer ${index}`, // Name of the layer
-        children: Array.from(layer.children) // Array of children for this layer
-      };
-    });
-
-    return layersWithChildren;
+  
+    // Find the parent <g> element with id="animation_wrapper"
+    const animationWrapper = svgDoc.documentElement.querySelector('g[id="animation_wrapper"]');
+  
+    if (!animationWrapper) {
+      console.warn('No <g> element with id="animation_wrapper" found.');
+      return [];
+    }
+  
+    // Collect all <g> elements and their IDs
+    const getAllGroups = (parent: Element) => {
+      const groups = Array.from(parent.querySelectorAll('g')); // Get all <g> elements
+      return groups.map((group) => ({
+        id: (group as SVGGElement).id || "Unnamed Group", // Use ID or fallback to "Unnamed Group"
+      }));
+    };
+  
+    return getAllGroups(animationWrapper);
   };
+  
+  
+  
+
+
+
+
 
 
   const handleLayerClick = (layerId: string) => {
-    setSelectedLayers([layerId]); // Select only the clicked layer
+    setSelectedLayers([layerId]);
   };
 
 
@@ -254,20 +278,27 @@ const Page: React.FC = () => {
       return;
     }
 
-    // Parse the SVG and retrieve elements
+    // Parse the SVG and retrieve the <g> element
     const parser = new DOMParser();
     const svgDoc = parser.parseFromString(svg, "image/svg+xml");
     const svgElement = svgDoc.documentElement;
 
-    // Select specific elements for animation
-    const leftHand = svgElement.querySelector("#hand-details-back");
-    const rightHand = svgElement.querySelector("#hand-details-front");
-    const leftLeg = svgElement.querySelector("#pant-back-details");
-    const rightLeg = svgElement.querySelector("#pant-front-details");
-    const legFront = svgElement.querySelector("#leg-front");
-    const legBack = svgElement.querySelector("#leg-back");
-    const footFront = svgElement.querySelector("#shoe-front");
-    const footBack = svgElement.querySelector("#shoe-back");
+    // Target the <g> element with id="animation_wrapper"
+    const animationWrapper = svgElement.querySelector('g[id="animation_wrapper"]');
+    if (!animationWrapper) {
+      console.warn('No <g> element with id="animation_wrapper" found in the SVG.');
+      return;
+    }
+
+    // Select specific elements for animation within the <g> group
+    const leftHand = animationWrapper.querySelector("#hand-details-back");
+    const rightHand = animationWrapper.querySelector("#hand-details-front");
+    const leftLeg = animationWrapper.querySelector("#pant-back-details");
+    const rightLeg = animationWrapper.querySelector("#pant-front-details");
+    const legFront = animationWrapper.querySelector("#leg-front");
+    const legBack = animationWrapper.querySelector("#leg-back");
+    const footFront = animationWrapper.querySelector("#shoe-front");
+    const footBack = animationWrapper.querySelector("#shoe-back");
 
     // Ensure all elements exist
     if (
@@ -280,7 +311,7 @@ const Page: React.FC = () => {
       !footFront ||
       !footBack
     ) {
-      console.warn("Some elements are missing in the SVG.");
+      console.warn("Some elements are missing in the animation wrapper <g>.");
       return;
     }
 
@@ -307,22 +338,17 @@ const Page: React.FC = () => {
     footFront.setAttribute("transform", `rotate(${-footFrontSwing} 1000 500)`);
     footBack.setAttribute("transform", `rotate(${footBackSwing} 1000 500)`);
 
-    // Horizontal movement: Move the SVG left to right
-    const canvasWidth = canvas.width;
-    const speed = 100; // Pixels per second
-    svgPosition.x = (elapsedTime / 1000) * speed % canvasWidth; // Loop back when reaching the edge
-
-    // Serialize the updated SVG
-    const updatedSvg = new XMLSerializer().serializeToString(svgDoc);
+    // Serialize the updated <g> element
+    const updatedSvg = new XMLSerializer().serializeToString(svgElement);
     const svgBlob = new Blob([updatedSvg], { type: "image/svg+xml;charset=utf-8" });
     const url = URL.createObjectURL(svgBlob);
 
     const img = new Image();
     img.onload = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
-      ctx.drawImage(img, svgPosition.x, svgPosition.y, canvas.width, canvas.height); // Draw updated SVG
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height); // Draw updated SVG
       URL.revokeObjectURL(url);
-      console.log(`SVG drawn at position x: ${svgPosition.x.toFixed(2)}`);
+      console.log(`SVG drawn at timestamp: ${timestamp}`);
     };
 
     img.onerror = () => {
@@ -337,14 +363,13 @@ const Page: React.FC = () => {
     );
   };
 
-
-
   // Function to trigger the walking animation
   const wlkingAnimationPlay = (svg: string) => {
     if (!animationStarted) {
       animationFrameId.current = requestAnimationFrame((timestamp) => animate(svg, timestamp));
     }
   };
+
 
 
 
@@ -367,8 +392,6 @@ const Page: React.FC = () => {
       return;
     }
 
-
-
     const canvas = svgContainerRef.current;
     if (!(canvas instanceof HTMLCanvasElement)) {
       console.warn("Canvas not found or is not a valid HTMLCanvasElement.");
@@ -386,11 +409,19 @@ const Page: React.FC = () => {
     const svgDoc = parser.parseFromString(svg, "image/svg+xml");
     const svgElement = svgDoc.documentElement;
 
-    const leftHand = svgElement.querySelector("#hand-details-back");
-    const rightHand = svgElement.querySelector("#hand-details-front");
+    // Target the animation wrapper
+    const animationWrapper = svgElement.querySelector('g[id="animation_wrapper"]');
+    if (!animationWrapper) {
+      console.warn('No <g> element with id="animation_wrapper" found in the SVG.');
+      return;
+    }
+
+    // Select specific elements for animation within the <g> group
+    const leftHand = animationWrapper.querySelector("#hand-details-back");
+    const rightHand = animationWrapper.querySelector("#hand-details-front");
 
     if (!leftHand || !rightHand) {
-      console.warn("Some elements are missing in the SVG.");
+      console.warn("Some elements are missing in the animation wrapper <g>.");
       return;
     }
 
@@ -444,7 +475,7 @@ const Page: React.FC = () => {
     const elapsed = elapsedTime % stepDuration;
 
     Object.entries(animations).forEach(([id, { keys, origin }]) => {
-      const element = svgElement.querySelector(`#${id}`);
+      const element = animationWrapper.querySelector(`#${id}`);
       if (element) {
         const rotationValue = interpolate(keys, elapsed);
         element.setAttribute("transform", `rotate(${rotationValue} ${origin.x} ${origin.y})`);
@@ -472,6 +503,7 @@ const Page: React.FC = () => {
   };
 
 
+
   const handStandanimationPlay = (svg: string) => {
     if (!animationStarted) {
       animationFrameId.current = requestAnimationFrame((timestamp) => handstand(svg, timestamp));
@@ -490,7 +522,31 @@ const Page: React.FC = () => {
           const reader = new FileReader();
           reader.onload = (e) => {
             const svgContent = e.target?.result as string;
-            newSvgDataList.push(svgContent);
+
+            // Parse the SVG content
+            const parser = new DOMParser();
+            const svgDoc = parser.parseFromString(svgContent, "image/svg+xml");
+            const svgElement = svgDoc.documentElement;
+
+            // Create a new <g> tag with id="animation_wrapper"
+            const animationWrapper = svgDoc.createElementNS("http://www.w3.org/2000/svg", "g");
+            animationWrapper.setAttribute("id", "animation_wrapper");
+
+            // Move all direct child <g> elements inside the new <g> tag
+            const childGroups = svgElement.querySelectorAll(":scope > g");
+            childGroups.forEach((child) => {
+              animationWrapper.appendChild(child);
+            });
+
+            // Append the new <g> tag back to the SVG element
+            svgElement.appendChild(animationWrapper);
+
+            // Serialize the updated SVG
+            const serializer = new XMLSerializer();
+            const updatedSvgContent = serializer.serializeToString(svgElement);
+
+            // Add the updated SVG content to the list
+            newSvgDataList.push(updatedSvgContent);
 
             if (newSvgDataList.length === files.length) {
               const updatedList = [...svgDataList, ...newSvgDataList];
@@ -508,20 +564,35 @@ const Page: React.FC = () => {
   };
 
 
+
   const handleBackgroundUpload = (event: React.ChangeEvent<HTMLInputElement>): void => {
     const file = event.target.files?.[0];
-    if (file && file.type.startsWith("image/")) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const uploadedBackground = e.target?.result as string;
-        setBackgroundImage(uploadedBackground);
-        localStorage.setItem("backgroundImage", uploadedBackground);
-      };
-      reader.readAsDataURL(file);
+
+    if (file) {
+      // Check if file size is 250KB or less
+
+      if (file.size <= IMAGE_SIZE) {
+        if (file.type.startsWith("image/")) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const uploadedBackground = e.target?.result as string;
+            setBackgroundImage(uploadedBackground);
+            localStorage.setItem("backgroundImage", uploadedBackground);
+            toast.success("Background image uploaded successfully!");
+          };
+          reader.readAsDataURL(file);
+        } else {
+          toast.error("Please upload a valid image file.");
+        }
+      } else {
+        toast.error("Image should be less than 250KB or less");
+      }
     } else {
-      alert("Please upload a valid image file.");
+      toast.error("No file selected.");
     }
   };
+
+
 
   const addAnimation = () => {
     const targetElement = document.querySelector('.timeline-test');
@@ -639,16 +710,6 @@ const Page: React.FC = () => {
     }
   };
 
-
-
-
-
-
-
-
-
-
-
   const handleWalkingAnimation = () => {
     if (selectedSvgIndex !== null) {
       setAddSlideRimeline((prevSlides) =>
@@ -715,8 +776,9 @@ const Page: React.FC = () => {
       return;
     }
 
-    // Filter slides with animations assigned
-    const filteredSlides = slideForTimeline.filter((slide) => slide.animationType);
+    const filteredSlides = slideForTimeline
+      .filter((slide) => slide.animationType)
+      .sort((a, b) => a.index - b.index);
 
     if (filteredSlides.length === 0) {
       console.warn("No animations assigned for replay.");
@@ -731,7 +793,7 @@ const Page: React.FC = () => {
 
     const playheadElement = document.querySelector(".playhead");
 
-    const updatePlayhead = (currentElapsed: number) => {
+    const updatePlayhead = (currentElapsed:number) => {
       const progress = Math.min((currentElapsed / totalDuration) * 100, 100);
       if (playheadElement instanceof HTMLElement) {
         playheadElement.style.left = `${progress}%`;
@@ -739,27 +801,7 @@ const Page: React.FC = () => {
       console.log(`Playhead updated to: ${progress.toFixed(2)}%`);
     };
 
-    const drawBackground = () => {
-      if (backgroundImage) {
-        const bgImg = new Image();
-        bgImg.src = backgroundImage;
-
-        bgImg.onload = () => {
-          ctx.fillStyle = "#fff";
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
-          ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
-        };
-
-        bgImg.onerror = () => {
-          console.error("Failed to load background image.");
-        };
-      } else {
-        ctx.fillStyle = "#fff";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-      }
-    };
-
-    const replayStep = (index: number) => {
+    const replayStep = (index:number) => {
       if (index >= filteredSlides.length) {
         setCurrentReplayIndex(null);
         stopRecording();
@@ -767,7 +809,7 @@ const Page: React.FC = () => {
 
         if (mediaRecorderRef.current) {
           mediaRecorderRef.current.onstop = () => {
-            downloadVideo();
+            console.log("Recording stopped. Video is ready to download.");
           };
         }
         return;
@@ -780,66 +822,86 @@ const Page: React.FC = () => {
         `Replaying Slide ${index + 1}/${filteredSlides.length}: Type - ${slide.animationType}, Duration - ${slide.duration}ms`
       );
 
-      // Highlight the current slide
-      const slideElements = document.querySelectorAll(
-        ".svg-container-for-timeline .timeline-wrapper"
-      );
-      slideElements.forEach((el, idx) => {
-        if (el instanceof HTMLElement) {
-          el.classList.toggle("red-border", idx === slide.index);
-        }
-      });
+      const parser = new DOMParser();
+      const svgDoc = parser.parseFromString(slide.svg, "image/svg+xml");
+      const svgElement = svgDoc.documentElement;
 
-      const img = new Image();
-      const svgBlob = new Blob([slide.svg], { type: "image/svg+xml" });
-      const url = URL.createObjectURL(svgBlob);
+      if (backgroundImage) {
+        const currentStyle = svgElement.getAttribute("style") || "";
+        const updatedStyle = `${currentStyle}; background: url('${backgroundImage}') no-repeat center center; background-size: cover;`;
+        svgElement.setAttribute("style", updatedStyle);
+      }
 
-      img.onload = () => {
-        drawBackground();
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        URL.revokeObjectURL(url);
+      const targetGroup = svgElement.querySelector('g[id="animation_wrapper"]');
 
-        // Play animation based on the assigned type
-        if (slide.animationType === WALKING) {
-          wlkingAnimationPlay(slide.svg);
-        } else if (slide.animationType === HANDSTAND) {
-          handStandanimationPlay(slide.svg);
-        }
-
-        const animationStartTime = Date.now();
-        const animationEndTime = animationStartTime + slide.duration;
-
-        const interval = setInterval(() => {
-          const now = Date.now();
-          elapsedTime += 1000;
-          updatePlayhead(elapsedTime);
-
-          if (now >= animationEndTime) {
-            clearInterval(interval);
-            replayStep(index + 1); // Move to the next slide
-          }
-        }, 1000);
-      };
-
-      img.onerror = () => {
-        console.error(`Error loading SVG image for Slide ${index + 1}. Skipping to the next slide.`);
+      if (!targetGroup) {
+        console.warn(`No target group with id="animation_wrapper" found in Slide ${index + 1}.`);
         replayStep(index + 1);
-      };
+        return;
+      }
 
-      img.src = url;
+      try {
+        const wrapperSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        wrapperSvg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+        wrapperSvg.setAttribute("viewBox", svgElement.getAttribute("viewBox") || "0 0 100 100");
+
+        const styleAttr = svgElement.getAttribute("style");
+        if (styleAttr) {
+          wrapperSvg.setAttribute("style", styleAttr);
+        }
+
+        wrapperSvg.appendChild(targetGroup.cloneNode(true));
+
+        const serializedGroup = new XMLSerializer().serializeToString(wrapperSvg);
+        const groupBlob = new Blob([serializedGroup], { type: "image/svg+xml" });
+        const url = URL.createObjectURL(groupBlob);
+
+        const img = new Image();
+
+        img.onload = () => {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          URL.revokeObjectURL(url);
+
+          if (slide.animationType === WALKING) {
+            wlkingAnimationPlay(serializedGroup);
+          } else if (slide.animationType === HANDSTAND) {
+            handStandanimationPlay(serializedGroup);
+          }
+
+          const animationStartTime = Date.now();
+          const animationEndTime = animationStartTime + slide.duration;
+
+          const interval = setInterval(() => {
+            const now = Date.now();
+            elapsedTime += 1000;
+            updatePlayhead(elapsedTime);
+
+            if (now >= animationEndTime) {
+              clearInterval(interval);
+              replayStep(index + 1);
+            }
+          }, 1000);
+        };
+
+        img.onerror = () => {
+          console.error(
+            `Error loading target group for Slide ${index + 1}. Skipping to the next slide.`
+          );
+          replayStep(index + 1);
+        };
+
+        img.src = url;
+      } catch (error) {
+        console.error(`Error processing Slide ${index + 1}:`, error);
+        replayStep(index + 1);
+      }
     };
 
-    drawBackground();
     replayStep(0);
   };
 
-
-
-
-
-
-
+ 
 
   const handleMouseDown = () => {
     setDragging(true);
@@ -880,6 +942,7 @@ const Page: React.FC = () => {
 
   return (
     <>
+       
 
 
 
@@ -1013,6 +1076,7 @@ const Page: React.FC = () => {
               handleMouseUp={handleMouseUp}
               playPauseAni={handlePlayPauseForSelectedSlide}
               setLayerIndex={setLayerIndex}
+              downloadVideo={downloadVideo}
 
 
 
@@ -1027,7 +1091,7 @@ const Page: React.FC = () => {
               layerIndex === slide.index ? (
                 <div key={slide.index} className="layer-slide-container">
                   <h2>{`Svg Layers ${slide.index}`}</h2>
-                  <Layers
+                  <LayersComponent
                     selectedSvg={slide.svg}
                     parseSvgLayers={parseSvgLayers}
                     selectedLayers={selectedLayers}

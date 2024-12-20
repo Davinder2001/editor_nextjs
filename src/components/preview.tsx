@@ -38,6 +38,7 @@ interface PreviewProps {
   handleMouseUp: (event: React.MouseEvent<HTMLDivElement>) => void; // Mouse up handler
   playPauseAni:()=>void,
   setLayerIndex: React.Dispatch<React.SetStateAction<number|null>>; 
+  downloadVideo:()=>void
 }
 
 const Preview: React.FC<PreviewProps> = ({
@@ -68,6 +69,7 @@ const Preview: React.FC<PreviewProps> = ({
   handleMouseUp ,
   playPauseAni,
   setLayerIndex,
+  downloadVideo
   
   
   
@@ -162,6 +164,7 @@ const Preview: React.FC<PreviewProps> = ({
             handleMouseUp={handleMouseUp}
             playPauseAni={playPauseAni}
             setLayerIndex={setLayerIndex}
+            downloadVideo={downloadVideo}
           />
         </>
       ) : (
