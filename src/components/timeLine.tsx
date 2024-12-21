@@ -1,3 +1,4 @@
+import { ANIMATION_TIME_LINE } from "@/utils/animationsType";
 import React from "react";
 
 interface Slide {
@@ -37,10 +38,10 @@ const TimeLine: React.FC<TimelineProps> = ({
   
 }) => {
   // Fixed duration per slide (e.g., 3 seconds)
-  const fixedDuration = 3000; // 3 seconds in milliseconds
+  const fixedDuration = ANIMATION_TIME_LINE; // 3 seconds in milliseconds
 
   // Total duration dynamically calculated based on slides
-  const totalDurationInMs = slideForTimeline.length * fixedDuration || 6000; // Default 6 seconds
+  const totalDurationInMs = slideForTimeline.length * fixedDuration || 9000; // Default 6 seconds
   const totalSeconds = Math.ceil(totalDurationInMs / 1000);
 
   return (
