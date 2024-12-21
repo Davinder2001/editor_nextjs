@@ -51,13 +51,13 @@ const TimeLine: React.FC<TimelineProps> = ({
       <h3>Timeline:</h3>
       <div className="timeline_buttons">
         <button onClick={replayActivities} style={{ marginTop: "20px" }}>
-          Replay Activities
+         Render Timeline
         </button>
         <button style={{ marginBottom: "10px" }} onClick={downloadVideo}>
-          download
+          Download as Mp4
         </button>
         <button style={{ marginBottom: "10px" }} onClick={playPauseAni}>
-          Play
+          Play Animation
         </button>
       </div>
 

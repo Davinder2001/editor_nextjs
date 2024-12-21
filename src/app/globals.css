@@ -9,6 +9,15 @@ canvas.svg-preview-container {
   width: 100%;
   
 }
+.right-side p {
+  width: 100%;
+  height: 100%;
+  border: 1px solid #80808059;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 4px;
+}
 .choose_file-container label {
   background: #00215E;
   border: none;
@@ -127,9 +136,7 @@ canvas.svg-preview-container {
   background: #6a6ad6;
   color: white;
 }
-.timeline_buttons {
-  margin-top: 30px;
-}
+ 
 .svg-container-for-timeline .timeline svg {
   cursor: pointer;
 }
@@ -254,12 +261,20 @@ canvas{
   background: #00215E !important;
   color: white;
 }
-
+.animation_wrapper_main_page {
+  
+  box-shadow: 2px 2px 18px #00000026;
+  padding: 15px;
+}
 .frame-container{
   display: flex;
       gap: 10px;
-      box-shadow: 2px 2px 18px #00000026;
-      padding: 15px;
+   
+  
+}
+.timeline {
+  width: 100%;
+  overflow-x: hidden;
 }
 .right-side {
   width: 60%;
@@ -274,8 +289,14 @@ canvas{
   width: 20%;
   height: 60vh;
   overflow: scroll;
-  overflow-x: auto;
+  overflow-x: hidden;
   overflow-y: auto;
+}
+.animation_frame_line {
+  display: grid;
+  grid-template-columns: 20% 1fr;
+  align-items: center;
+  gap: 10px;
 }
 .layers-container ul li ul li {
   overflow: hidden;
@@ -335,7 +356,7 @@ ul {
 
 .slide-container p {
   margin: 0;
-  position: absolute;
+ 
   bottom: 2px;
   left: 0;
   right: 0;

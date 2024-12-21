@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import SvgPreviewMain from "./svgPreviewMain";
-import TimeLine from "./timeLine";
+ 
 
 interface PreviewProps {
   setSvgDataList: React.Dispatch<React.SetStateAction<string[]>>;
@@ -53,26 +53,12 @@ const Preview: React.FC<PreviewProps> = ({
   selectedLayers,
 
 
-  slideForTimeline,
- 
- 
   
-  replayActivities,
  
   svgPosition,
   setSvgPosition,
-  handleSvgClick,
-  playheadPosition,
- 
-  currentReplayIndex,
-  handleMouseDown ,
-  handleMouseMove ,
-  handleMouseUp ,
-  playPauseAni,
-  setLayerIndex,
-  downloadVideo,
- 
-  dragging
+  
+  
   
   
   
@@ -138,7 +124,7 @@ const Preview: React.FC<PreviewProps> = ({
 
   return (
     <>
-      {selectedSvg ? (
+       
         <>
           <h1 className="main-heading">Preview</h1>
           <SvgPreviewMain
@@ -149,32 +135,14 @@ const Preview: React.FC<PreviewProps> = ({
             selectedSvg={selectedSvg}
             selectedLayers={selectedLayers}
             setSvgPosition={setSvgPosition}
+             
 
           />
 
-          {/* Timeline */}
-          <TimeLine
-            currentReplayIndex={currentReplayIndex}
-            slideForTimeline={slideForTimeline}
-
-            replayActivities={replayActivities}
+         
           
-            handleSvgClick={handleSvgClick}
-            playheadPosition={playheadPosition}
-          
-            handleMouseDown={handleMouseDown}
-            handleMouseMove={handleMouseMove}
-            handleMouseUp={handleMouseUp}
-            playPauseAni={playPauseAni}
-            setLayerIndex={setLayerIndex}
-            downloadVideo={downloadVideo}
-           
-            dragging={dragging}
-          />
         </>
-      ) : (
-        <p>Select an SVG to preview it here.</p>
-      )}
+       
     </>
   );
 };
