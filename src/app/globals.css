@@ -62,7 +62,7 @@ canvas.svg-preview-container {
 }
 
 .timeline-wrapper div {
-  margin: 0 0 10px;
+  margin: 0 0 0px;
   width: 100%;
   display: flex;
   justify-content: center;
@@ -90,7 +90,7 @@ position: relative;
 .timeline-container {
   width: 100%;
   position: relative;
-  margin-top: 10px;
+  
 }
 
 .timeline-container button {
@@ -151,7 +151,7 @@ canvas.svg-preview-container {
 }
 
 .svg-thumb-container {
-  height: 45vh;
+  height: 38vh;
   overflow: scroll;
   overflow-y: auto;
   overflow-x: auto;
@@ -227,6 +227,7 @@ canvas{
 .active .add-and-delete-buttons{
   display: block !important;
   border: 1px solid green;
+  margin-top: -20px;
 }
 .container{
   max-width: 1400px;
@@ -262,6 +263,7 @@ canvas{
   color: white;
 }
 .animation_wrapper_main_page {
+  margin-top: 20px;
   
   box-shadow: 2px 2px 18px #00000026;
   padding: 15px;
@@ -274,7 +276,7 @@ canvas{
 }
 .timeline {
   width: 100%;
-  overflow-x: hidden;
+
 }
 .right-side {
   width: 60%;
@@ -287,7 +289,7 @@ canvas{
 }
 .leayrs-container {
   width: 20%;
-  height: 60vh;
+  height: 61vh;
   overflow: scroll;
   overflow-x: hidden;
   overflow-y: auto;
@@ -356,14 +358,24 @@ ul {
 
 .slide-container p {
   margin: 0;
- 
-  bottom: 2px;
+  bottom: 1px;
   left: 0;
   right: 0;
   background: #227B94;
   color: #fff;
-  padding: 4px;
+  padding: 0px;
+  position: absolute;
 }
+
+
+.main-heading {
+  text-align: center;
+  font-size: 24px;
+  text-transform: uppercase;
+  color: #00215e;
+}
+
+
 li {
   margin-left: 0; 
 }

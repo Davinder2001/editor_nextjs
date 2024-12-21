@@ -1059,9 +1059,9 @@ const Page: React.FC = () => {
                     key={index}
                     style={{
                       position: "relative",
-                      height: "200px",
+                      height: "150px",
                       border: "1px solid #ccc",
-                      marginBottom: "50px",
+                      marginBottom: "20px",
                       cursor: "pointer",
                     }}
                     className={selectedSvgIndex === index ? "active" : ""}
@@ -1081,7 +1081,7 @@ const Page: React.FC = () => {
                         onClick={(event) => addSlideToTimeline(event)}
                         data-index={index} // Pass the index dynamically
                         style={{
-                          padding: "12px 10px",
+                          padding: "8px 10px",
                           backgroundColor: "#4CAF50",
                           color: "white",
                           border: "none",
@@ -1095,7 +1095,7 @@ const Page: React.FC = () => {
                       <button
                         onClick={() => handleDeleteSvg()} // Delete SVG
                         style={{
-                          padding: "12px 10px",
+                          padding: "8px 10px",
                           backgroundColor: "#f44336", // Red for "Delete"
                           color: "white",
                           border: "none",
@@ -1158,10 +1158,10 @@ const Page: React.FC = () => {
           </div>
 
           <div className="leayrs-container">
-            {slideForTimeline.length === 0 ? (<h2>Layers not Found</h2>) : (slideForTimeline.map((slide, index) => (
+            {slideForTimeline.length === 0 ? (<h1 className="main-heading">Layers not Found</h1>) : (slideForTimeline.map((slide, index) => (
               layerIndex === slide.index ? (
                 <div key={slide.index} className="layer-slide-container">
-                  <h2>{`SVG Layers ${index + 1}`}</h2>
+                  <h1 className="main-heading">{`SVG Layers ${index + 1}`}</h1>
                   <LayersComponent
                     selectedSvg={slide.svg}
                     parseSvgLayers={parseSvgLayers}

@@ -50,7 +50,7 @@ const TimeLine: React.FC<TimelineProps> = ({
     <div className="timeline-container">
       <h3>Timeline:</h3>
       <div className="timeline_buttons">
-        <button onClick={replayActivities} style={{ marginTop: "20px" }}>
+        <button onClick={replayActivities} style={{ marginTop: "0px" }}>
          Render Timeline
         </button>
         <button style={{ marginBottom: "10px" }} onClick={downloadVideo}>
@@ -122,13 +122,13 @@ const TimeLine: React.FC<TimelineProps> = ({
             style={{
               position: "absolute",
               left: `${playheadPosition}%`,
-              width: "16px",
-              height: "16px",
-              backgroundColor: "#007bff",
+              width: "26px",
+              height: "26px",
+              backgroundColor: "rgb(34, 123, 148)",
               borderRadius: "50%",
               transform: "translate(-50%, -50%)",
               top: "50%",
-              cursor: dragging ? "grabbing" : "pointer",
+              cursor: dragging ? "grabbing" : "grab",            
             }}
           ></div>
         </div>
@@ -142,8 +142,8 @@ const TimeLine: React.FC<TimelineProps> = ({
           gridTemplateColumns: `repeat(${totalSeconds / 3}, ${100 / (totalSeconds / 3)}%)`, // Align slides to the grid
           gap: "2px",
           alignItems: "center",
-          height: "135px", // Optional: Set a fixed height for visual consistency
-          marginTop: "10px",
+          height: "120px", // Optional: Set a fixed height for visual consistency
+          marginTop: "0px",
         }}
       >
         {slideForTimeline.length > 0 ? (
