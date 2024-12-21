@@ -58,6 +58,10 @@ const Page: React.FC = () => {
 
 
 
+  console.log(`slideForTimeline`);
+  console.log(slideForTimeline);
+  
+
 
 
 
@@ -815,6 +819,7 @@ const Page: React.FC = () => {
   
       console.log(`Replaying Slide ${index + 1}/${filteredSlides.length}`);
   
+      // Parse the SVG from the filtered slide
       const parser = new DOMParser();
       const svgDoc = parser.parseFromString(slide.svg, "image/svg+xml");
       const svgElement = svgDoc.documentElement;
@@ -826,6 +831,7 @@ const Page: React.FC = () => {
         );
       }
   
+      // Get the <g> with id="animation_wrapper"
       const animationWrapper = svgElement.querySelector('g[id="animation_wrapper"]');
       if (!animationWrapper) {
         console.warn('No <g> element with id="animation_wrapper" found in the SVG.');
@@ -833,30 +839,36 @@ const Page: React.FC = () => {
         return;
       }
   
-      // Create a new SVG containing only the animation wrapper and its children
-      const filteredSvgDoc = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-      Array.from(svgElement.attributes).forEach((attr) => {
-        filteredSvgDoc.setAttribute(attr.name, attr.value); // Copy attributes from the original SVG
-      });
-      filteredSvgDoc.appendChild(animationWrapper.cloneNode(true));
+      // Get the nested <g> elements inside animationWrapper
+      const nestedGroups = Array.from(animationWrapper.querySelectorAll("g"));
+      if (nestedGroups.length === 0) {
+        console.warn("No nested <g> elements found for animation.");
+        replayStep(index + 1);
+        return;
+      }
   
+
+      let svg=new XMLSerializer().serializeToString(svgElement)
+      // Play animation based on type
+      if (slide.animationType === WALKING) {
+        console.log("Playing walking animation for timeline index:", slide.index);
+        wlkingAnimationPlay(svg);
+      } else if (slide.animationType === HANDSTAND) {
+        console.log("Playing handstand animation for timeline index:", slide.index);
+        handStandanimationPlay(svg);
+      }
+  
+      // Serialize the updated SVG for rendering
       const img = new Image();
-      const filteredSvgBlob = new Blob([new XMLSerializer().serializeToString(filteredSvgDoc)], {
+      const updatedSvgBlob = new Blob([new XMLSerializer().serializeToString(svgElement)], {
         type: "image/svg+xml",
       });
-      const url = URL.createObjectURL(filteredSvgBlob);
+      const url = URL.createObjectURL(updatedSvgBlob);
   
       img.onload = () => {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
         URL.revokeObjectURL(url);
-  
-        // Play animation using the filtered <g> SVG
-        if (slide.animationType === WALKING) {
-          wlkingAnimationPlay(new XMLSerializer().serializeToString(filteredSvgDoc));
-        } else if (slide.animationType === HANDSTAND) {
-          handStandanimationPlay(new XMLSerializer().serializeToString(filteredSvgDoc));
-        }
   
         const animationStartTime = Date.now();
         const animationEndTime = animationStartTime + slide.duration;
@@ -874,7 +886,7 @@ const Page: React.FC = () => {
       };
   
       img.onerror = () => {
-        console.error("Error loading filtered SVG.");
+        console.error("Error loading updated SVG.");
         replayStep(index + 1);
       };
   
@@ -883,6 +895,11 @@ const Page: React.FC = () => {
   
     replayStep(0);
   };
+  
+  
+  
+  
+  
   
   
   
