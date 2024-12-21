@@ -848,7 +848,7 @@ const Page: React.FC = () => {
       }
   
 
-      let svg=new XMLSerializer().serializeToString(svgElement)
+      const svg=new XMLSerializer().serializeToString(svgElement)
       // Play animation based on type
       if (slide.animationType === WALKING) {
         console.log("Playing walking animation for timeline index:", slide.index);
