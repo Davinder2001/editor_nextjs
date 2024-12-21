@@ -55,26 +55,10 @@ const Page: React.FC = () => {
   const [currentReplayIndex, setCurrentReplayIndex] = useState<number | null>(null);
   const [svgPosition, setSvgPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [playheadPosition, setPlayheadPosition] = useState(0);
-
-
-
-  console.log(`slideForTimeline`);
-  console.log(slideForTimeline);
-  
-
-
-
-
-
-  const [dragging, setDragging] = useState(false);
-  const [draggedSeconds, setDraggedSeconds] = useState<number | null>(null);
-
+ 
+  const [dragging, setDragging] = useState<boolean>(false);
   const [layerIndex, setLayerIndex] = useState<number | null>(0)
-
-
   console.log(layerIndex)
-
-
 
   console.log(activityLog)
 
@@ -255,7 +239,7 @@ const Page: React.FC = () => {
   let animationStarted = false;
   let initialTimestamp = 0;
 
-  const animate = (svg: string, timestamp: number) => {
+  const animate = (svg: string, timestamp: number, isReverse: boolean = false) => {
     if (!animationStarted) {
       initialTimestamp = timestamp;
       animationStarted = true;
@@ -306,7 +290,9 @@ const Page: React.FC = () => {
     // Calculate translation for the <g> element
     const canvasWidth = canvas.width;
     const speed = 100; // Pixels per second
-    const translateX = (elapsedTime / 1000) * speed % canvasWidth; // Loop back when reaching the edge
+    const translateX = isReverse
+      ? canvasWidth - ((elapsedTime / 1000) * speed) % canvasWidth // Reverse: Right to Left
+      : ((elapsedTime / 1000) * speed) % canvasWidth; // Forward: Left to Right
   
     // Apply the translation to the <g> element
     animationWrapper.setAttribute("transform", `translate(${translateX} 0)`);
@@ -365,16 +351,21 @@ const Page: React.FC = () => {
   
     // Request the next frame
     animationFrameId.current = requestAnimationFrame((newTimestamp) =>
-      animate(svg, newTimestamp)
+      animate(svg, newTimestamp, isReverse)
     );
   };
   
-  // Function to trigger the walking animation
-  const wlkingAnimationPlay = (svg: string) => {
+  const wlkingAnimationPlay = (svg: string, isReverse: boolean = false) => {
     if (!animationStarted) {
-      animationFrameId.current = requestAnimationFrame((timestamp) => animate(svg, timestamp));
+      animationFrameId.current = requestAnimationFrame((timestamp) =>
+        animate(svg, timestamp, isReverse)
+      );
     }
   };
+  
+  
+  // Function to trigger the walking animation
+ 
   
   
 
@@ -852,7 +843,7 @@ const Page: React.FC = () => {
       // Play animation based on type
       if (slide.animationType === WALKING) {
         console.log("Playing walking animation for timeline index:", slide.index);
-        wlkingAnimationPlay(svg);
+        wlkingAnimationPlay(svg,false);
       } else if (slide.animationType === HANDSTAND) {
         console.log("Playing handstand animation for timeline index:", slide.index);
         handStandanimationPlay(svg);
@@ -896,55 +887,144 @@ const Page: React.FC = () => {
     replayStep(0);
   };
   
-  
-  
-  
-  
-  
-  
-  
 
- 
 
-  const handleMouseDown = () => {
-    setDragging(true);
-  };
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!dragging) return;
-
-    const timelineElement = e.currentTarget;
-    const rect = timelineElement.getBoundingClientRect();
-    const offsetX = e.clientX - rect.left;
-
-    const timelineWidth = rect.width;
-    const totalDurationInSeconds = slideForTimeline
-      .filter((slide) => slide.animationType)
-      .reduce((sum, slide) => sum + slide.duration, 0) / 1000;
-
-    // Adjust for the width of the playhead circle (20px)
-    const playheadRadius = 10; // Half of the circle's width
-    const adjustedOffsetX = Math.max(0, Math.min(offsetX, timelineWidth)); // Ensure within bounds
-
-    const newSeconds = Math.max(
-      0,
-      Math.min(((adjustedOffsetX - playheadRadius) / (timelineWidth - 2 * playheadRadius)) * totalDurationInSeconds, totalDurationInSeconds)
-    );
-
-    // Update dragged position and playhead position without triggering other updates
-    if (draggedSeconds !== newSeconds) {
-      setDraggedSeconds(newSeconds);
-      setPlayheadPosition((newSeconds / totalDurationInSeconds) * 100);
+  const dragReverseReplayActivities = (playheadPercentage: number) => {
+    const canvas = svgContainerRef.current;
+    if (!(canvas instanceof HTMLCanvasElement)) {
+      console.warn("Canvas not found or is not a valid HTMLCanvasElement.");
+      return;
     }
+  
+    const ctx = canvas.getContext("2d");
+    if (!ctx) {
+      console.warn("Canvas context not available.");
+      return;
+    }
+  
+    const filteredSlides = slideForTimeline.filter((slide) => slide.animationType);
+  
+    if (filteredSlides.length === 0) {
+      console.warn("No animations assigned for reverse replay.");
+      return;
+    }
+  
+    const totalDuration = filteredSlides.reduce((sum, slide) => sum + slide.duration, 0);
+  
+    // Calculate the remaining duration based on playhead percentage
+    const remainingDuration = Math.max(0, Math.min((playheadPercentage / 100) * totalDuration, totalDuration));
+    let accumulatedTime = totalDuration;
+    let currentSlideIndex = filteredSlides.length - 1;
+  
+    // Determine the current slide based on the remaining duration
+    for (let i = filteredSlides.length - 1; i >= 0; i--) {
+      accumulatedTime -= filteredSlides[i].duration;
+      if (remainingDuration >= accumulatedTime) {
+        currentSlideIndex = i;
+        break;
+      }
+    }
+  
+    const currentSlide = filteredSlides[currentSlideIndex];
+    if (!currentSlide) {
+      console.warn("No matching slide found for the current playhead position.");
+      return;
+    }
+  
+    const relativeElapsedTime = remainingDuration - accumulatedTime;
+    console.log(
+      `Replaying slide index ${currentSlide.index} with relative elapsed time: ${relativeElapsedTime}`
+    );
+  
+    // Parse the SVG from the current slide
+    const parser = new DOMParser();
+    const svgDoc = parser.parseFromString(currentSlide.svg, "image/svg+xml");
+    const svgElement = svgDoc.documentElement;
+  
+    if (backgroundImage) {
+      svgElement.setAttribute(
+        "style",
+        `background: url(${backgroundImage}); background-size: cover;`
+      );
+    }
+  
+    const animationWrapper = svgElement.querySelector('g[id="animation_wrapper"]');
+    if (!animationWrapper) {
+      console.warn("No <g> element with id='animation_wrapper' found in the SVG.");
+      return;
+    }
+  
+    const svg = new XMLSerializer().serializeToString(svgElement);
+  
+    // Play animation based on type
+    if (currentSlide.animationType === WALKING) {
+      console.log(`Playing walking animation for slide index: ${currentSlide.index}`);
+      wlkingAnimationPlay(svg, true);
+    } else if (currentSlide.animationType === HANDSTAND) {
+      console.log(`Playing handstand animation for slide index: ${currentSlide.index}`);
+      handStandanimationPlay(svg);
+    }
+  
+    // Render the updated SVG to the canvas
+    const img = new Image();
+    const updatedSvgBlob = new Blob([svg], { type: "image/svg+xml" });
+    const url = URL.createObjectURL(updatedSvgBlob);
+  
+    img.onload = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      URL.revokeObjectURL(url);
+    };
+  
+    img.onerror = () => {
+      console.error("Error loading updated SVG.");
+    };
+  
+    img.src = url;
+  
+    // Update the playhead position dynamically
+    const updatePlayhead = (currentElapsed: number) => {
+      const progress = Math.max(0, Math.min((currentElapsed / totalDuration) * 100, 100));
+      const playheadElement = document.querySelector(".playhead");
+      if (playheadElement instanceof HTMLElement) {
+        playheadElement.style.left = `${progress}%`;
+      }
+      console.log(`Playhead updated to: ${progress.toFixed(2)}%`);
+    };
+  
+    updatePlayhead(remainingDuration);
   };
-
+  
+ 
+  const handleMouseDown = () => {
+    setDragging(true); // Enable dragging state
+  };
+  
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!dragging) return; // Only allow movement when dragging
+  
+    const progressBar = e.currentTarget; // The timeline container
+    const rect = progressBar.getBoundingClientRect(); // Get its dimensions
+    const offsetX = e.clientX - rect.left; // Calculate the mouse position relative to the container
+  
+    const playheadPercentage = Math.max(0, Math.min(100, (offsetX / rect.width) * 100)); // Clamp to [0, 100]
+  
+    setPlayheadPosition(playheadPercentage); // Update playhead position visually
+    dragReverseReplayActivities(playheadPercentage); // Sync animation with playhead
+  };
+  
   const handleMouseUp = () => {
-    setDragging(false);
+    setDragging(false); // Disable dragging state
   };
+  
+  
 
 
   return (
     <>
+
+ 
+
        
 
 
@@ -1080,6 +1160,8 @@ const Page: React.FC = () => {
               playPauseAni={handlePlayPauseForSelectedSlide}
               setLayerIndex={setLayerIndex}
               downloadVideo={downloadVideo}
+          
+              dragging={dragging}
 
 
 

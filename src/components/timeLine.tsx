@@ -20,7 +20,8 @@ interface TimelineProps {
   handleMouseUp: (event: React.MouseEvent<HTMLDivElement>) => void;
   playPauseAni: () => void;
   setLayerIndex: React.Dispatch<React.SetStateAction<number|null>>; 
-  downloadVideo:()=>void
+  downloadVideo:()=>void,
+  dragging:boolean
 }
 
 const TimeLine: React.FC<TimelineProps> = ({
@@ -34,7 +35,8 @@ const TimeLine: React.FC<TimelineProps> = ({
   handleMouseUp,
   playPauseAni,
   setLayerIndex,
-  downloadVideo
+  downloadVideo,
+  dragging
   
 }) => {
   // Fixed duration per slide (e.g., 3 seconds)
@@ -126,7 +128,7 @@ const TimeLine: React.FC<TimelineProps> = ({
               borderRadius: "50%",
               transform: "translate(-50%, -50%)",
               top: "50%",
-              cursor: "grab",
+              cursor: dragging ? "grabbing" : "pointer",
             }}
           ></div>
         </div>
