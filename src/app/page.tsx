@@ -37,6 +37,7 @@ const Page: React.FC = () => {
 
 
   const animationFrameId = useRef<number | null>(null);
+  const playheadRef = useRef<HTMLDivElement>(null);
   const [currentTime, setCurrentTime] = useState(1);
   const [isPlaying, setIsPlaying] = useState(false);
 
@@ -993,8 +994,22 @@ const Page: React.FC = () => {
 
 
   const handleMouseDown = () => {
-    setDragging(true); // Enable dragging state
+    setDragging(true);  
   };
+  let lastUpdate = 0;
+  const THROTTLE_TIME = 16;
+  // Throttled update for the playhead position
+const throttledUpdatePlayhead = (playheadPercentage: number) => {
+  const now = Date.now();
+  if (now - lastUpdate < THROTTLE_TIME) return; // Throttle updates to every 16ms (60fps)
+  lastUpdate = now;
+
+  // Update playhead position using ref directly
+  if (playheadRef.current) {
+    playheadRef.current.style.left = `${playheadPercentage}%`; // Directly update the position
+  }
+};
+
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!dragging) return;
@@ -1005,8 +1020,10 @@ const Page: React.FC = () => {
 
     const playheadPercentage = Math.max(0, Math.min(100, (offsetX / rect.width) * 100)); // Clamp to [0, 100]
 
-    setPlayheadPosition(playheadPercentage); // Update playhead position visually
-    dragReverseReplayActivities(playheadPercentage); // Sync animation with playhead
+    requestAnimationFrame(()=>setPlayheadPosition(playheadPercentage)); // Update playhead position visually
+    requestAnimationFrame(() => dragReverseReplayActivities(playheadPercentage));
+    requestAnimationFrame(() => throttledUpdatePlayhead(playheadPercentage));
+    
   };
 
   const handleMouseUp = () => {
@@ -1147,6 +1164,7 @@ const Page: React.FC = () => {
               downloadVideo={downloadVideo}
 
               dragging={dragging}
+             
 
 
 
@@ -1167,6 +1185,7 @@ const Page: React.FC = () => {
                     parseSvgLayers={parseSvgLayers}
                     selectedLayers={selectedLayers}
                     handleLayerClick={handleLayerClick}
+                    
                   />
                 </div>
               ) : null
@@ -1192,7 +1211,10 @@ const Page: React.FC = () => {
             setLayerIndex={setLayerIndex}
             downloadVideo={downloadVideo}
            
-            dragging={dragging}/>
+            dragging={dragging}
+            playheadRef={playheadRef}
+            
+            />
        </div>
       </div>
       </div>

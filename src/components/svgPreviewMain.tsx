@@ -18,6 +18,7 @@ const SvgPreviewMain: React.FC<PreviewProps> = ({
   applyLayerStyles,
   selectedSvg,
   selectedLayers,
+  
 }) => {
   const isDragging = useRef(false);
   const dragStart = useRef({ x: 0, y: 0 });

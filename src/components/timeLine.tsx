@@ -22,6 +22,7 @@ interface TimelineProps {
   setLayerIndex: React.Dispatch<React.SetStateAction<number|null>>; 
   downloadVideo:()=>void,
   dragging:boolean
+  playheadRef:React.RefObject<HTMLDivElement>;
 }
 
 const TimeLine: React.FC<TimelineProps> = ({
@@ -36,7 +37,8 @@ const TimeLine: React.FC<TimelineProps> = ({
   playPauseAni,
   setLayerIndex,
   downloadVideo,
-  dragging
+  dragging,
+  playheadRef
   
 }) => {
   // Fixed duration per slide (e.g., 3 seconds)
@@ -119,6 +121,7 @@ const TimeLine: React.FC<TimelineProps> = ({
         >
           <div
             className="playhead"
+            ref={playheadRef}
             style={{
               position: "absolute",
               left: `${playheadPosition}%`,

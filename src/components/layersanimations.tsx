@@ -26,6 +26,7 @@ interface TimelineProps {
   setLayerIndex: React.Dispatch<React.SetStateAction<number | null>>;
   downloadVideo: () => void;
   dragging: boolean;
+  playheadRef:React.RefObject<HTMLDivElement>;
 }
 
 const Layersanimations: React.FC<TimelineProps> = ({
@@ -44,6 +45,7 @@ const Layersanimations: React.FC<TimelineProps> = ({
   setLayerIndex,
   downloadVideo,
   dragging,
+  playheadRef
 }) => {
   return (
     <>
@@ -72,6 +74,7 @@ const Layersanimations: React.FC<TimelineProps> = ({
           setLayerIndex={setLayerIndex}
           downloadVideo={downloadVideo}
           dragging={dragging}
+          playheadRef={playheadRef}
         />
       </div>
     </>
