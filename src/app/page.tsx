@@ -1,6 +1,6 @@
 'use client';
 
- 
+
 import LayersComponent from "@/components/layers";
 import Layersanimations from "@/components/layersanimations";
 
@@ -994,40 +994,38 @@ const Page: React.FC = () => {
 
 
   const handleMouseDown = () => {
-    setDragging(true);  
+    setDragging(true); // Enable dragging state
   };
+
   let lastUpdate = 0;
   const THROTTLE_TIME = 16;
   // Throttled update for the playhead position
-const throttledUpdatePlayhead = (playheadPercentage: number) => {
-  const now = Date.now();
-  if (now - lastUpdate < THROTTLE_TIME) return; // Throttle updates to every 16ms (60fps)
-  lastUpdate = now;
-
-  // Update playhead position using ref directly
-  if (playheadRef.current) {
-    playheadRef.current.style.left = `${playheadPercentage}%`; // Directly update the position
-  }
-};
+  const throttledUpdatePlayhead = (playheadPercentage: number) => {
+    const now = Date.now();
+    if (now - lastUpdate < THROTTLE_TIME) return;
+    lastUpdate = now;
+    setPlayheadPosition(playheadPercentage);
+  };
 
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!dragging) return;
 
     const progressBar = e.currentTarget;
     const rect = progressBar.getBoundingClientRect();
-    const offsetX = e.clientX - rect.left; // Calculate the mouse position relative to the container
+    const offsetX = e.clientX - rect.left; // Calculate mouse position relative to container
 
     const playheadPercentage = Math.max(0, Math.min(100, (offsetX / rect.width) * 100)); // Clamp to [0, 100]
 
-    requestAnimationFrame(()=>setPlayheadPosition(playheadPercentage)); // Update playhead position visually
+    throttledUpdatePlayhead(playheadPercentage);
+
+    requestAnimationFrame(() => setPlayheadPosition(playheadPercentage)); // Update playhead position visually
     requestAnimationFrame(() => dragReverseReplayActivities(playheadPercentage));
     requestAnimationFrame(() => throttledUpdatePlayhead(playheadPercentage));
-    
+
   };
 
   const handleMouseUp = () => {
-    setDragging(false); // Disable dragging state
+    setDragging(true); // Disable dragging state
   };
 
 
@@ -1038,122 +1036,170 @@ const throttledUpdatePlayhead = (playheadPercentage: number) => {
 
       <div className="container">
         <div className="animation_wrapper_main_page">
-        <div className="frame-container">
-          <div className="left-side">
-            <h1 className="main-heading">Upload</h1>
+          <div className="frame-container">
+            <div className="left-side">
+              <h1 className="main-heading">Upload</h1>
 
-            <div className="choose_file-container">
-              <label htmlFor="file-upload" className="custom-file-upload">
-                Upload SVGs
-              </label>
-              <input
-                id="file-upload"
-                type="file"
-                accept=".svg"
-                multiple
-                onChange={handleUpload}
-                className="hidden"
-              />
-            </div>
-            <div className="choose_file-container">
-              <label htmlFor="background-upload" className="custom-file-upload">
-                Upload Background
-              </label>
-              <input
-                id="background-upload"
-                type="file"
-                accept="image/*"
-                onChange={handleBackgroundUpload}
-                className="hidden"
-              />
-            </div>
+              <div className="choose_file-container">
+                <label htmlFor="file-upload" className="custom-file-upload">
+                  Upload SVGs
+                </label>
+                <input
+                  id="file-upload"
+                  type="file"
+                  accept=".svg"
+                  multiple
+                  onChange={handleUpload}
+                  className="hidden"
+                />
+              </div>
+              <div className="choose_file-container">
+                <label htmlFor="background-upload" className="custom-file-upload">
+                  Upload Background
+                </label>
+                <input
+                  id="background-upload"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleBackgroundUpload}
+                  className="hidden"
+                />
+              </div>
 
 
-            <div className="svg-thumb-container">
-              {svgDataList.length > 0 ? (
-                svgDataList.map((svg, index) => (
-                  <div
-                    key={index}
-                    style={{
-                      position: "relative",
-                      height: "150px",
-                      border: "1px solid #ccc",
-                      marginBottom: "20px",
-                      cursor: "pointer",
-                    }}
-                    className={selectedSvgIndex === index ? "active" : ""}
-                  >
+              <div className="svg-thumb-container">
+                {svgDataList.length > 0 ? (
+                  svgDataList.map((svg, index) => (
                     <div
-                      onClick={() => handleSvgClick(svg, index)}
-                      dangerouslySetInnerHTML={{ __html: svg }}
+                      key={index}
                       style={{
-                        width: "100%",
-                        height: "100%",
+                        position: "relative",
+                        height: "150px",
+                        border: "1px solid #ccc",
+                        marginBottom: "20px",
+                        cursor: "pointer",
                       }}
-                    />
-
-
-                    <div className="add-and-delete-buttons">
-                      <button
-                        onClick={(event) => addSlideToTimeline(event)}
-                        data-index={index} // Pass the index dynamically
+                      className={selectedSvgIndex === index ? "active" : ""}
+                    >
+                      <div
+                        onClick={() => handleSvgClick(svg, index)}
+                        dangerouslySetInnerHTML={{ __html: svg }}
                         style={{
-                          padding: "8px 10px",
-                          backgroundColor: "#4CAF50",
-                          color: "white",
-                          border: "none",
-                          cursor: "pointer",
-                          width: "50%",
+                          width: "100%",
+                          height: "100%",
                         }}
-                      >
-                        Add Slide
-                      </button>
+                      />
 
-                      <button
-                        onClick={() => handleDeleteSvg()} // Delete SVG
-                        style={{
-                          padding: "8px 10px",
-                          backgroundColor: "#f44336", // Red for "Delete"
-                          color: "white",
-                          border: "none",
-                          cursor: "pointer",
-                          width: "50%"
-                        }}
-                      >
-                        Delete
-                      </button>
+
+                      <div className="add-and-delete-buttons">
+                        <button
+                          onClick={(event) => addSlideToTimeline(event)}
+                          data-index={index} // Pass the index dynamically
+                          style={{
+                            padding: "8px 10px",
+                            backgroundColor: "#4CAF50",
+                            color: "white",
+                            border: "none",
+                            cursor: "pointer",
+                            width: "50%",
+                          }}
+                        >
+                          Add Slide
+                        </button>
+
+                        <button
+                          onClick={() => handleDeleteSvg()} // Delete SVG
+                          style={{
+                            padding: "8px 10px",
+                            backgroundColor: "#f44336", // Red for "Delete"
+                            color: "white",
+                            border: "none",
+                            cursor: "pointer",
+                            width: "50%"
+                          }}
+                        >
+                          Delete
+                        </button>
+                      </div>
                     </div>
+                  ))
+                ) : (
+                  <p>No SVGs uploaded yet.</p>
+                )}
+              </div>
+
+            </div>
+            <div className="right-side">
+              <Preview
+                setSvgDataList={setSvgDataList}
+                selectedSvg={selectedSvg}
+                backgroundImage={backgroundImage}
+                svgContainerRef={svgContainerRef}
+
+
+                setBackgroundImage={setBackgroundImage}
+                isPlaying={isPlaying}
+                togglePlayPause={togglePlayPause}
+                selectedLayers={selectedLayers}
+
+                slideForTimeline={slideForTimeline}
+
+                handleSvgClick={handleSvgClick}
+
+
+                currentReplayIndex={currentReplayIndex}
+                svgPosition={svgPosition}
+                setSvgPosition={setSvgPosition}
+                replayActivities={replayActivities}
+
+                playheadPosition={playheadPosition}
+
+                handleMouseDown={handleMouseDown}
+                handleMouseMove={handleMouseMove}
+                handleMouseUp={handleMouseUp}
+                playPauseAni={handlePlayPauseForSelectedSlide}
+                setLayerIndex={setLayerIndex}
+                downloadVideo={downloadVideo}
+
+                dragging={dragging}
+
+
+
+
+
+
+
+              />
+
+            </div>
+
+            <div className="leayrs-container">
+              {slideForTimeline.length === 0 ? (<h1 className="main-heading">Layers not Found</h1>) : (slideForTimeline.map((slide, index) => (
+                layerIndex === slide.index ? (
+                  <div key={slide.index} className="layer-slide-container">
+                    <h1 className="main-heading">{`SVG Layers ${index + 1}`}</h1>
+                    <LayersComponent
+                      selectedSvg={slide.svg}
+                      parseSvgLayers={parseSvgLayers}
+                      selectedLayers={selectedLayers}
+                      handleLayerClick={handleLayerClick}
+
+                    />
                   </div>
-                ))
-              ) : (
-                <p>No SVGs uploaded yet.</p>
-              )}
+                ) : null
+              )))}
             </div>
 
           </div>
-          <div className="right-side">
-            <Preview
-              setSvgDataList={setSvgDataList}
-              selectedSvg={selectedSvg}
-              backgroundImage={backgroundImage}
-              svgContainerRef={svgContainerRef}
 
 
-              setBackgroundImage={setBackgroundImage}
-              isPlaying={isPlaying}
-              togglePlayPause={togglePlayPause}
-              selectedLayers={selectedLayers}
-
+          <div className="animation_frame_line">
+            <Layersanimations addAnimation={addAnimation} handleWalkingAnimation={handleWalkingAnimation} handlehandstandAnimation={handlehandstandAnimation} currentReplayIndex={currentReplayIndex}
               slideForTimeline={slideForTimeline}
 
-              handleSvgClick={handleSvgClick}
-
-
-              currentReplayIndex={currentReplayIndex}
-              svgPosition={svgPosition}
-              setSvgPosition={setSvgPosition}
               replayActivities={replayActivities}
 
+              handleSvgClick={handleSvgClick}
               playheadPosition={playheadPosition}
 
               handleMouseDown={handleMouseDown}
@@ -1164,59 +1210,11 @@ const throttledUpdatePlayhead = (playheadPercentage: number) => {
               downloadVideo={downloadVideo}
 
               dragging={dragging}
-             
-
-
-
-
-
+              playheadRef={playheadRef}
 
             />
-
           </div>
-
-          <div className="leayrs-container">
-            {slideForTimeline.length === 0 ? (<h1 className="main-heading">Layers not Found</h1>) : (slideForTimeline.map((slide, index) => (
-              layerIndex === slide.index ? (
-                <div key={slide.index} className="layer-slide-container">
-                  <h1 className="main-heading">{`SVG Layers ${index + 1}`}</h1>
-                  <LayersComponent
-                    selectedSvg={slide.svg}
-                    parseSvgLayers={parseSvgLayers}
-                    selectedLayers={selectedLayers}
-                    handleLayerClick={handleLayerClick}
-                    
-                  />
-                </div>
-              ) : null
-            )))}
-          </div>
-
         </div>
-       
-
-       <div className="animation_frame_line">
-        <Layersanimations addAnimation={addAnimation} handleWalkingAnimation={handleWalkingAnimation} handlehandstandAnimation={handlehandstandAnimation} currentReplayIndex={currentReplayIndex}
-            slideForTimeline={slideForTimeline}
-
-            replayActivities={replayActivities}
-          
-            handleSvgClick={handleSvgClick}
-            playheadPosition={playheadPosition}
-          
-            handleMouseDown={handleMouseDown}
-            handleMouseMove={handleMouseMove}
-            handleMouseUp={handleMouseUp}
-            playPauseAni={handlePlayPauseForSelectedSlide}
-            setLayerIndex={setLayerIndex}
-            downloadVideo={downloadVideo}
-           
-            dragging={dragging}
-            playheadRef={playheadRef}
-            
-            />
-       </div>
-      </div>
       </div>
 
     </>

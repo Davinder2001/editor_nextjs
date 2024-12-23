@@ -45,7 +45,7 @@ const TimeLine: React.FC<TimelineProps> = ({
   const fixedDuration = ANIMATION_TIME_LINE; // 3 seconds in milliseconds
 
   // Total duration dynamically calculated based on slides
-  const totalDurationInMs = slideForTimeline.length * fixedDuration || 9000; // Default 6 seconds
+  const totalDurationInMs = slideForTimeline.length * fixedDuration || 12000; // Default 6 seconds
   const totalSeconds = Math.ceil(totalDurationInMs / 1000);
 
   return (
@@ -145,7 +145,7 @@ const TimeLine: React.FC<TimelineProps> = ({
           gridTemplateColumns: `repeat(${totalSeconds / 3}, ${100 / (totalSeconds / 3)}%)`, // Align slides to the grid
           gap: "2px",
           alignItems: "center",
-          height: "120px", // Optional: Set a fixed height for visual consistency
+          height: "120px",  
           marginTop: "0px",
         }}
       >
