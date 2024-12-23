@@ -42,9 +42,12 @@ canvas.svg-preview-container {
   z-index: -1;
 }
 .timeline-wrapper.active {
-  border: 1px solid blue!important;
+  border: 1px solid #f49a03e0!important;
   transition: all 0.3s ease-in-out;
   
+}
+.timeline-wrapper.active p {
+  background: #f49a03e0!important;
 }
 .timeline-wrapper{
   display: flex;
@@ -361,9 +364,9 @@ ul {
   bottom: 1px;
   left: 0;
   right: 0;
-  background: #227B94;
-  color: #fff;
-  padding: 0px;
+  background: #c5bebeed;
+  color: #202020;
+  padding: 2px;
   position: absolute;
 }
 

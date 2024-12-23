@@ -172,8 +172,9 @@ const TimeLine: React.FC<TimelineProps> = ({
                   }}
                   
                 />
+                  <p>{slide.animationType || 'No Animation'}</p>
               </div>
-              <p>{slide.animationType || 'No Animation'}</p>
+            
             </div>
           ))
         ) : (
