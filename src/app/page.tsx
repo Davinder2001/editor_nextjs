@@ -879,7 +879,7 @@ const Page: React.FC = () => {
 
         const interval = setInterval(() => {
           const now = Date.now();
-          elapsedTime += 100; // 500 ms for 2 frames per second
+          elapsedTime += 300; // 500 ms for 2 frames per second
           updatePlayhead(elapsedTime);
 
           // Save the current frame and timestamp at each step, passing the index
@@ -891,7 +891,7 @@ const Page: React.FC = () => {
             clearInterval(interval);
             replayStep(index + 1);
           }
-        }, 100); // 500 ms interval for 2 frames per second
+        }, 300); // 500 ms interval for 2 frames per second
       };
 
       img.onerror = () => {
@@ -914,15 +914,11 @@ const Page: React.FC = () => {
 
   const [currentFrame, setCurrentFrame] = useState<Frame | null>(null);
 
-   
+
 
   const [lastFrameIndex, setLastFrameIndex] = useState<number | null>(null);
 
-  console.log(`lastFrameIndex`)
-  console.log(lastFrameIndex)
-
-  console.log(currentFrame)
-  console.log(currentFrame)
+  
 
 
 
@@ -953,7 +949,7 @@ const Page: React.FC = () => {
     if (frame) {
       const img = new Image();
       img.onload = () => {
-        ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas before drawing new frame
+        
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height); // Draw the frame
       };
       img.src = frame.image; // Set the image source to the frame's image
@@ -1005,23 +1001,26 @@ const Page: React.FC = () => {
 
 
 
-
+  if (dragging) {
+    renderFrameAtPosition(currentFrameIndex);  
+  }
 
   const handleMouseLeave = () => {
     if (!dragging) {
-      renderFrameAtPosition(playheadPosition); // Ensure the frame stays at the current position when the mouse leaves
+      renderFrameAtPosition(playheadPosition);  
     }
   };
 
+  if(currentFrameIndex){
+    renderFrameAtPosition(currentFrameIndex)
+  }
 
-  console.log(`currentFrameIndex`)
-  console.log(currentFrameIndex)
+
+  
 
   return (
     <>
-
-      <button onClick={() => { renderFrameAtPosition(currentFrameIndex) }}>show</button>
-
+ 
 
       <div className="container">
         <div className="animation_wrapper_main_page">
