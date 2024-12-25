@@ -5,7 +5,7 @@ interface Slide {
   svg: string;
   animationType: string | null;
   duration: number;
-  index: number; 
+  index: number; // Unique index for each slide
   isPlaying: boolean;
 }
 
@@ -23,7 +23,6 @@ interface TimelineProps {
   downloadVideo:()=>void,
   dragging:boolean
   playheadRef:React.RefObject<HTMLDivElement>;
-  handleMouseLeave: () => void;
 }
 
 const TimeLine: React.FC<TimelineProps> = ({
@@ -39,8 +38,7 @@ const TimeLine: React.FC<TimelineProps> = ({
   setLayerIndex,
   downloadVideo,
   dragging,
-  playheadRef,
-  handleMouseLeave
+  playheadRef
   
 }) => {
   // Fixed duration per slide (e.g., 3 seconds)
@@ -120,7 +118,6 @@ const TimeLine: React.FC<TimelineProps> = ({
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseLeave}
         >
           <div
             className="playhead"
