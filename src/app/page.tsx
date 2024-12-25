@@ -918,11 +918,7 @@ const Page: React.FC = () => {
 
   const [lastFrameIndex, setLastFrameIndex] = useState<number | null>(null);
 
-  console.log(`lastFrameIndex`)
-  console.log(lastFrameIndex)
-
-  console.log(currentFrame)
-  console.log(currentFrame)
+  
 
 
 
@@ -1005,14 +1001,14 @@ const Page: React.FC = () => {
 
 
 
-  if (dragging) {
-    renderFrameAtPosition(currentFrameIndex);  
-  }
+  // if (dragging) {
+  //   renderFrameAtPosition(currentFrameIndex);  
+  // }
 
   const handleMouseLeave = () => {
-    if (!dragging) {
-      renderFrameAtPosition(playheadPosition);  
-    }
+    // if (!dragging) {
+    //   renderFrameAtPosition(playheadPosition);  
+    // }
   };
 
   if(currentFrameIndex){
