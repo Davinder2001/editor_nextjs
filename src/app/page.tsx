@@ -918,7 +918,11 @@ const Page: React.FC = () => {
 
   const [lastFrameIndex, setLastFrameIndex] = useState<number | null>(null);
 
-  
+  console.log(`lastFrameIndex`)
+  console.log(lastFrameIndex)
+
+  console.log(currentFrame)
+  console.log(currentFrame)
 
 
 
@@ -949,7 +953,7 @@ const Page: React.FC = () => {
     if (frame) {
       const img = new Image();
       img.onload = () => {
-        
+        ctx.clearRect(0, 0, canvas.width, canvas.height);  
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height); // Draw the frame
       };
       img.src = frame.image; // Set the image source to the frame's image
@@ -1021,6 +1025,7 @@ const Page: React.FC = () => {
   return (
     <>
  
+
 
       <div className="container">
         <div className="animation_wrapper_main_page">
