@@ -38,7 +38,8 @@ const TimeLine: React.FC<TimelineProps> = ({
   setLayerIndex,
   downloadVideo,
   dragging,
-  playheadRef
+  playheadRef,
+  handleMouseLeave
   
 }) => {
   // Fixed duration per slide (e.g., 3 seconds)
@@ -118,6 +119,7 @@ const TimeLine: React.FC<TimelineProps> = ({
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseLeave}
         >
           <div
             className="playhead"

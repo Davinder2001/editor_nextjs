@@ -786,7 +786,11 @@ const Page: React.FC = () => {
     let elapsedTime = 0;
     let frameIndex = 0; // Initialize frame index
 
-    const updatePlayhead = (currentElapsed: number) => {
+    // Temporary array to store frames during replay
+    const tempFrames = [];
+
+
+    const updatePlayhead = (currentElapsed) => {
       const progress = Math.min((currentElapsed / totalDuration) * 100, 100);
       const playheadElement = document.querySelector(".playhead");
       if (playheadElement instanceof HTMLElement) {
@@ -795,7 +799,7 @@ const Page: React.FC = () => {
       console.log(`Playhead updated to: ${progress.toFixed(2)}%`);
     };
 
-    const saveFrame = (index: number) => {
+    const saveFrame = (index) => {
       // Capture the current canvas as a base64 image (PNG)
       const frame = canvas.toDataURL("image/png");
 
@@ -804,19 +808,18 @@ const Page: React.FC = () => {
       const seconds = Math.floor(currentTime / 1000); // Convert to seconds
       const milliseconds = currentTime % 1000; // Get the milliseconds part
 
-      // Update the frames state by appending the new frame, timestamp, and index
-      setFrames((prevFrames) => [
-        ...prevFrames,
-        { image: frame, time: { seconds, milliseconds }, index }, // Add index to frame
-      ]);
+      // Store the frame in the temporary array without triggering a re-render
+      tempFrames.push({ image: frame, time: { seconds, milliseconds }, index });
     };
 
-    const replayStep = (index: number) => {
+    const replayStep = (index) => {
       if (index >= filteredSlides.length) {
         setCurrentReplayIndex(null);
         stopRecording();
         console.log("Replay completed.");
 
+        // Batch update frames state here after replay
+        setFrames((prevFrames) => [...prevFrames, ...tempFrames]);
         return;
       }
 
@@ -825,7 +828,6 @@ const Page: React.FC = () => {
 
       console.log(`Replaying Slide ${index + 1}/${filteredSlides.length}`);
 
-      // Parse the SVG from the filtered slide
       const parser = new DOMParser();
       const svgDoc = parser.parseFromString(slide.svg, "image/svg+xml");
       const svgElement = svgDoc.documentElement;
@@ -837,7 +839,6 @@ const Page: React.FC = () => {
         );
       }
 
-      // Get the <g> with id="animation_wrapper"
       const animationWrapper = svgElement.querySelector('g[id="animation_wrapper"]');
       if (!animationWrapper) {
         console.warn('No <g> element with id="animation_wrapper" found in the SVG.');
@@ -845,26 +846,14 @@ const Page: React.FC = () => {
         return;
       }
 
-      // Get the nested <g> elements inside animationWrapper
-      const nestedGroups = Array.from(animationWrapper.querySelectorAll("g"));
-      if (nestedGroups.length === 0) {
-        console.warn("No nested <g> elements found for animation.");
-        replayStep(index + 1);
-        return;
-      }
-
       const svg = new XMLSerializer().serializeToString(svgElement);
 
-      // Play animation based on type
       if (slide.animationType === WALKING) {
-        console.log("Playing walking animation for timeline index:", slide.index);
         wlkingAnimationPlay(svg, false);
       } else if (slide.animationType === HANDSTAND) {
-        console.log("Playing handstand animation for timeline index:", slide.index);
         handStandanimationPlay(svg);
       }
 
-      // Serialize the updated SVG for rendering
       const img = new Image();
       const updatedSvgBlob = new Blob([new XMLSerializer().serializeToString(svgElement)], {
         type: "image/svg+xml",
@@ -908,275 +897,167 @@ const Page: React.FC = () => {
   };
 
 
-  const reverseLogs = () => {
+
+
+
+  const showFramesForward = () => {
     const canvas = svgContainerRef.current;
-    if (!(canvas instanceof HTMLCanvasElement)) {
-      console.warn("Canvas not found or is not a valid HTMLCanvasElement.");
-      return;
-    }
+    if (!canvas) return;
 
     const ctx = canvas.getContext("2d");
-    if (!ctx) {
-      console.warn("Canvas context not available.");
-      return;
-    }
+    if (!ctx) return;
 
-    // Reverse the frames array to show them in reverse order
-    const reversedFrames = [...frames].reverse();
-    let index = 0;
+    let currentFrameIndex = 0;
+    const totalFrames = frames.length;
+    const frameDelay = 500; // Delay in ms between frames for smoothness
 
-    // Function to display the next reversed frame on the canvas
-    const showNextReversedFrame = () => {
-      if (index >= reversedFrames.length) {
-        console.log("Reversed frames display completed.");
-        return;
+    // Function to render frames one after another with a delay
+    const renderNextFrame = () => {
+      if (currentFrameIndex < totalFrames) {
+        const frame = frames[currentFrameIndex];
+        const img = new Image();
+        img.onload = () => {
+          ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas before drawing new frame
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height); // Draw the frame
+          ctx.font = "16px Arial"; // Set font for frame number
+          ctx.fillStyle = "white"; // Set color for frame number
+          ctx.fillText(`Frame ${currentFrameIndex + 1}`, 10, 20); // Display frame number on canvas
+        };
+        img.src = frame.image; // Set the image source to the frame's image
+
+        currentFrameIndex++; // Move to the next frame
+        setTimeout(renderNextFrame, frameDelay); // Call renderNextFrame after 500ms delay for smooth transition
       }
-
-      const frame = reversedFrames[index];
-      const seconds = frame.time.seconds;
-      const milliseconds = frame.time.milliseconds;
-
-      console.log(`Frame ${reversedFrames.length - index}: Time - ${seconds}:${milliseconds}`);
-
-      // Clear the canvas before drawing new frame and text
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      // Create an image from the base64 frame data
-      const img = new Image();
-      img.src = frame.image;
-      img.onload = () => {
-        // Draw the image on the canvas
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-        // Display the frame index and timestamp
-        ctx.font = "20px Arial";
-        ctx.fillStyle = "white";
-        ctx.fillText(`Frame: ${reversedFrames.length - index}`, 10, 30); // Display frame index
-        
-
-        // Increment the index and show the next frame after 1 second
-        index++;
-
-        // Call the function again after 1 second to show the next frame
-        setTimeout(showNextReversedFrame, 1000); // 1 second interval
-      };
     };
 
-    // Start showing reversed frames
-    showNextReversedFrame();
+    renderNextFrame(); // Start rendering frames
   };
 
-  const forwardLogs = () => {
+
+  const showFramesReverse = () => {
     const canvas = svgContainerRef.current;
-    if (!(canvas instanceof HTMLCanvasElement)) {
-      console.warn("Canvas not found or is not a valid HTMLCanvasElement.");
-      return;
-    }
+    if (!canvas) return;
 
     const ctx = canvas.getContext("2d");
-    if (!ctx) {
-      console.warn("Canvas context not available.");
-      return;
-    }
+    if (!ctx) return;
 
-    let index = 0; // Start from the first frame
+    let currentFrameIndex = frames.length - 1; // Start from the last frame
+    const totalFrames = frames.length;
+    const frameDelay = 500; // Delay in ms between frames for smoothness
 
-    // Function to display the next frame on the canvas
-    const showNextFrame = () => {
-      if (index >= frames.length) {
-        console.log("Frames display completed.");
-        return;
+    // Function to render frames one after another in reverse order with a delay
+    const renderNextFrame = () => {
+      if (currentFrameIndex >= 0) {
+        const frame = frames[currentFrameIndex];
+        const img = new Image();
+        img.onload = () => {
+          ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas before drawing new frame
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height); // Draw the frame
+          ctx.font = "16px Arial"; // Set font for frame number
+          ctx.fillStyle = "white"; // Set color for frame number
+          ctx.fillText(`Frame ${currentFrameIndex + 1}`, 10, 20); // Display frame number on canvas
+        };
+        img.src = frame.image; // Set the image source to the frame's image
+
+        currentFrameIndex--; // Move to the previous frame
+        setTimeout(renderNextFrame, frameDelay); // Call renderNextFrame after 500ms delay for smooth transition
       }
-
-      const frame = frames[index];
-      const seconds = frame.time.seconds;
-      const milliseconds = frame.time.milliseconds;
-
-      console.log(`Frame ${index + 1}: Time - ${seconds}:${milliseconds}`);
-
-      // Clear the canvas before drawing new frame and text
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      // Create an image from the base64 frame data
-      const img = new Image();
-      img.src = frame.image;
-      img.onload = () => {
-        // Draw the image on the canvas
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-        // Display the frame index and timestamp
-        ctx.font = "20px Arial";
-        ctx.fillStyle = "white";
-        ctx.fillText(`Frame: ${index + 1}`, 10, 30); // Display frame index
-        
-
-        
-        index++;
-
-        // Call the function again after 1 second to show the next frame
-        setTimeout(showNextFrame, 1000); // 1 second interval
-      };
     };
 
-    // Start showing frames in forward order
-    showNextFrame();
+    renderNextFrame(); // Start rendering frames in reverse
   };
 
 
 
 
+  const [currentFrameIndex, setCurrentFrameIndex] = useState(0); // For storing the current frame index
+  const [currentFrame, setCurrentFrame] = useState(null);
+
+  const [lastFrameIndex, setLastFrameIndex] = useState(null);
 
 
 
 
-  const dragReverseReplayActivities = (playheadPercentage: number) => {
-    const canvas = svgContainerRef.current;
-    if (!(canvas instanceof HTMLCanvasElement)) {
-      console.warn("Canvas not found or is not a valid HTMLCanvasElement.");
-      return;
-    }
-
-    const ctx = canvas.getContext("2d");
-    if (!ctx) {
-      console.warn("Canvas context not available.");
-      return;
-    }
-
-    const filteredSlides = slideForTimeline.filter((slide) => slide.animationType);
-
-    if (filteredSlides.length === 0) {
-      console.warn("No animations assigned for reverse replay.");
-      return;
-    }
-
-    const totalDuration = filteredSlides.reduce((sum, slide) => sum + slide.duration, 0);
-
-    // Calculate the remaining duration based on playhead percentage
-    const remainingDuration = Math.max(0, Math.min((playheadPercentage / 100) * totalDuration, totalDuration));
-    let accumulatedTime = totalDuration;
-    let currentSlideIndex = filteredSlides.length - 1;
-
-    // Determine the current slide based on the remaining duration
-    for (let i = filteredSlides.length - 1; i >= 0; i--) {
-      accumulatedTime -= filteredSlides[i].duration;
-      if (remainingDuration >= accumulatedTime) {
-        currentSlideIndex = i;
-        break;
-      }
-    }
-
-    const currentSlide = filteredSlides[currentSlideIndex];
-    if (!currentSlide) {
-      console.warn("No matching slide found for the current playhead position.");
-      return;
-    }
-
-    const relativeElapsedTime = remainingDuration - accumulatedTime;
-    console.log(
-      `Replaying slide index ${currentSlide.index} with relative elapsed time: ${relativeElapsedTime}`
-    );
-
-    // Parse the SVG from the current slide
-    const parser = new DOMParser();
-    const svgDoc = parser.parseFromString(currentSlide.svg, "image/svg+xml");
-    const svgElement = svgDoc.documentElement;
-
-    if (backgroundImage) {
-      svgElement.setAttribute(
-        "style",
-        `background: url(${backgroundImage}); background-size: cover;`
-      );
-    }
-
-    const animationWrapper = svgElement.querySelector('g[id="animation_wrapper"]');
-    if (!animationWrapper) {
-      console.warn("No <g> element with id='animation_wrapper' found in the SVG.");
-      return;
-    }
-
-    const svg = new XMLSerializer().serializeToString(svgElement);
-
-    // Play animation based on type
-    if (currentSlide.animationType === WALKING) {
-      console.log(`Playing walking animation for slide index: ${currentSlide.index}`);
-      wlkingAnimationPlay(svg, true);
-    } else if (currentSlide.animationType === HANDSTAND) {
-      console.log(`Playing handstand animation for slide index: ${currentSlide.index}`);
-      handStandanimationPlay(svg);
-    }
-
-    // Render the updated SVG to the canvas
-    const img = new Image();
-    const updatedSvgBlob = new Blob([svg], { type: "image/svg+xml" });
-    const url = URL.createObjectURL(updatedSvgBlob);
-
-    img.onload = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      URL.revokeObjectURL(url);
-    };
-
-    img.onerror = () => {
-      console.error("Error loading updated SVG.");
-    };
-
-    img.src = url;
-
-    // Update the playhead position dynamically
-    const updatePlayhead = (currentElapsed: number) => {
-      const progress = Math.max(0, Math.min((currentElapsed / totalDuration) * 100, 100));
-      const playheadElement = document.querySelector(".playhead");
-      if (playheadElement instanceof HTMLElement) {
-        playheadElement.style.left = `${progress}%`;
-      }
-      console.log(`Playhead updated to: ${progress.toFixed(2)}%`);
-    };
-
-    updatePlayhead(remainingDuration);
-  };
 
 
-  const handleMouseDown = () => {
-    setDragging(true);  
-  };
 
-  let lastUpdate = 0;
-  const THROTTLE_TIME = 16;
-  // Throttled update for the playhead position
+
   const throttledUpdatePlayhead = (playheadPercentage: number) => {
-    const now = Date.now();
-    if (now - lastUpdate < THROTTLE_TIME) return; // Throttle updates to every 16ms (60fps)
-    lastUpdate = now;
-    setPlayheadPosition(playheadPercentage);
+    setPlayheadPosition(playheadPercentage); // Directly set the playhead position
   };
-
-
+  
+  // Function to render a specific frame based on the playhead position
+  const renderFrameAtPosition = (frameIndex: number) => {
+    // Only update the frame if the frame index has changed
+    if (frameIndex !== lastFrameIndex) {
+      setCurrentFrameIndex(frameIndex); // Set the current frame index to display it
+      setCurrentFrame(frames[frameIndex]); // Set the frame details to be displayed
+      setLastFrameIndex(frameIndex); // Update the last frame index to avoid re-rendering continuously
+    }
+  
+    const canvas = svgContainerRef.current;
+    if (!canvas) return;
+  
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+  
+    const frame = frames[frameIndex]; // Get the frame at the calculated index
+  
+    if (frame) {
+      const img = new Image();
+      img.onload = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas before drawing new frame
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height); // Draw the frame
+        ctx.font = "16px Arial"; // Set font for frame number
+        ctx.fillStyle = "white"; // Set color for frame number
+        ctx.fillText(`Frame ${frameIndex + 1}`, 10, 20); // Display frame number on canvas
+      };
+      img.src = frame.image; // Set the image source to the frame's image
+    }
+  };
+  
+  // Mouse down to start dragging
+  const handleMouseDown = () => {
+    setDragging(true); // Enable dragging state
+  };
+  
+  // Mouse move to update playhead position and show frame
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!dragging) return;
-
+  
     const progressBar = e.currentTarget;
     const rect = progressBar.getBoundingClientRect();
     const offsetX = e.clientX - rect.left; // Calculate the mouse position relative to the container
-
-    const playheadPercentage = Math.max(0, Math.min(100, (offsetX / rect.width) * 100)); // Clamp to [0, 100]
-
-    requestAnimationFrame(() => setPlayheadPosition(playheadPercentage)); // Update playhead position visually
-    requestAnimationFrame(() => dragReverseReplayActivities(playheadPercentage));
-    requestAnimationFrame(() => throttledUpdatePlayhead(playheadPercentage));
-
+  
+    // Calculate the exact frame index based on the mouse position
+    const totalFrames = frames.length;
+    const frameIndex = Math.floor((offsetX / rect.width) * totalFrames); // Directly get the frame index from mouse position
+  
+    // Update playhead position visually and show the corresponding frame
+    throttledUpdatePlayhead((frameIndex / totalFrames) * 100); // Update playhead visually
+    renderFrameAtPosition(frameIndex); // Update the frame based on the frame index
   };
-
+  
+  // Mouse up to stop dragging and show the final frame
   const handleMouseUp = () => {
-    setDragging(false);
+    setDragging(false); // Stop dragging
+  
+    // Render the final frame when dragging stops
+    renderFrameAtPosition(currentFrameIndex);
   };
+  
 
-
+  // Mouse leave to ensure the frame remains at the current position
+  const handleMouseLeave = () => {
+    if (!dragging) {
+      renderFrameAtPosition(playheadPosition); // Ensure the frame stays at the current position when the mouse leaves
+    }
+  };
 
 
   return (
     <>
-      <button onClick={reverseLogs}>Reverse Logs</button>
-      <button onClick={forwardLogs}>forward logs</button>
+
 
       <div className="container">
         <div className="animation_wrapper_main_page">
@@ -1349,6 +1230,7 @@ const Page: React.FC = () => {
               handleMouseDown={handleMouseDown}
               handleMouseMove={handleMouseMove}
               handleMouseUp={handleMouseUp}
+              handleMouseLeave={handleMouseLeave}
               playPauseAni={handlePlayPauseForSelectedSlide}
               setLayerIndex={setLayerIndex}
               downloadVideo={downloadVideo}

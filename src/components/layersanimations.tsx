@@ -45,7 +45,8 @@ const Layersanimations: React.FC<TimelineProps> = ({
   setLayerIndex,
   downloadVideo,
   dragging,
-  playheadRef
+  playheadRef,
+  handleMouseLeave
 }) => {
   return (
     <>
@@ -75,6 +76,7 @@ const Layersanimations: React.FC<TimelineProps> = ({
           downloadVideo={downloadVideo}
           dragging={dragging}
           playheadRef={playheadRef}
+          handleMouseLeave={handleMouseLeave}
         />
       </div>
     </>
