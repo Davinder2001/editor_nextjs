@@ -869,7 +869,7 @@ const Page: React.FC = () => {
   
         const interval = setInterval(() => {
           const now = Date.now();
-          elapsedTime += 500; // 500 ms for 2 frames per second
+          elapsedTime += 300; // 500 ms for 2 frames per second
           updatePlayhead(elapsedTime);
   
           // Save the current frame and timestamp at each step, passing the index
@@ -881,7 +881,7 @@ const Page: React.FC = () => {
             clearInterval(interval);
             replayStep(index + 1);
           }
-        }, 500); // 500 ms interval for 2 frames per second
+        }, 300); // 500 ms interval for 2 frames per second
       };
   
       img.onerror = () => {
