@@ -1,6 +1,9 @@
 'use client';
 
 
+ 
+
+
 import LayersComponent from "@/components/layers";
 import Layersanimations from "@/components/layersanimations";
 
@@ -749,13 +752,22 @@ const Page: React.FC = () => {
 
 
 
+  interface Frame {
+    image: string;
+    time: {
+      seconds: number;
+      milliseconds: number;
+    };
+    index: number;
+  }
 
 
 
 
 
+  const [frames, setFrames] = useState<Frame[]>([]);
 
-  const [frames, setFrames] = useState<{ image: string; time: { seconds: number; milliseconds: number }; index: number }[]>([]); // State to store frames and timestamps
+
   console.log(`frames`)
   console.log(frames)
 
@@ -780,6 +792,10 @@ const Page: React.FC = () => {
     }
   
     console.log("Starting replay and recording...");
+  
+    // Clear old frames to ensure only the latest frames are stored
+    setFrames([]);
+  
     startRecording();
   
     const totalDuration = filteredSlides.reduce((sum, slide) => sum + slide.duration, 0);
@@ -787,9 +803,10 @@ const Page: React.FC = () => {
     let frameIndex = 0; // Initialize frame index
   
     // Temporary array to store frames during replay
-    const tempFrames = [];
+    const tempFrames: Frame[] = [];
+
   
-    const updatePlayhead = (currentElapsed) => {
+    const updatePlayhead = (currentElapsed:number) => {
       const progress = Math.min((currentElapsed / totalDuration) * 100, 100);
       const playheadElement = document.querySelector(".playhead");
       if (playheadElement instanceof HTMLElement) {
@@ -798,7 +815,7 @@ const Page: React.FC = () => {
       console.log(`Playhead updated to: ${progress.toFixed(2)}%`);
     };
   
-    const saveFrame = (index) => {
+    const saveFrame = (index:number) => {
       // Capture the current canvas as a base64 image (PNG)
       const frame = canvas.toDataURL("image/png");
   
@@ -811,14 +828,14 @@ const Page: React.FC = () => {
       tempFrames.push({ image: frame, time: { seconds, milliseconds }, index });
     };
   
-    const replayStep = (index) => {
+    const replayStep = (index:number) => {
       if (index >= filteredSlides.length) {
         setCurrentReplayIndex(null);
         stopRecording();
         console.log("Replay completed.");
   
-        // Batch update frames state here after replay
-        setFrames((prevFrames) => [...prevFrames, ...tempFrames]);
+        // Update frames state with the new frames after replay
+        setFrames(tempFrames);
         return;
       }
   
@@ -869,7 +886,7 @@ const Page: React.FC = () => {
   
         const interval = setInterval(() => {
           const now = Date.now();
-          elapsedTime += 300; // 500 ms for 2 frames per second
+          elapsedTime += 100; // 500 ms for 2 frames per second
           updatePlayhead(elapsedTime);
   
           // Save the current frame and timestamp at each step, passing the index
@@ -896,88 +913,21 @@ const Page: React.FC = () => {
   };
   
 
+ 
 
 
-
-
-  const showFramesForward = () => {
-    const canvas = svgContainerRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    let currentFrameIndex = 0;
-    const totalFrames = frames.length;
-    const frameDelay = 500; // Delay in ms between frames for smoothness
-
-    // Function to render frames one after another with a delay
-    const renderNextFrame = () => {
-      if (currentFrameIndex < totalFrames) {
-        const frame = frames[currentFrameIndex];
-        const img = new Image();
-        img.onload = () => {
-          ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas before drawing new frame
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height); // Draw the frame
-          ctx.font = "16px Arial"; // Set font for frame number
-          ctx.fillStyle = "white"; // Set color for frame number
-          ctx.fillText(`Frame ${currentFrameIndex + 1}`, 10, 20); // Display frame number on canvas
-        };
-        img.src = frame.image; // Set the image source to the frame's image
-
-        currentFrameIndex++; // Move to the next frame
-        setTimeout(renderNextFrame, frameDelay); // Call renderNextFrame after 500ms delay for smooth transition
-      }
-    };
-
-    renderNextFrame(); // Start rendering frames
-  };
-
-
-  const showFramesReverse = () => {
-    const canvas = svgContainerRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    let currentFrameIndex = frames.length - 1; // Start from the last frame
-    const totalFrames = frames.length;
-    const frameDelay = 500; // Delay in ms between frames for smoothness
-
-    // Function to render frames one after another in reverse order with a delay
-    const renderNextFrame = () => {
-      if (currentFrameIndex >= 0) {
-        const frame = frames[currentFrameIndex];
-        const img = new Image();
-        img.onload = () => {
-          ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas before drawing new frame
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height); // Draw the frame
-          ctx.font = "16px Arial"; // Set font for frame number
-          ctx.fillStyle = "white"; // Set color for frame number
-          ctx.fillText(`Frame ${currentFrameIndex + 1}`, 10, 20); // Display frame number on canvas
-        };
-        img.src = frame.image; // Set the image source to the frame's image
-
-        currentFrameIndex--; // Move to the previous frame
-        setTimeout(renderNextFrame, frameDelay); // Call renderNextFrame after 500ms delay for smooth transition
-      }
-    };
-
-    renderNextFrame(); // Start rendering frames in reverse
-  };
-
-
-
-
+  const [currentFrame, setCurrentFrame] = useState<Frame | null>(null); // can be null initially
+  const [lastFrameIndex, setLastFrameIndex] = useState<number | null>(null); 
   const [currentFrameIndex, setCurrentFrameIndex] = useState(0); // For storing the current frame index
-  const [currentFrame, setCurrentFrame] = useState(null);
+ 
+  console.log(currentFrame)
 
-  const [lastFrameIndex, setLastFrameIndex] = useState(null);
+ 
 
 
 
 
+  
 
 
 
@@ -1007,9 +957,9 @@ const Page: React.FC = () => {
       img.onload = () => {
         ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas before drawing new frame
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height); // Draw the frame
-        ctx.font = "16px Arial"; // Set font for frame number
-        ctx.fillStyle = "white"; // Set color for frame number
-        ctx.fillText(`Frame ${frameIndex + 1}`, 10, 20); // Display frame number on canvas
+        // ctx.font = "16px Arial"; // Set font for frame number
+        // ctx.fillStyle = "black"; // Set color for frame number
+        // ctx.fillText(`Frame ${frameIndex + 1}`, 10, 20); // Display frame number on canvas
       };
       img.src = frame.image; // Set the image source to the frame's image
     }

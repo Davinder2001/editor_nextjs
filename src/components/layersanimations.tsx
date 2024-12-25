@@ -27,6 +27,7 @@ interface TimelineProps {
   downloadVideo: () => void;
   dragging: boolean;
   playheadRef:React.RefObject<HTMLDivElement>;
+  handleMouseLeave: () => void;
 }
 
 const Layersanimations: React.FC<TimelineProps> = ({

@@ -5,7 +5,7 @@ interface Slide {
   svg: string;
   animationType: string | null;
   duration: number;
-  index: number; // Unique index for each slide
+  index: number; 
   isPlaying: boolean;
 }
 
@@ -23,6 +23,7 @@ interface TimelineProps {
   downloadVideo:()=>void,
   dragging:boolean
   playheadRef:React.RefObject<HTMLDivElement>;
+  handleMouseLeave: () => void;
 }
 
 const TimeLine: React.FC<TimelineProps> = ({
