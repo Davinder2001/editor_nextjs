@@ -915,6 +915,7 @@ const Page: React.FC = () => {
   const [currentFrame, setCurrentFrame] = useState<Frame | null>(null);
 
 
+  console.log(currentFrame)
 
   const [lastFrameIndex, setLastFrameIndex] = useState<number | null>(null);
 
@@ -1005,11 +1006,7 @@ const Page: React.FC = () => {
   //   renderFrameAtPosition(currentFrameIndex);  
   // }
 
-  const handleMouseLeave = () => {
-    // if (!dragging) {
-    //   renderFrameAtPosition(playheadPosition);  
-    // }
-  };
+  
 
   if(currentFrameIndex){
     renderFrameAtPosition(currentFrameIndex)
@@ -1194,7 +1191,7 @@ const Page: React.FC = () => {
               handleMouseDown={handleMouseDown}
               handleMouseMove={handleMouseMove}
               handleMouseUp={handleMouseUp}
-              handleMouseLeave={handleMouseLeave}
+            
               playPauseAni={handlePlayPauseForSelectedSlide}
               setLayerIndex={setLayerIndex}
               downloadVideo={downloadVideo}

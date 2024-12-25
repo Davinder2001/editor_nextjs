@@ -27,7 +27,7 @@ interface TimelineProps {
   downloadVideo: () => void;
   dragging: boolean;
   playheadRef:React.RefObject<HTMLDivElement>;
-  handleMouseLeave: () => void;
+ 
 }
 
 const Layersanimations: React.FC<TimelineProps> = ({
@@ -47,7 +47,7 @@ const Layersanimations: React.FC<TimelineProps> = ({
   downloadVideo,
   dragging,
   playheadRef,
-  handleMouseLeave
+ 
 }) => {
   return (
     <>
@@ -77,7 +77,7 @@ const Layersanimations: React.FC<TimelineProps> = ({
           downloadVideo={downloadVideo}
           dragging={dragging}
           playheadRef={playheadRef}
-          handleMouseLeave={handleMouseLeave}
+         
         />
       </div>
     </>
