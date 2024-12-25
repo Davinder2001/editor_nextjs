@@ -867,36 +867,26 @@ const Page: React.FC = () => {
         const animationStartTime = Date.now();
         const animationEndTime = animationStartTime + slide.duration;
   
-        // Calculate the number of frames to capture based on the frame rate of 10 frames per second
-        const framesToCapture = Math.floor(ANIMATION_TIME_LINE / 100); // 100 ms per frame, 10 frames per second
-        console.log(`Frames to capture: ${framesToCapture}`);
-  
-        let lastFrameTime = animationStartTime;
-  
-        // Capture frames at 100 ms intervals
         const interval = setInterval(() => {
           const now = Date.now();
-          elapsedTime = now - animationStartTime; // Track elapsed time from animation start
-          updatePlayhead(elapsedTime); // Update the playhead
+          elapsedTime += 500; // 500 ms for 2 frames per second
+          updatePlayhead(elapsedTime);
   
-          // Save frame every 100 ms (1 frame every 100 ms)
-          if (now - lastFrameTime >= 100) { // Every 100 ms (1 frame)
-            saveFrame(frameIndex);
-            frameIndex++; // Increment the frame index after saving the frame
-            lastFrameTime = now; // Update last frame time
-          }
+          // Save the current frame and timestamp at each step, passing the index
+          saveFrame(frameIndex);
   
-          // Stop once the frame count matches the number of frames to capture
-          if (frameIndex >= framesToCapture || now >= animationEndTime) {
+          frameIndex++; // Increment the frame index after saving the frame
+  
+          if (now >= animationEndTime) {
             clearInterval(interval);
-            replayStep(index + 1); // Move to the next slide
+            replayStep(index + 1);
           }
-        }, 100); // 100 ms interval (10 frames per second)
+        }, 500); // 500 ms interval for 2 frames per second
       };
   
       img.onerror = () => {
         console.error("Error loading updated SVG.");
-        replayStep(index + 1); // Skip this slide and move to the next one
+        replayStep(index + 1);
       };
   
       img.src = url;
@@ -904,7 +894,6 @@ const Page: React.FC = () => {
   
     replayStep(0);
   };
-  
   
 
 
@@ -993,70 +982,68 @@ const Page: React.FC = () => {
 
 
 
-const throttledUpdatePlayhead = (playheadPercentage: number) => {
-  setPlayheadPosition(playheadPercentage); // Directly set the playhead position
-};
+  const throttledUpdatePlayhead = (playheadPercentage: number) => {
+    setPlayheadPosition(playheadPercentage); // Directly set the playhead position
+  };
 
-// Function to render a specific frame based on the playhead position
-const renderFrameAtPosition = (frameIndex: number) => {
-  // Only update the frame if the frame index has changed
-  if (frameIndex !== lastFrameIndex) {
-    setCurrentFrameIndex(frameIndex); // Set the current frame index to display it
-    setCurrentFrame(frames[frameIndex]); // Set the frame details to be displayed
-    setLastFrameIndex(frameIndex); // Update the last frame index to avoid re-rendering continuously
-  }
+  // Function to render a specific frame based on the playhead position
+  const renderFrameAtPosition = (frameIndex: number) => {
+    if (frameIndex !== lastFrameIndex) {
+      setCurrentFrameIndex(frameIndex); // Set the current frame index to display it
+      setCurrentFrame(frames[frameIndex]); // Set the frame details to be displayed
+      setLastFrameIndex(frameIndex); // Update the last frame index to avoid re-rendering continuously
+    }
 
-  const canvas = svgContainerRef.current;
-  if (!canvas) return;
+    const canvas = svgContainerRef.current;
+    if (!canvas) return;
 
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
 
-  const frame = frames[frameIndex]; // Get the frame at the calculated index
+    const frame = frames[frameIndex]; // Get the frame at the calculated index
 
-  if (frame) {
-    const img = new Image();
-    img.onload = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas before drawing new frame
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height); // Draw the frame
-      ctx.font = "16px Arial"; // Set font for frame number
-      ctx.fillStyle = "white"; // Set color for frame number
-      ctx.fillText(`Frame ${frameIndex + 1}`, 10, 20); // Display frame number on canvas
-    };
-    img.src = frame.image; // Set the image source to the frame's image
-  }
-};
+    if (frame) {
+      const img = new Image();
+      img.onload = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas before drawing new frame
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height); // Draw the frame
+        ctx.font = "16px Arial"; // Set font for frame number
+        ctx.fillStyle = "white"; // Set color for frame number
+        ctx.fillText(`Frame ${frameIndex + 1}`, 10, 20); // Display frame number on canvas
+      };
+      img.src = frame.image; // Set the image source to the frame's image
+    }
+  };
 
-// Mouse down to start dragging
-const handleMouseDown = () => {
-  setDragging(true); // Enable dragging state
-};
+  // Mouse down to start dragging
+  const handleMouseDown = () => {
+    setDragging(true); // Enable dragging state
+  };
 
-// Mouse move to update playhead position and show frame
-const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-  if (!dragging) return;
+  // Mouse move to update playhead position and show frame
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!dragging) return;
 
-  const progressBar = e.currentTarget;
-  const rect = progressBar.getBoundingClientRect();
-  const offsetX = e.clientX - rect.left; // Calculate the mouse position relative to the container
+    const progressBar = e.currentTarget;
+    const rect = progressBar.getBoundingClientRect();
+    const offsetX = e.clientX - rect.left; // Calculate the mouse position relative to the container
 
-  // Calculate the exact frame index based on the mouse position
-  const totalFrames = frames.length;
-  const frameIndex = Math.floor((offsetX / rect.width) * totalFrames); // Directly get the frame index from mouse position
+    // Calculate the exact frame index based on the mouse position
+    const totalFrames = frames.length;
+    const frameIndex = Math.floor((offsetX / rect.width) * totalFrames); // Directly get the frame index from mouse position
 
-  // Update playhead position visually and show the corresponding frame
-  throttledUpdatePlayhead((frameIndex / totalFrames) * 100); // Update playhead visually
-  renderFrameAtPosition(frameIndex); // Update the frame based on the frame index
-};
+    // Update playhead position visually and show the corresponding frame
+    requestAnimationFrame(() => throttledUpdatePlayhead((frameIndex / totalFrames) * 100)); // Update playhead visually
+    requestAnimationFrame(() => renderFrameAtPosition(frameIndex)); // Update the frame based on the frame index
+  };
 
-// Mouse up to stop dragging and show the final frame
-const handleMouseUp = () => {
-  setDragging(false); // Stop dragging
+  // Mouse up to stop dragging and show the final frame
+  const handleMouseUp = () => {
+    setDragging(false); // Stop dragging
 
-  // Render the final frame when dragging stops
-  renderFrameAtPosition(currentFrameIndex);
-};
-
+    // Render the final frame when dragging stops
+    renderFrameAtPosition(currentFrameIndex);
+  };
 
   // Mouse leave to ensure the frame remains at the current position
   const handleMouseLeave = () => {
