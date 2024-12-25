@@ -97,9 +97,9 @@ canvas.svg-preview-container {
 position: relative;
 }
 
-.playhead {
+/* .playhead {
   transition: left 0.2s ease-in-out;
-}
+} */
 .ruler_inner {
   display: flex;
   justify-content: center;
