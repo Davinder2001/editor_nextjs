@@ -1,6 +1,6 @@
 import React from 'react'
 interface PreviewProps {
-   addAnimation: () => void;
+ 
   handleWalkingAnimation: () => void;
   handlehandstandAnimation: () => void;
  
@@ -8,11 +8,8 @@ interface PreviewProps {
 
 
 const Animations = ({
-  
- 
   handleWalkingAnimation,
   handlehandstandAnimation,
-   
 }: PreviewProps) => {
   return (
     <>

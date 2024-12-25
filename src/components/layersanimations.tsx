@@ -11,7 +11,7 @@ interface Slide {
 }
 
 interface TimelineProps {
-  addAnimation: () => void;
+  
   handleWalkingAnimation: () => void;
   handlehandstandAnimation: () => void;
   slideForTimeline: Slide[];
@@ -30,7 +30,7 @@ interface TimelineProps {
 }
 
 const Layersanimations: React.FC<TimelineProps> = ({
-  addAnimation,
+ 
   handleWalkingAnimation,
   handlehandstandAnimation,
   currentReplayIndex,
@@ -53,7 +53,7 @@ const Layersanimations: React.FC<TimelineProps> = ({
         <h1 className="main-heading">Animations</h1>
         <div className="layersOuter">
           <Animations
-            addAnimation={addAnimation}
+          
             handleWalkingAnimation={handleWalkingAnimation}
             handlehandstandAnimation={handlehandstandAnimation}
           />

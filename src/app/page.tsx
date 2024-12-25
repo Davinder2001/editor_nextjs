@@ -1,6 +1,6 @@
 'use client';
 
- 
+
 import LayersComponent from "@/components/layers";
 import Layersanimations from "@/components/layersanimations";
 
@@ -590,13 +590,7 @@ const Page: React.FC = () => {
 
 
 
-  const addAnimation = () => {
-    const targetElement = document.querySelector('.timeline-test');
-    if (targetElement) {
-      targetElement.classList.toggle('animation-class');
-      console.log('Animation added/removed on target element');
-    }
-  };
+
 
 
   const handleSvgClick = (svg: string, index: number) => {
@@ -759,6 +753,12 @@ const Page: React.FC = () => {
 
 
 
+
+
+  const [frames, setFrames] = useState<{ image: string; time: { seconds: number; milliseconds: number }; index: number }[]>([]); // State to store frames and timestamps
+  console.log(`frames`)
+  console.log(frames)
+
   const replayActivities = () => {
     const canvas = svgContainerRef.current;
     if (!(canvas instanceof HTMLCanvasElement)) {
@@ -784,6 +784,7 @@ const Page: React.FC = () => {
 
     const totalDuration = filteredSlides.reduce((sum, slide) => sum + slide.duration, 0);
     let elapsedTime = 0;
+    let frameIndex = 0; // Initialize frame index
 
     const updatePlayhead = (currentElapsed: number) => {
       const progress = Math.min((currentElapsed / totalDuration) * 100, 100);
@@ -794,11 +795,28 @@ const Page: React.FC = () => {
       console.log(`Playhead updated to: ${progress.toFixed(2)}%`);
     };
 
+    const saveFrame = (index: number) => {
+      // Capture the current canvas as a base64 image (PNG)
+      const frame = canvas.toDataURL("image/png");
+
+      // Get the current time in seconds and milliseconds
+      const currentTime = Date.now();
+      const seconds = Math.floor(currentTime / 1000); // Convert to seconds
+      const milliseconds = currentTime % 1000; // Get the milliseconds part
+
+      // Update the frames state by appending the new frame, timestamp, and index
+      setFrames((prevFrames) => [
+        ...prevFrames,
+        { image: frame, time: { seconds, milliseconds }, index }, // Add index to frame
+      ]);
+    };
+
     const replayStep = (index: number) => {
       if (index >= filteredSlides.length) {
         setCurrentReplayIndex(null);
         stopRecording();
         console.log("Replay completed.");
+
         return;
       }
 
@@ -835,8 +853,8 @@ const Page: React.FC = () => {
         return;
       }
 
+      const svg = new XMLSerializer().serializeToString(svgElement);
 
-      const svg = new XMLSerializer().serializeToString(svgElement)
       // Play animation based on type
       if (slide.animationType === WALKING) {
         console.log("Playing walking animation for timeline index:", slide.index);
@@ -863,14 +881,19 @@ const Page: React.FC = () => {
 
         const interval = setInterval(() => {
           const now = Date.now();
-          elapsedTime += 1000;
+          elapsedTime += 1000; // 1 second per frame
           updatePlayhead(elapsedTime);
+
+          // Save the current frame and timestamp at each step, passing the index
+          saveFrame(frameIndex);
+
+          frameIndex++; // Increment the frame index after saving the frame
 
           if (now >= animationEndTime) {
             clearInterval(interval);
             replayStep(index + 1);
           }
-        }, 1000);
+        }, 1000); // 1000 ms interval for each frame
       };
 
       img.onerror = () => {
@@ -883,6 +906,126 @@ const Page: React.FC = () => {
 
     replayStep(0);
   };
+
+
+  const reverseLogs = () => {
+    const canvas = svgContainerRef.current;
+    if (!(canvas instanceof HTMLCanvasElement)) {
+      console.warn("Canvas not found or is not a valid HTMLCanvasElement.");
+      return;
+    }
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) {
+      console.warn("Canvas context not available.");
+      return;
+    }
+
+    // Reverse the frames array to show them in reverse order
+    const reversedFrames = [...frames].reverse();
+    let index = 0;
+
+    // Function to display the next reversed frame on the canvas
+    const showNextReversedFrame = () => {
+      if (index >= reversedFrames.length) {
+        console.log("Reversed frames display completed.");
+        return;
+      }
+
+      const frame = reversedFrames[index];
+      const seconds = frame.time.seconds;
+      const milliseconds = frame.time.milliseconds;
+
+      console.log(`Frame ${reversedFrames.length - index}: Time - ${seconds}:${milliseconds}`);
+
+      // Clear the canvas before drawing new frame and text
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Create an image from the base64 frame data
+      const img = new Image();
+      img.src = frame.image;
+      img.onload = () => {
+        // Draw the image on the canvas
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+        // Display the frame index and timestamp
+        ctx.font = "20px Arial";
+        ctx.fillStyle = "white";
+        ctx.fillText(`Frame: ${reversedFrames.length - index}`, 10, 30); // Display frame index
+        
+
+        // Increment the index and show the next frame after 1 second
+        index++;
+
+        // Call the function again after 1 second to show the next frame
+        setTimeout(showNextReversedFrame, 1000); // 1 second interval
+      };
+    };
+
+    // Start showing reversed frames
+    showNextReversedFrame();
+  };
+
+  const forwardLogs = () => {
+    const canvas = svgContainerRef.current;
+    if (!(canvas instanceof HTMLCanvasElement)) {
+      console.warn("Canvas not found or is not a valid HTMLCanvasElement.");
+      return;
+    }
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) {
+      console.warn("Canvas context not available.");
+      return;
+    }
+
+    let index = 0; // Start from the first frame
+
+    // Function to display the next frame on the canvas
+    const showNextFrame = () => {
+      if (index >= frames.length) {
+        console.log("Frames display completed.");
+        return;
+      }
+
+      const frame = frames[index];
+      const seconds = frame.time.seconds;
+      const milliseconds = frame.time.milliseconds;
+
+      console.log(`Frame ${index + 1}: Time - ${seconds}:${milliseconds}`);
+
+      // Clear the canvas before drawing new frame and text
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Create an image from the base64 frame data
+      const img = new Image();
+      img.src = frame.image;
+      img.onload = () => {
+        // Draw the image on the canvas
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+        // Display the frame index and timestamp
+        ctx.font = "20px Arial";
+        ctx.fillStyle = "white";
+        ctx.fillText(`Frame: ${index + 1}`, 10, 30); // Display frame index
+        
+
+        
+        index++;
+
+        // Call the function again after 1 second to show the next frame
+        setTimeout(showNextFrame, 1000); // 1 second interval
+      };
+    };
+
+    // Start showing frames in forward order
+    showNextFrame();
+  };
+
+
+
+
+
 
 
 
@@ -994,13 +1137,13 @@ const Page: React.FC = () => {
 
 
   const handleMouseDown = () => {
-    setDragging(true); // Enable dragging state
+    setDragging(true);  
   };
 
   let lastUpdate = 0;
   const THROTTLE_TIME = 16;
   // Throttled update for the playhead position
-  const throttledUpdatePlayhead = (playheadPercentage:number) => {
+  const throttledUpdatePlayhead = (playheadPercentage: number) => {
     const now = Date.now();
     if (now - lastUpdate < THROTTLE_TIME) return; // Throttle updates to every 16ms (60fps)
     lastUpdate = now;
@@ -1017,14 +1160,14 @@ const Page: React.FC = () => {
 
     const playheadPercentage = Math.max(0, Math.min(100, (offsetX / rect.width) * 100)); // Clamp to [0, 100]
 
-    requestAnimationFrame(()=>setPlayheadPosition(playheadPercentage)); // Update playhead position visually
+    requestAnimationFrame(() => setPlayheadPosition(playheadPercentage)); // Update playhead position visually
     requestAnimationFrame(() => dragReverseReplayActivities(playheadPercentage));
     requestAnimationFrame(() => throttledUpdatePlayhead(playheadPercentage));
-    
+
   };
 
   const handleMouseUp = () => {
-    setDragging(false); // Disable dragging state
+    setDragging(false);
   };
 
 
@@ -1032,125 +1175,175 @@ const Page: React.FC = () => {
 
   return (
     <>
+      <button onClick={reverseLogs}>Reverse Logs</button>
+      <button onClick={forwardLogs}>forward logs</button>
 
       <div className="container">
         <div className="animation_wrapper_main_page">
-        <div className="frame-container">
-          <div className="left-side">
-            <h1 className="main-heading">Upload</h1>
+          <div className="frame-container">
+            <div className="left-side">
+              <h1 className="main-heading">Upload</h1>
 
-            <div className="choose_file-container">
-              <label htmlFor="file-upload" className="custom-file-upload">
-                Upload SVGs
-              </label>
-              <input
-                id="file-upload"
-                type="file"
-                accept=".svg"
-                multiple
-                onChange={handleUpload}
-                className="hidden"
-              />
-            </div>
-            <div className="choose_file-container">
-              <label htmlFor="background-upload" className="custom-file-upload">
-                Upload Background
-              </label>
-              <input
-                id="background-upload"
-                type="file"
-                accept="image/*"
-                onChange={handleBackgroundUpload}
-                className="hidden"
-              />
-            </div>
+              <div className="choose_file-container">
+                <label htmlFor="file-upload" className="custom-file-upload">
+                  Upload SVGs
+                </label>
+                <input
+                  id="file-upload"
+                  type="file"
+                  accept=".svg"
+                  multiple
+                  onChange={handleUpload}
+                  className="hidden"
+                />
+              </div>
+              <div className="choose_file-container">
+                <label htmlFor="background-upload" className="custom-file-upload">
+                  Upload Background
+                </label>
+                <input
+                  id="background-upload"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleBackgroundUpload}
+                  className="hidden"
+                />
+              </div>
 
 
-            <div className="svg-thumb-container">
-              {svgDataList.length > 0 ? (
-                svgDataList.map((svg, index) => (
-                  <div
-                    key={index}
-                    style={{
-                      position: "relative",
-                      height: "150px",
-                      border: "1px solid #ccc",
-                      marginBottom: "20px",
-                      cursor: "pointer",
-                    }}
-                    className={selectedSvgIndex === index ? "active" : ""}
-                  >
+              <div className="svg-thumb-container">
+                {svgDataList.length > 0 ? (
+                  svgDataList.map((svg, index) => (
                     <div
-                      onClick={() => handleSvgClick(svg, index)}
-                      dangerouslySetInnerHTML={{ __html: svg }}
+                      key={index}
                       style={{
-                        width: "100%",
-                        height: "100%",
+                        position: "relative",
+                        height: "150px",
+                        border: "1px solid #ccc",
+                        marginBottom: "20px",
+                        cursor: "pointer",
                       }}
-                    />
-
-
-                    <div className="add-and-delete-buttons">
-                      <button
-                        onClick={(event) => addSlideToTimeline(event)}
-                        data-index={index} // Pass the index dynamically
+                      className={selectedSvgIndex === index ? "active" : ""}
+                    >
+                      <div
+                        onClick={() => handleSvgClick(svg, index)}
+                        dangerouslySetInnerHTML={{ __html: svg }}
                         style={{
-                          padding: "8px 10px",
-                          backgroundColor: "#4CAF50",
-                          color: "white",
-                          border: "none",
-                          cursor: "pointer",
-                          width: "50%",
+                          width: "100%",
+                          height: "100%",
                         }}
-                      >
-                        Add Slide
-                      </button>
+                      />
 
-                      <button
-                        onClick={() => handleDeleteSvg()} // Delete SVG
-                        style={{
-                          padding: "8px 10px",
-                          backgroundColor: "#f44336", // Red for "Delete"
-                          color: "white",
-                          border: "none",
-                          cursor: "pointer",
-                          width: "50%"
-                        }}
-                      >
-                        Delete
-                      </button>
+
+                      <div className="add-and-delete-buttons">
+                        <button
+                          onClick={(event) => addSlideToTimeline(event)}
+                          data-index={index} // Pass the index dynamically
+                          style={{
+                            padding: "8px 10px",
+                            backgroundColor: "#4CAF50",
+                            color: "white",
+                            border: "none",
+                            cursor: "pointer",
+                            width: "50%",
+                          }}
+                        >
+                          Add Slide
+                        </button>
+
+                        <button
+                          onClick={() => handleDeleteSvg()} // Delete SVG
+                          style={{
+                            padding: "8px 10px",
+                            backgroundColor: "#f44336", // Red for "Delete"
+                            color: "white",
+                            border: "none",
+                            cursor: "pointer",
+                            width: "50%"
+                          }}
+                        >
+                          Delete
+                        </button>
+                      </div>
                     </div>
+                  ))
+                ) : (
+                  <p>No SVGs uploaded yet.</p>
+                )}
+              </div>
+
+            </div>
+            <div className="right-side">
+              <Preview
+                setSvgDataList={setSvgDataList}
+                selectedSvg={selectedSvg}
+                backgroundImage={backgroundImage}
+                svgContainerRef={svgContainerRef}
+
+
+                setBackgroundImage={setBackgroundImage}
+                isPlaying={isPlaying}
+                togglePlayPause={togglePlayPause}
+                selectedLayers={selectedLayers}
+
+                slideForTimeline={slideForTimeline}
+
+                handleSvgClick={handleSvgClick}
+
+
+                currentReplayIndex={currentReplayIndex}
+                svgPosition={svgPosition}
+                setSvgPosition={setSvgPosition}
+                replayActivities={replayActivities}
+
+                playheadPosition={playheadPosition}
+
+                handleMouseDown={handleMouseDown}
+                handleMouseMove={handleMouseMove}
+                handleMouseUp={handleMouseUp}
+                playPauseAni={handlePlayPauseForSelectedSlide}
+                setLayerIndex={setLayerIndex}
+                downloadVideo={downloadVideo}
+
+                dragging={dragging}
+
+
+
+
+
+
+
+              />
+
+            </div>
+
+            <div className="leayrs-container">
+              {slideForTimeline.length === 0 ? (<h1 className="main-heading">Layers not Found</h1>) : (slideForTimeline.map((slide, index) => (
+                layerIndex === slide.index ? (
+                  <div key={slide.index} className="layer-slide-container">
+                    <h1 className="main-heading">{`SVG Layers ${index + 1}`}</h1>
+                    <LayersComponent
+                      selectedSvg={slide.svg}
+                      parseSvgLayers={parseSvgLayers}
+                      selectedLayers={selectedLayers}
+                      handleLayerClick={handleLayerClick}
+
+                    />
                   </div>
-                ))
-              ) : (
-                <p>No SVGs uploaded yet.</p>
-              )}
+                ) : null
+              )))}
             </div>
 
           </div>
-          <div className="right-side">
-            <Preview
-              setSvgDataList={setSvgDataList}
-              selectedSvg={selectedSvg}
-              backgroundImage={backgroundImage}
-              svgContainerRef={svgContainerRef}
 
 
-              setBackgroundImage={setBackgroundImage}
-              isPlaying={isPlaying}
-              togglePlayPause={togglePlayPause}
-              selectedLayers={selectedLayers}
-
+          <div className="animation_frame_line">
+            <Layersanimations handleWalkingAnimation={handleWalkingAnimation} handlehandstandAnimation={handlehandstandAnimation} currentReplayIndex={currentReplayIndex}
               slideForTimeline={slideForTimeline}
 
-              handleSvgClick={handleSvgClick}
-
-
-              currentReplayIndex={currentReplayIndex}
-              svgPosition={svgPosition}
-              setSvgPosition={setSvgPosition}
               replayActivities={replayActivities}
 
+              handleSvgClick={handleSvgClick}
               playheadPosition={playheadPosition}
 
               handleMouseDown={handleMouseDown}
@@ -1161,59 +1354,11 @@ const Page: React.FC = () => {
               downloadVideo={downloadVideo}
 
               dragging={dragging}
-             
-
-
-
-
-
+              playheadRef={playheadRef}
 
             />
-
           </div>
-
-          <div className="leayrs-container">
-            {slideForTimeline.length === 0 ? (<h1 className="main-heading">Layers not Found</h1>) : (slideForTimeline.map((slide, index) => (
-              layerIndex === slide.index ? (
-                <div key={slide.index} className="layer-slide-container">
-                  <h1 className="main-heading">{`SVG Layers ${index + 1}`}</h1>
-                  <LayersComponent
-                    selectedSvg={slide.svg}
-                    parseSvgLayers={parseSvgLayers}
-                    selectedLayers={selectedLayers}
-                    handleLayerClick={handleLayerClick}
-                    
-                  />
-                </div>
-              ) : null
-            )))}
-          </div>
-
         </div>
-       
-
-       <div className="animation_frame_line">
-        <Layersanimations addAnimation={addAnimation} handleWalkingAnimation={handleWalkingAnimation} handlehandstandAnimation={handlehandstandAnimation} currentReplayIndex={currentReplayIndex}
-            slideForTimeline={slideForTimeline}
-
-            replayActivities={replayActivities}
-          
-            handleSvgClick={handleSvgClick}
-            playheadPosition={playheadPosition}
-          
-            handleMouseDown={handleMouseDown}
-            handleMouseMove={handleMouseMove}
-            handleMouseUp={handleMouseUp}
-            playPauseAni={handlePlayPauseForSelectedSlide}
-            setLayerIndex={setLayerIndex}
-            downloadVideo={downloadVideo}
-           
-            dragging={dragging}
-            playheadRef={playheadRef}
-            
-            />
-       </div>
-      </div>
       </div>
 
     </>

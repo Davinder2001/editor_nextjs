@@ -46,6 +46,20 @@ canvas.svg-preview-container {
   transition: all 0.3s ease-in-out;
   
 }
+.color_buttons button {
+  border: unset;
+  padding: 20px;
+  border-radius: 100%;
+  cursor: pointer;
+  border: 1px solid #000;
+}
+
+.color_buttons {
+  display: flex;
+  gap: 12px;
+
+}
+
 .timeline-wrapper.active p {
   background: #f49a03e0!important;
 }
@@ -53,6 +67,7 @@ canvas.svg-preview-container {
   display: flex;
   justify-content: center;
 }
+
 
 .timeline-wrapper p {
   position: absolute;
