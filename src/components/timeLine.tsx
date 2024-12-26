@@ -23,6 +23,7 @@ interface TimelineProps {
   downloadVideo:()=>void,
   dragging:boolean
   playheadRef:React.RefObject<HTMLDivElement>;
+  playAndPause:()=>void
 }
 
 const TimeLine: React.FC<TimelineProps> = ({
@@ -36,9 +37,10 @@ const TimeLine: React.FC<TimelineProps> = ({
   handleMouseUp,
   playPauseAni,
   setLayerIndex,
-  downloadVideo,
+   
   dragging,
-  playheadRef
+  playheadRef,
+  playAndPause
   
 }) => {
   // Fixed duration per slide (e.g., 3 seconds)
@@ -52,14 +54,15 @@ const TimeLine: React.FC<TimelineProps> = ({
     <div className="timeline-container">
       <h3>Timeline:</h3>
       <div className="timeline_buttons">
+        <button onClick={playAndPause} style={{ marginTop: "0px" }}>
+        Play All Animations
+        </button>
         <button onClick={replayActivities} style={{ marginTop: "0px" }}>
-         Render Timeline
+        Download as Mp4
         </button>
-        <button style={{ marginBottom: "10px" }} onClick={downloadVideo}>
-          Download as Mp4
-        </button>
+        
         <button style={{ marginBottom: "10px" }} onClick={playPauseAni}>
-          Play Animation
+          Play Single Animation
         </button>
       </div>
 

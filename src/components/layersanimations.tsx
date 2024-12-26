@@ -27,6 +27,7 @@ interface TimelineProps {
   downloadVideo: () => void;
   dragging: boolean;
   playheadRef:React.RefObject<HTMLDivElement>;
+  playAndPause:() => void;
  
 }
 
@@ -47,6 +48,7 @@ const Layersanimations: React.FC<TimelineProps> = ({
   downloadVideo,
   dragging,
   playheadRef,
+  playAndPause
  
 }) => {
   return (
@@ -77,6 +79,7 @@ const Layersanimations: React.FC<TimelineProps> = ({
           downloadVideo={downloadVideo}
           dragging={dragging}
           playheadRef={playheadRef}
+          playAndPause={playAndPause}
          
         />
       </div>
