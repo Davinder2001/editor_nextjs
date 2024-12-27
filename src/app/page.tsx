@@ -772,34 +772,32 @@ const Page: React.FC = () => {
       console.warn("Canvas not found or is not a valid HTMLCanvasElement.");
       return;
     }
-
+  
     const ctx = canvas.getContext("2d");
     if (!ctx) {
       console.warn("Canvas context not available.");
       return;
     }
-
+  
     const filteredSlides = slideForTimeline.filter((slide) => slide.animationType);
-
+  
     if (filteredSlides.length === 0) {
       console.warn("No animations assigned for replay.");
       return;
     }
-
+  
     console.log("Starting replay and recording...");
-
-    // Clear old frames to ensure only the latest frames are stored
-    setFrames([]);
-
-    startRecording();
-
-    const totalDuration = filteredSlides.reduce((sum, slide) => sum + slide.duration, 0);
-    let elapsedTime = 0;
-    let frameIndex = 0; // Initialize frame index
-
-    // Temporary array to store frames during replay
+  
+    setFrames([]); // Clear old frames
     const tempFrames: Frame[] = [];
-    const updatePlayhead = (currentElapsed: number) => {
+    let frameIndex = 0; // Initialize frame index
+    let elapsedTime = 0; // Track elapsed time
+  
+    startRecording(); // Start recording once for all slides
+  
+    const totalDuration = filteredSlides.reduce((sum, slide) => sum + slide.duration, 0);
+  
+    const updatePlayhead = (currentElapsed:number) => {
       const progress = Math.min((currentElapsed / totalDuration) * 100, 100);
       const playheadElement = document.querySelector(".playhead");
       if (playheadElement instanceof HTMLElement) {
@@ -807,109 +805,87 @@ const Page: React.FC = () => {
       }
       console.log(`Playhead updated to: ${progress.toFixed(2)}%`);
     };
-
-    const saveFrame = (index: number) => {
-      // Capture the current canvas as a base64 image (PNG)
+  
+    const saveFrame = (index:number) => {
       const frame = canvas.toDataURL("image/png");
-
-      // Get the current time in seconds and milliseconds
       const currentTime = Date.now();
-      const seconds = Math.floor(currentTime / 1000); // Convert to seconds
-      const milliseconds = currentTime % 1000; // Get the milliseconds part
-
-      // Store the frame in the temporary array without triggering a re-render
+      const seconds = Math.floor(currentTime / 1000);
+      const milliseconds = currentTime % 1000;
       tempFrames.push({ image: frame, time: { seconds, milliseconds }, index });
     };
-
-    const replayStep = (index: number) => {
+  
+    const replayStep = (index:number) => {
       if (index >= filteredSlides.length) {
-        setCurrentReplayIndex(null);
-        stopRecording();
+        stopRecording(); // Stop recording after all slides are replayed
         console.log("Replay completed.");
-
-        // Update frames state with the new frames after replay
-        setFrames(tempFrames);
-         if (mediaRecorderRef.current) {
+  
+        setFrames(tempFrames); // Save frames after replay
+        if (mediaRecorderRef.current) {
           mediaRecorderRef.current.onstop = () => {
-            downloadVideo();
+            downloadVideo(); // Download all logs as a video
             console.log("Recording stopped and video downloaded.");
           };
         }
         return;
       }
-
+  
       const slide = filteredSlides[index];
-      setCurrentReplayIndex(slide.index);
-
       console.log(`Replaying Slide ${index + 1}/${filteredSlides.length}`);
-
+  
       const parser = new DOMParser();
       const svgDoc = parser.parseFromString(slide.svg, "image/svg+xml");
       const svgElement = svgDoc.documentElement;
-
+  
       if (backgroundImage) {
         svgElement.setAttribute(
           "style",
           `background: url(${backgroundImage}); background-size: cover;`
         );
       }
-
-      const animationWrapper = svgElement.querySelector('g[id="animation_wrapper"]');
-      if (!animationWrapper) {
-        console.warn('No <g> element with id="animation_wrapper" found in the SVG.');
-        replayStep(index + 1); // Skip this slide and move to the next one
-        return;
-      }
-
+  
       const svg = new XMLSerializer().serializeToString(svgElement);
-
+  
       if (slide.animationType === WALKING) {
         wlkingAnimationPlay(svg, false);
       } else if (slide.animationType === HANDSTAND) {
         handStandanimationPlay(svg);
       }
-
+  
       const img = new Image();
-      const updatedSvgBlob = new Blob([new XMLSerializer().serializeToString(svgElement)], {
-        type: "image/svg+xml",
-      });
+      const updatedSvgBlob = new Blob([svg], { type: "image/svg+xml" });
       const url = URL.createObjectURL(updatedSvgBlob);
-
+  
       img.onload = () => {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
         URL.revokeObjectURL(url);
-
+  
         const animationStartTime = Date.now();
         const animationEndTime = animationStartTime + slide.duration;
-
+  
         const interval = setInterval(() => {
-          const now = Date.now();
-          elapsedTime += 300; // 500 ms for 2 frames per second
+          elapsedTime += 300; // Update elapsed time
           updatePlayhead(elapsedTime);
-
-          // Save the current frame and timestamp at each step, passing the index
-          saveFrame(frameIndex);
-
-          frameIndex++; // Increment the frame index after saving the frame
-
-          if (now >= animationEndTime) {
+          saveFrame(frameIndex++); // Save current frame
+  
+          if (Date.now() >= animationEndTime) {
             clearInterval(interval);
-            replayStep(index + 1);
+            replayStep(index + 1); // Move to the next slide
           }
-        }, 300); // 500 ms interval for 2 frames per second
+        }, 300);
       };
-
+  
       img.onerror = () => {
         console.error("Error loading updated SVG.");
-        replayStep(index + 1);
+        replayStep(index + 1); // Skip to the next slide
       };
-
+  
       img.src = url;
     };
-
+  
     replayStep(0);
   };
+  
 
 
   const playAndPause = () => {
