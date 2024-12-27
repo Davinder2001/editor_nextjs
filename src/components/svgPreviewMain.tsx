@@ -110,15 +110,15 @@ const SvgPreviewMain: React.FC<PreviewProps> = ({
     <div className="right-side-inner">
       {!selectedSvg ? (
         <div
-          style={{
-            height: "450px",
-            width: "800px",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            border: "1px solid #000",
-            backgroundColor: "#f0f0f0",
-          }}
+          // style={{
+          //   height: "450px",
+          //   width: "800px",
+          //   display: "flex",
+          //   justifyContent: "center",
+          //   alignItems: "center",
+          //   border: "1px solid #000",
+          //   backgroundColor: "#f0f0f0",
+          // }}
         >
           <p style={{ fontSize: "18px", color: "#555" }}>No SVG selected. Upload or select an SVG to preview.</p>
         </div>
