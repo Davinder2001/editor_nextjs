@@ -526,6 +526,14 @@ const Page: React.FC = () => {
     const stepDuration = 2500; // Speed up: Reduce the duration for a faster movement
     const elapsed = elapsedTime % stepDuration;
 
+    const canvasWidth = canvas.width;
+  const speed = 100; // Pixels per second
+  const translateX = isReverse
+    ? canvasWidth - ((elapsedTime / 1000) * speed) % canvasWidth // Reverse: Right to Left
+    : ((elapsedTime / 1000) * speed) % canvasWidth; // Forward: Left to Right
+
+  animationWrapper.setAttribute("transform", `translate(${translateX}, 0)`);
+
     Object.entries(animations).forEach(([id, { transform }]) => {
       const element = animationWrapper.querySelector(`#${id}`);
       if (element) {
