@@ -416,4 +416,19 @@ li {
       .right-side{
         width: 100%;
       }
+      .leayrs-container{
+        width: 100%;
+      }
+      .animation_frame_line{
+        display: block;
+      }
+      canvas.svg-preview-container {
+        height: 270px;
+    }
+    .timeline_buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      flex-direction: column;
+  }
 }
