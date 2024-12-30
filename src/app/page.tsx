@@ -78,7 +78,7 @@ const Page: React.FC = () => {
           } else {
             // Check if an animation type is assigned
             if (!slide.animationType) {
-              console.warn("No animation type assigned to the selected slide.");
+              toast.error("No animation type assigned to the selected slide.");
               updateProgressBar(0); // Reset the progress bar to 0% if no animation
               return { ...slide, isPlaying: false, hidden: false }; // Stop animation and show slide
             }
