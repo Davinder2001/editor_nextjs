@@ -1013,7 +1013,7 @@ const Page: React.FC = () => {
     const filteredSlides = slideForTimeline.filter((slide) => slide.animationType);
 
     if (filteredSlides.length === 0) {
-      console.warn("No animations assigned for replay.");
+      toast.error("You can't download Please play the animations first??");
       return;
     }
 
@@ -1135,7 +1135,7 @@ const Page: React.FC = () => {
     const filteredSlides = slideForTimeline.filter((slide) => slide.animationType);
 
     if (filteredSlides.length === 0) {
-      console.warn("No animations assigned for replay.");
+      toast.error("No Svg with animations assigned for replay.");
       return;
     }
 
