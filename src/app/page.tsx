@@ -64,37 +64,95 @@ const Page: React.FC = () => {
       console.warn("No slide selected.");
       return;
     }
-
-
+  
     setAddSlideRimeline((prevSlides) =>
       prevSlides.map((slide) => {
-        if (slide.index === selectedSvgIndex) {
+        // Hide other slides
+        if (slide.index !== selectedSvgIndex) {
+          return { ...slide, isPlaying: false, hidden: true }; // Hide the slide (optional 'hidden' property)
+        } else {
+          // Play the selected slide
           if (slide.isPlaying) {
-            setCurrentReplayIndex(slide.index)
+            setCurrentReplayIndex(slide.index);
             return { ...slide, isPlaying: false };
           } else {
-            // Play animation
+            // Play animation for the selected slide
             if (slide.animationType === WALKING) {
               wlkingAnimationPlay(slide.svg);
             } else if (slide.animationType === HANDSTAND) {
               handStandanimationPlay(slide.svg);
             }
-            return { ...slide, isPlaying: true };
+  
+            const animationDuration = slide.duration || ANIMATION_TIME_LINE;
+            let elapsedTime = 0;
+            const frameInterval = 100;
+            const framesForAnimation: Frame[] = [];
+            let frameIndex = 0;
+  
+            const canvas = svgContainerRef.current;
+            if (!(canvas instanceof HTMLCanvasElement)) {
+              console.warn("Canvas not found or is not a valid HTMLCanvasElement.");
+              return slide;
+            }
+  
+            const ctx = canvas.getContext("2d");
+            if (!ctx) {
+              console.warn("Canvas context not available.");
+              return slide;
+            }
+  
+            // Update playhead position based on elapsed time
+            const updatePlayhead = (currentElapsed: number) => {
+              const progress = Math.min((currentElapsed / animationDuration) * 100, 100);
+              const playheadElement = document.querySelector(".playhead");
+              if (playheadElement instanceof HTMLElement) {
+                playheadElement.style.left = `${progress}%`;
+              }
+              console.log(`Playhead updated to: ${progress.toFixed(2)}%`);
+            };
+  
+            // Save frames during animation
+            const saveFrame = () => {
+              const frame = canvas.toDataURL("image/png");
+              const currentTime = Date.now();
+              const seconds = Math.floor(currentTime / 1000);
+              const milliseconds = currentTime % 1000;
+              framesForAnimation.push({ image: frame, time: { seconds, milliseconds }, index: frameIndex++ });
+            };
+  
+            // Start updating playhead and capturing frames
+            const playheadUpdateInterval = setInterval(() => {
+              elapsedTime += frameInterval;
+              updatePlayhead(elapsedTime);
+              saveFrame(); // Save current frame
+  
+              if (elapsedTime >= animationDuration) {
+                clearInterval(playheadUpdateInterval); // Stop when animation ends
+                setFrames(framesForAnimation); // Store frames after the animation completes
+                setAddSlideRimeline((prevSlides) =>
+                  prevSlides.map((s) => (s.index === selectedSvgIndex ? { ...s, isPlaying: false } : s))
+                );
+              }
+            }, frameInterval);
+  
+            return { ...slide, isPlaying: true, hidden: false }; // Show and play the selected slide
           }
         }
-        return slide;
       })
     );
-
-
+  
+    // Automatically stop the animation after the duration
     setTimeout(() => {
       setAddSlideRimeline((prevSlides) =>
         prevSlides.map((slide) =>
-          slide.index === selectedSvgIndex ? { ...slide, isPlaying: false } : slide
+          slide.index === selectedSvgIndex ? { ...slide, isPlaying: false, hidden: false } : slide
         )
       );
     }, ANIMATION_TIME_LINE);
   };
+  
+  
+  
 
 
   console.log(contextMenuPosition)
@@ -864,7 +922,7 @@ const Page: React.FC = () => {
         const animationEndTime = animationStartTime + slide.duration;
   
         const interval = setInterval(() => {
-          elapsedTime += 300; // Update elapsed time
+          elapsedTime += 100; // Update elapsed time
           updatePlayhead(elapsedTime);
           saveFrame(frameIndex++); // Save current frame
   
@@ -872,7 +930,7 @@ const Page: React.FC = () => {
             clearInterval(interval);
             replayStep(index + 1); // Move to the next slide
           }
-        }, 300);
+        }, 100);
       };
   
       img.onerror = () => {
@@ -1002,7 +1060,7 @@ const Page: React.FC = () => {
 
         const interval = setInterval(() => {
           const now = Date.now();
-          elapsedTime += 300; // 500 ms for 2 frames per second
+          elapsedTime += 100; // 500 ms for 2 frames per second
           updatePlayhead(elapsedTime);
 
           // Save the current frame and timestamp at each step, passing the index
@@ -1014,7 +1072,7 @@ const Page: React.FC = () => {
             clearInterval(interval);
             replayStep(index + 1);
           }
-        }, 300); // 500 ms interval for 2 frames per second
+        }, 100); // 500 ms interval for 2 frames per second
       };
 
       img.onerror = () => {
