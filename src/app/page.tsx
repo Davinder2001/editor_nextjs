@@ -64,7 +64,7 @@ const Page: React.FC = () => {
       console.warn("No slide selected.");
       return;
     }
-
+  
     setAddSlideRimeline((prevSlides) =>
       prevSlides.map((slide) => {
         // Hide other slides
@@ -76,31 +76,38 @@ const Page: React.FC = () => {
             setCurrentReplayIndex(slide.index);
             return { ...slide, isPlaying: false };
           } else {
+            // Check if an animation type is assigned
+            if (!slide.animationType) {
+              console.warn("No animation type assigned to the selected slide.");
+              updateProgressBar(0); // Reset the progress bar to 0% if no animation
+              return { ...slide, isPlaying: false, hidden: false }; // Stop animation and show slide
+            }
+  
             // Play animation for the selected slide
             if (slide.animationType === WALKING) {
               wlkingAnimationPlay(slide.svg);
             } else if (slide.animationType === HANDSTAND) {
               handStandanimationPlay(slide.svg);
             }
-
+  
             const animationDuration = slide.duration || ANIMATION_TIME_LINE;
             let elapsedTime = 0;
             const frameInterval = 100;
             const framesForAnimation: Frame[] = [];
             let frameIndex = 0;
-
+  
             const canvas = svgContainerRef.current;
             if (!(canvas instanceof HTMLCanvasElement)) {
               console.warn("Canvas not found or is not a valid HTMLCanvasElement.");
               return slide;
             }
-
+  
             const ctx = canvas.getContext("2d");
             if (!ctx) {
               console.warn("Canvas context not available.");
               return slide;
             }
-
+  
             // Update playhead position based on elapsed time
             const updatePlayhead = (currentElapsed: number) => {
               const progress = Math.min((currentElapsed / animationDuration) * 100, 100);
@@ -110,7 +117,7 @@ const Page: React.FC = () => {
               }
               console.log(`Playhead updated to: ${progress.toFixed(2)}%`);
             };
-
+  
             // Save frames during animation
             const saveFrame = () => {
               const frame = canvas.toDataURL("image/png");
@@ -119,13 +126,13 @@ const Page: React.FC = () => {
               const milliseconds = currentTime % 1000;
               framesForAnimation.push({ image: frame, time: { seconds, milliseconds }, index: frameIndex++ });
             };
-
+  
             // Start updating playhead and capturing frames
             const playheadUpdateInterval = setInterval(() => {
               elapsedTime += frameInterval;
-              updatePlayhead(elapsedTime);
+              updatePlayhead(elapsedTime); // Update playhead
               saveFrame(); // Save current frame
-
+  
               if (elapsedTime >= animationDuration) {
                 clearInterval(playheadUpdateInterval); // Stop when animation ends
                 setFrames(framesForAnimation); // Store frames after the animation completes
@@ -134,13 +141,13 @@ const Page: React.FC = () => {
                 );
               }
             }, frameInterval);
-
+  
             return { ...slide, isPlaying: true, hidden: false }; // Show and play the selected slide
           }
         }
       })
     );
-
+  
     // Automatically stop the animation after the duration
     setTimeout(() => {
       setAddSlideRimeline((prevSlides) =>
@@ -150,6 +157,15 @@ const Page: React.FC = () => {
       );
     }, ANIMATION_TIME_LINE);
   };
+  
+  // Update the progress bar
+  const updateProgressBar = (progress: number) => {
+    const playheadElement = document.querySelector(".playhead");
+    if (playheadElement instanceof HTMLElement) {
+      playheadElement.style.left = `${progress}%`;
+    }
+  };
+  
 
 
 
@@ -344,7 +360,7 @@ const Page: React.FC = () => {
     // Target the <g> element with id="animation_wrapper"
     const animationWrapper = svgElement.querySelector('g[id="animation_wrapper"]');
     if (!animationWrapper) {
-        console.warn('No <g> element with id="animation_wrapper" found in the SVG.');
+        toast.error('No <g> element with id="animation_wrapper" found in the SVG.');
         return;
     }
 
