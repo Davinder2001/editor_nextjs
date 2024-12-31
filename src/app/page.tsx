@@ -366,135 +366,131 @@ const Page: React.FC = () => {
 
     // Updated animation data with transform information
     const animations: Record<string, { transform: AnimationTransform }> = {
-        "hand-details-front": {
-            transform: {
-                data: {
-                    o: { x: 936.363651, y: 365.4, type: "corner" },
-                    t: { x: -936.363649, y: -365.4 }
-                },
-                keys: {
-                    r: [
-                        { t: 0, v: 0 },
-                        { t: 1000, v: 30.170204 },  // Speed up: Reduce duration to 1000
-                        { t: 2000, v: -17.915471 },
-                        { t: 3000, v: 0 }
-                    ]
-                }
-            }
+      "hand-details-front": {
+        transform: {
+          data: {
+            o: { x: 939.043708, y: 370.712709, type: "corner" },
+            t: { x: -939.043692, y: -370.712709 },
+          },
+          keys: {
+            r: [
+              { t: 0, v: 0 },
+              { t: 1200, v: -40.845997 },
+              { t: 2900, v: 9.844252 },
+            ],
+          },
         },
-        "hand-details-back": {
-            transform: {
-                data: {
-                    o: { x: 945.041116, y: 365.4, type: "corner" },
-                    t: { x: -946.932186, y: -362.647241 }
-                },
-                keys: {
-                    r: [
-                        { t: 0, v: 0 },
-                        { t: 1000, v: -20.826695 },  // Speed up: Reduce duration to 1000
-                        { t: 2000, v: 29.534194 },
-                        { t: 3000, v: 0 }
-                    ]
-                }
-            }
+      },
+      "hand-details-back": {
+        transform: {
+          data: {
+            o: { x: 961.319563, y: 365.4, type: "corner" },
+            t: { x: -961.319561, y: -365.399997 },
+          },
+          keys: {
+            r: [
+              { t: 0, v: 0 },
+              { t: 1200, v: 41.534153 },
+              { t: 2900, v: -4.655786 },
+            ],
+          },
         },
-        "pant-front-details": {
-            transform: {
-                data: {
-                    o: { x: 930.9, y: 552.241451, type: "corner" },
-                    t: { x: -930.899978, y: -552.241449 }
-                },
-                keys: {
-                    r: [
-                        { t: 0, v: 0 },
-                        { t: 1000, v: -28.314683 },  // Speed up: Reduce duration to 1000
-                        { t: 2000, v: -2.293353 },
-                        { t: 3000, v: 0 }
-                    ]
-                }
-            }
+      },
+      "pant-front-details": {
+        transform: {
+          data: {
+            o: { x: 930.9, y: 540, type: "corner" },
+            t: { x: -930.89999, y: -539.999999 },
+          },
+          keys: {
+            r: [
+              { t: 0, v: 0 },
+              { t: 1200, v: 15.44639 },
+              { t: 2900, v: -1.50936 },
+            ],
+          },
         },
-        "leg-front": {
-            transform: {
-                data: {
-                    o: { x: 930.9, y: 552.241451, type: "corner" },
-                    t: { x: -930.899978, y: -552.241449 }
-                },
-                keys: {
-                    r: [
-                        { t: 0, v: 0 },
-                        { t: 1000, v: -28.314683 },  // Speed up: Reduce duration to 1000
-                        { t: 2000, v: -2.293353 },
-                        { t: 3000, v: 0 }
-                    ]
-                }
-            }
+      },
+      "leg-front": {
+        transform: {
+          data: {
+            o: { x: 930.9, y: 540, type: "corner" },
+            t: { x: -930.89999, y: -539.999999 },
+          },
+          keys: {
+            r: [
+              { t: 0, v: 0 },
+              { t: 1200, v: 15.44639 },
+              { t: 2900, v: -1.50936 },
+            ],
+          },
         },
-        "shoe-front": {
-            transform: {
-                data: {
-                    o: { x: 930.9, y: 552.241451, type: "corner" },
-                    t: { x: -930.899978, y: -552.241449 }
-                },
-                keys: {
-                    r: [
-                        { t: 0, v: 0 },
-                        { t: 1000, v: -28.314683 },  // Speed up: Reduce duration to 1000
-                        { t: 2000, v: -2.293353 },
-                        { t: 3000, v: 0 }
-                    ]
-                }
-            }
+      },
+      "shoe-front": {
+        transform: {
+          data: {
+            o: { x: 930.9, y: 540, type: "corner" },
+            t: { x: -930.89999, y: -539.999999 },
+          },
+          keys: {
+            r: [
+              { t: 0, v: 0 },
+              { t: 1200, v: 15.44639 },
+              { t: 2900, v: -1.50936 },
+            ],
+          },
         },
-        "pant-back-details": {
-            transform: {
-                data: {
-                    o: { x: 992.137451, y: 556.6, type: "corner" },
-                    t: { x: -992.137447, y: -556.599997 }
-                },
-                keys: {
-                    r: [
-                        { t: 0, v: 0 },
-                        { t: 1000, v: 13.410006 },  // Speed up: Reduce duration to 1000
-                        { t: 2000, v: -11.959515 },
-                        { t: 3000, v: 0 }
-                    ]
-                }
-            }
+      },
+      
+      
+     
+      "pant-back-details": {
+        transform: {
+          data: {
+            o: { x: 985.418726, y: 531.776734, type: "corner" },
+            t: { x: -985.418724, y: -531.776733 },
+          },
+          keys: {
+            r: [
+              { t: 0, v: 0 },
+              { t: 1200, v: -22.578452 },
+              { t: 2900, v: 2.168736 },
+            ],
+          },
         },
-        "leg-back": {
-            transform: {
-                data: {
-                    o: { x: 992.137451, y: 556.6, type: "corner" },
-                    t: { x: -992.137447, y: -556.599997 }
-                },
-                keys: {
-                    r: [
-                        { t: 0, v: 0 },
-                        { t: 1000, v: 13.410006 },  // Speed up: Reduce duration to 1000
-                        { t: 2000, v: -11.959515 },
-                        { t: 3000, v: 0 }
-                    ]
-                }
-            }
+      },
+      "leg-back": {
+        transform: {
+          data: {
+            o: { x: 985.418726, y: 531.776734, type: "corner" },
+            t: { x: -985.418724, y: -531.776733 },
+          },
+          keys: {
+            r: [
+              { t: 0, v: 0 },
+              { t: 1200, v: -22.578452 },
+              { t: 2900, v: 2.168736 },
+            ],
+          },
         },
-        "shoe-back": {
-            transform: {
-                data: {
-                    o: { x: 992.137451, y: 556.6, type: "corner" },
-                    t: { x: -992.137447, y: -556.599997 }
-                },
-                keys: {
-                    r: [
-                        { t: 0, v: 0 },
-                        { t: 1000, v: 13.410006 },  // Speed up: Reduce duration to 1000
-                        { t: 2000, v: -11.959515 },
-                        { t: 3000, v: 0 }
-                    ]
-                }
-            }
+      },
+      "shoe-back": {
+        transform: {
+          data: {
+            o: { x: 985.418726, y: 531.776734, type: "corner" },
+            t: { x: -985.418724, y: -531.776733 },
+          },
+          keys: {
+            r: [
+              { t: 0, v: 0 },
+              { t: 1200, v: -22.578452 },
+              { t: 2900, v: 2.168736 },
+            ],
+          },
         },
+      },
     };
+    
 
     // Interpolate function for rotation values
     const interpolate = (keys: { t: number; v: number }[], currentTime: number) => {
