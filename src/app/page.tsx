@@ -307,18 +307,9 @@ const Page: React.FC = () => {
 
 
 
-  interface AnimationKeys {
-    r: { t: number; v: number }[]; // Rotation keys
-    t?: { t: number; v: number }[]; // Optional Translation keys
-  }
+ 
   
-  interface AnimationTransform {
-    data: {
-      o: { x: number; y: number; type: string };
-      t: { x: number; y: number };
-    };
-    keys: AnimationKeys;
-  }
+  
 
   let animationStarted = false;
   let initialTimestamp = 0;
@@ -327,29 +318,29 @@ const Page: React.FC = () => {
   
   const animate = (svg: string, timestamp: number, isReverse: boolean = false) => {
     if (!animationStarted) {
-        initialTimestamp = timestamp;
-        animationStarted = true;
+      initialTimestamp = timestamp;
+      animationStarted = true;
     }
 
     const elapsedTime = timestamp - initialTimestamp;
 
     if (elapsedTime >= ANIMATION_TIME_LINE) {
-        console.log("Animation completed.");
-        animationStarted = false;
-        cancelAnimationFrame(animationFrameId.current!); // Stop further animation
-        return;
+      console.log("Animation completed.");
+      animationStarted = false;
+      cancelAnimationFrame(animationFrameId.current!); // Stop further animation
+      return;
     }
 
     const canvas = svgContainerRef.current;
     if (!(canvas instanceof HTMLCanvasElement)) {
-        console.warn("Canvas not found or is not a valid HTMLCanvasElement.");
-        return;
+      console.warn("Canvas not found or is not a valid HTMLCanvasElement.");
+      return;
     }
 
     const ctx = canvas.getContext("2d");
     if (!ctx) {
-        console.warn("Canvas context not available.");
-        return;
+      console.warn("Canvas context not available.");
+      return;
     }
 
     // Parse the SVG and retrieve elements
@@ -360,205 +351,61 @@ const Page: React.FC = () => {
     // Target the <g> element with id="animation_wrapper"
     const animationWrapper = svgElement.querySelector('g[id="animation_wrapper"]');
     if (!animationWrapper) {
-        toast.error('No <g> element with id="animation_wrapper" found in the SVG.');
-        return;
+      console.warn('No <g> element with id="animation_wrapper" found in the SVG.');
+      return;
     }
 
-    // Updated animation data with transform information
-    const animations: Record<string, { transform: AnimationTransform }> = {
-      "hand-details-front": {
-        transform: {
-          data: {
-            o: { x: 939.043708, y: 370.712709, type: "corner" },
-            t: { x: -939.043692, y: -370.712709 },
-          },
-          keys: {
-            r: [
-              { t: 0, v: 0 },
-              { t: 1200, v: -40.845997 },
-              { t: 2900, v: 9.844252 },
-            ],
-          },
-        },
-      },
-      "hand-details-back": {
-        transform: {
-          data: {
-            o: { x: 961.319563, y: 365.4, type: "corner" },
-            t: { x: -961.319561, y: -365.399997 },
-          },
-          keys: {
-            r: [
-              { t: 0, v: 0 },
-              { t: 1200, v: 41.534153 },
-              { t: 2900, v: -4.655786 },
-            ],
-          },
-        },
-      },
-      "pant-front-details": {
-        transform: {
-          data: {
-            o: { x: 930.9, y: 540, type: "corner" },
-            t: { x: -930.89999, y: -539.999999 },
-          },
-          keys: {
-            r: [
-              { t: 0, v: 0 },
-              { t: 1200, v: 15.44639 },
-              { t: 2900, v: -1.50936 },
-            ],
-          },
-        },
-      },
-      "leg-front": {
-        transform: {
-          data: {
-            o: { x: 930.9, y: 540, type: "corner" },
-            t: { x: -930.89999, y: -539.999999 },
-          },
-          keys: {
-            r: [
-              { t: 0, v: 0 },
-              { t: 1200, v: 15.44639 },
-              { t: 2900, v: -1.50936 },
-            ],
-          },
-        },
-      },
-      "shoe-front": {
-        transform: {
-          data: {
-            o: { x: 930.9, y: 540, type: "corner" },
-            t: { x: -930.89999, y: -539.999999 },
-          },
-          keys: {
-            r: [
-              { t: 0, v: 0 },
-              { t: 1200, v: 15.44639 },
-              { t: 2900, v: -1.50936 },
-            ],
-          },
-        },
-      },
-      
-      
-     
-      "pant-back-details": {
-        transform: {
-          data: {
-            o: { x: 985.418726, y: 531.776734, type: "corner" },
-            t: { x: -985.418724, y: -531.776733 },
-          },
-          keys: {
-            r: [
-              { t: 0, v: 0 },
-              { t: 1200, v: -22.578452 },
-              { t: 2900, v: 2.168736 },
-            ],
-          },
-        },
-      },
-      "leg-back": {
-        transform: {
-          data: {
-            o: { x: 985.418726, y: 531.776734, type: "corner" },
-            t: { x: -985.418724, y: -531.776733 },
-          },
-          keys: {
-            r: [
-              { t: 0, v: 0 },
-              { t: 1200, v: -22.578452 },
-              { t: 2900, v: 2.168736 },
-            ],
-          },
-        },
-      },
-      "shoe-back": {
-        transform: {
-          data: {
-            o: { x: 985.418726, y: 531.776734, type: "corner" },
-            t: { x: -985.418724, y: -531.776733 },
-          },
-          keys: {
-            r: [
-              { t: 0, v: 0 },
-              { t: 1200, v: -22.578452 },
-              { t: 2900, v: 2.168736 },
-            ],
-          },
-        },
-      },
-    };
     
-
-    // Interpolate function for rotation values
-    const interpolate = (keys: { t: number; v: number }[], currentTime: number) => {
-        if (!keys || keys.length === 0) {
-            console.warn("No keys provided for interpolation.");
-            return 0; // Return a default value if keys are invalid
-        }
-
-        let prevKey = keys[0];
-        let nextKey = keys[0];
-
-        for (let i = 0; i < keys.length; i++) {
-            if (currentTime >= keys[i].t) {
-                prevKey = keys[i];
-            }
-            if (currentTime < keys[i].t) {
-                nextKey = keys[i];
-                break;
-            }
-        }
-
-        const timeDiff = nextKey.t - prevKey.t || 1; // Prevent division by zero
-        const valueDiff = nextKey.v - prevKey.v;
-        const progress = (currentTime - prevKey.t) / timeDiff;
-
-        return prevKey.v + valueDiff * progress;
-    };
-
-    const stepDuration = 2500; // Speed up: Reduce the duration for a faster movement
+    const stepDuration = 1000;  
     const elapsed = elapsedTime % stepDuration;
+    const progress = elapsed / stepDuration;
 
+    // Calculate swing values
+    const handSwing = Math.sin(progress * 2 * Math.PI) * 20;
+    const legSwing = Math.cos(progress * 2 * Math.PI) * 20;
+
+    // Calculate translation for the <g> element
     const canvasWidth = canvas.width;
-  const speed = 100; // Pixels per second
-  const translateX = isReverse
-    ? canvasWidth - ((elapsedTime / 1000) * speed) % canvasWidth // Reverse: Right to Left
-    : ((elapsedTime / 1000) * speed) % canvasWidth; // Forward: Left to Right
+    const speed = 100; // Pixels per second
+    const translateX = isReverse
+      ? canvasWidth - ((elapsedTime / 1000) * speed) % canvasWidth // Reverse: Right to Left
+      : ((elapsedTime / 1000) * speed) % canvasWidth; // Forward: Left to Right
 
-  animationWrapper.setAttribute("transform", `translate(${translateX}, 0)`);
+    // Apply the translation to the <g> element
+    animationWrapper.setAttribute("transform", `translate(${translateX} 0)`);
 
-    Object.entries(animations).forEach(([id, { transform }]) => {
-      const element = animationWrapper.querySelector(`#${id}`);
-      if (element) {
-        const rotationValue = interpolate(transform.keys.r, elapsed);
-    
-        // Apply rotation transform
-        element.setAttribute(
-          "transform",
-          `rotate(${rotationValue} ${transform.data.o.x} ${transform.data.o.y})`
-        );
-    
-        // Check if translation keys exist and apply translation if they do
-        if (transform.keys.t) {
-          const translateX = interpolate(transform.keys.t, elapsed);
-          element.setAttribute(
-            "transform",
-            `translate(${translateX} 0) rotate(${rotationValue} ${transform.data.o.x} ${transform.data.o.y})`
-          );
-        } else {
-          // If no translation key exists, apply just the rotation transform
-          element.setAttribute(
-            "transform",
-            `rotate(${rotationValue} ${transform.data.o.x} ${transform.data.o.y})`
-          );
-        }
-      }
-    });
-    
-    
+    // Apply transformations to limbs
+    const leftHand = animationWrapper.querySelector("#hand-details-back");
+    const rightHand = animationWrapper.querySelector("#hand-details-front");
+    const leftLeg = animationWrapper.querySelector("#pant-back-details");
+    const rightLeg = animationWrapper.querySelector("#pant-front-details");
+    const legFront = animationWrapper.querySelector("#leg-front");
+    const legBack = animationWrapper.querySelector("#leg-back");
+    const footFront = animationWrapper.querySelector("#shoe-front");
+    const footBack = animationWrapper.querySelector("#shoe-back");
+
+    if (
+      !leftHand ||
+      !rightHand ||
+      !leftLeg ||
+      !rightLeg ||
+      !legFront ||
+      !legBack ||
+      !footFront ||
+      !footBack
+    ) {
+      console.warn("Some elements are missing in the SVG.");
+      return;
+    }
+
+    leftHand.setAttribute("transform", `rotate(${handSwing} 920 400)`);
+    rightHand.setAttribute("transform", `rotate(${-handSwing} 960 400)`);
+    leftLeg.setAttribute("transform", `rotate(${legSwing} 1000 500)`);
+    rightLeg.setAttribute("transform", `rotate(${-legSwing} 1000 500)`);
+    legFront.setAttribute("transform", `rotate(${-legSwing} 1000 500)`);
+    legBack.setAttribute("transform", `rotate(${legSwing} 1000 500)`);
+    footFront.setAttribute("transform", `rotate(${-legSwing} 1000 500)`);
+    footBack.setAttribute("transform", `rotate(${legSwing} 1000 500)`);
 
     // Serialize the updated SVG
     const updatedSvg = new XMLSerializer().serializeToString(svgDoc);
@@ -567,23 +414,23 @@ const Page: React.FC = () => {
 
     const img = new Image();
     img.onload = () => {
-        ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height); // Draw updated SVG
-        URL.revokeObjectURL(url);
+      ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height); // Draw updated SVG
+      URL.revokeObjectURL(url);
+      console.log(`SVG <g> translated to x: ${translateX.toFixed(2)}`);
     };
 
     img.onerror = () => {
-        console.error("Failed to load updated SVG image.");
+      console.error("Failed to load updated SVG image.");
     };
 
     img.src = url;
 
     // Request the next frame
     animationFrameId.current = requestAnimationFrame((newTimestamp) =>
-        animate(svg, newTimestamp, isReverse)
+      animate(svg, newTimestamp, isReverse)
     );
-};
-
+  };
   
 
 
