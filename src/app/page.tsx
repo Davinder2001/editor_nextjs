@@ -400,8 +400,8 @@ const Page: React.FC = () => {
 
     leftHand.setAttribute("transform", `rotate(${handSwing} 920 400)`);
     rightHand.setAttribute("transform", `rotate(${-handSwing} 960 400)`);
-    leftLeg.setAttribute("transform", `rotate(${legSwing} 1000 500)`);
-    rightLeg.setAttribute("transform", `rotate(${-legSwing} 1000 500)`);
+    leftLeg.setAttribute("transform", `rotate(${legSwing} 1000 502)`);
+    rightLeg.setAttribute("transform", `rotate(${-legSwing} 1000 508)`);
     legFront.setAttribute("transform", `rotate(${-legSwing} 1000 500)`);
     legBack.setAttribute("transform", `rotate(${legSwing} 1000 500)`);
     footFront.setAttribute("transform", `rotate(${-legSwing} 1000 500)`);
