@@ -7,7 +7,7 @@ import Layersanimations from "@/components/layersanimations";
 
 // import Layers from "@/components/layers";
 import Preview from "@/components/preview";
-import { ANIMATION_TIME_LINE, HANDSTAND, IMAGE_SIZE, WALKING } from "@/utils/animationsType";
+import { ANIMATION_DIRECTION_SPEED, ANIMATION_TIME_LINE, HANDSTAND, IMAGE_SIZE, WALKING } from "@/utils/animationsType";
 
 // import SelectSvg from "@/components/selectSvg";
 import React, { useState, useEffect, useRef } from "react";
@@ -327,7 +327,7 @@ const Page: React.FC = () => {
     if (elapsedTime >= ANIMATION_TIME_LINE) {
       console.log("Animation completed.");
       animationStarted = false;
-      cancelAnimationFrame(animationFrameId.current!); // Stop further animation
+      cancelAnimationFrame(animationFrameId.current!); 
       return;
     }
 
@@ -526,7 +526,7 @@ const Page: React.FC = () => {
     };
 
     // Step duration for animation (e.g., 3000ms)
-    const stepDuration = 3000;
+    const stepDuration = ANIMATION_DIRECTION_SPEED;
     const elapsed = elapsedTime % stepDuration;
 
         const canvasWidth = canvas.width;
