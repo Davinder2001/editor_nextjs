@@ -37,7 +37,6 @@ const TimeLine: React.FC<TimelineProps> = ({
   handleMouseUp,
   playPauseAni,
   setLayerIndex,
-   
   dragging,
   playheadRef,
   playAndPause
@@ -116,7 +115,7 @@ const TimeLine: React.FC<TimelineProps> = ({
           style={{
             position: "relative",
             height: "50px",
-            marginTop: "-65px", // Adjust to overlap correctly with the ruler
+            marginTop: "-65px", 
           }}
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}

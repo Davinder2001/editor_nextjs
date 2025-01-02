@@ -64,7 +64,7 @@ const Page: React.FC = () => {
       console.warn("No slide selected.");
       return;
     }
-  
+
     setAddSlideRimeline((prevSlides) =>
       prevSlides.map((slide) => {
         // Hide other slides
@@ -82,32 +82,32 @@ const Page: React.FC = () => {
               updateProgressBar(0); // Reset the progress bar to 0% if no animation
               return { ...slide, isPlaying: false, hidden: false }; // Stop animation and show slide
             }
-  
+
             // Play animation for the selected slide
             if (slide.animationType === WALKING) {
               wlkingAnimationPlay(slide.svg);
             } else if (slide.animationType === HANDSTAND) {
               handStandanimationPlay(slide.svg);
             }
-  
+
             const animationDuration = slide.duration || ANIMATION_TIME_LINE;
             let elapsedTime = 0;
             const frameInterval = 100;
             const framesForAnimation: Frame[] = [];
             let frameIndex = 0;
-  
+
             const canvas = svgContainerRef.current;
             if (!(canvas instanceof HTMLCanvasElement)) {
               console.warn("Canvas not found or is not a valid HTMLCanvasElement.");
               return slide;
             }
-  
+
             const ctx = canvas.getContext("2d");
             if (!ctx) {
               console.warn("Canvas context not available.");
               return slide;
             }
-  
+
             // Update playhead position based on elapsed time
             const updatePlayhead = (currentElapsed: number) => {
               const progress = Math.min((currentElapsed / animationDuration) * 100, 100);
@@ -117,7 +117,7 @@ const Page: React.FC = () => {
               }
               console.log(`Playhead updated to: ${progress.toFixed(2)}%`);
             };
-  
+
             // Save frames during animation
             const saveFrame = () => {
               const frame = canvas.toDataURL("image/png");
@@ -126,13 +126,13 @@ const Page: React.FC = () => {
               const milliseconds = currentTime % 1000;
               framesForAnimation.push({ image: frame, time: { seconds, milliseconds }, index: frameIndex++ });
             };
-  
+
             // Start updating playhead and capturing frames
             const playheadUpdateInterval = setInterval(() => {
               elapsedTime += frameInterval;
               updatePlayhead(elapsedTime); // Update playhead
               saveFrame(); // Save current frame
-  
+
               if (elapsedTime >= animationDuration) {
                 clearInterval(playheadUpdateInterval); // Stop when animation ends
                 setFrames(framesForAnimation); // Store frames after the animation completes
@@ -141,13 +141,13 @@ const Page: React.FC = () => {
                 );
               }
             }, frameInterval);
-  
+
             return { ...slide, isPlaying: true, hidden: false }; // Show and play the selected slide
           }
         }
       })
     );
-  
+
     // Automatically stop the animation after the duration
     setTimeout(() => {
       setAddSlideRimeline((prevSlides) =>
@@ -157,7 +157,7 @@ const Page: React.FC = () => {
       );
     }, ANIMATION_TIME_LINE);
   };
-  
+
   // Update the progress bar
   const updateProgressBar = (progress: number) => {
     const playheadElement = document.querySelector(".playhead");
@@ -165,7 +165,7 @@ const Page: React.FC = () => {
       playheadElement.style.left = `${progress}%`;
     }
   };
-  
+
 
 
 
@@ -307,15 +307,15 @@ const Page: React.FC = () => {
 
 
 
- 
-  
-  
+
+
+
 
   let animationStarted = false;
   let initialTimestamp = 0;
 
- 
-  
+
+
   const animate = (svg: string, timestamp: number, isReverse: boolean = false) => {
     if (!animationStarted) {
       initialTimestamp = timestamp;
@@ -355,18 +355,182 @@ const Page: React.FC = () => {
       return;
     }
 
-    
-    const stepDuration = 1000;  
+    // Define animation keyframes for each element
+    const animations = {
+      "hand-details-front": {
+        keys: [
+          { t: 0, v: 0 },
+          { t: 600, v: -15.366543 },
+          { t: 1200, v: 1.591507 },
+          { t: 1800, v: 22.060954 },
+          { t: 2500, v: 12.860388 },
+        ],
+        origin: { x: 936.9, y: 369.767771 }
+      },
+      "hand-p2": {
+        keys: [
+          { t: 0, v: 0 },
+          { t: 600, v: -48.527947 },
+          { t: 1200, v: 1.841959 },
+          { t: 1800, v: -30.535103 },
+          { t: 2500, v: -4.746353 },
+        ],
+        origin: { x: 955.94257, y: 494.030197 }
+      },
+      "hand-palm": {
+        keys: [
+          { t: 0, v: 0 },
+          { t: 600, v: -48.527947 },
+          { t: 1200, v: 1.841959 },
+          { t: 1800, v: -30.535103 },
+          { t: 2500, v: -4.746353 },
+        ],
+        origin: { x: 955.94257, y: 494.030197 }
+      },
+      "hand-details-back": {
+        keys: [
+          { t: 0, v: 0 },
+          { t: 600, v: 34.940675 },
+          { t: 1200, v: -1.832625 },
+          { t: 1800, v: -17.294846 },
+          { t: 2500, v: 10.070745 },
+        ],
+        origin: { x: 951.95, y: 361.708496 }
+      },
+      "hand-p2_00000129907696714187617730000016419141933559297423_": {
+        keys: [
+          { t: 0, v: 0 },
+          { t: 600, v: -29.29479 },
+          { t: 1200, v: 3.24454 },
+          { t: 1800, v: -45.195474 },
+          { t: 2500, v: -16.123212 },
+        ],
+        origin: { x: 957.596066, y: 495.374026 }
+      },
+      "hand-palm_00000147905328332973391990000012213005386853756323_": {
+        keys: [
+          { t: 0, v: 0 },
+          { t: 600, v: -29.29479 },
+          { t: 1200, v: 3.24454 },
+          { t: 1800, v: -45.195474 },
+          { t: 2500, v: -16.123212 },
+        ],
+        origin: { x: 957.596066, y: 495.374026 }
+      },
+      "pant-back-details": {
+        keys: [
+          { t: 0, v: 0 },
+          { t: 600, v: -33.434056 },
+          { t: 1200, v: -7.353939 },
+          { t: 1800, v: -2.504657 },
+          { t: 2500, v: -4.720388 },
+        ],
+        origin: { x: 920.000014, y: 556.6 }
+      },
+      
+      "pant-p1": {
+        keys: [
+          { t: 0, v: 0 },
+          { t: 600, v: 27.099904 },
+          { t: 1200, v: 6.920157 },
+          { t: 1800, v: 21.850882 },
+          { t: 2500, v: 2.476231 },
+        ],
+        origin: { x: 946.6, y: 685.280968 }
+      },
+      "shoe-back": {
+        keys: [
+          { t: 0, v: 0 },
+          { t: 600, v: 27.099904 },
+          { t: 1200, v: 6.920157 },
+          { t: 1800, v: 21.850882 },
+          { t: 2500, v: 2.476231 },
+        ],
+        origin: { x: 946.6, y: 685.280968 }
+      },
+      "leg-back": {
+        keys: [
+          { t: 0, v: 0 },
+          { t: 600, v: 27.099904 },
+          { t: 1200, v: 6.920157 },
+          { t: 1800, v: 21.850882 },
+          { t: 2500, v: 2.476231 },
+        ],
+        origin: { x: 946.6, y: 685.280968 }
+      },
+      "pant-front-details": {
+        keys: [
+          { t: 0, v: 0 },
+          { t: 600, v: 14.27992 },
+          { t: 1200, v: -5.398921 },
+          { t: 1800, v: -27.207231 },
+          { t: 2500, v: -3.895248 },
+        ],
+        origin: { x: 986.7, y: 556.6 }
+      },
+      "pant-p1_00000031922170619610477720000001442069305815377831_": {
+        keys: [
+          { t: 0, v: 0 },
+          { t: 600, v:  27.563506 },
+          { t: 1200, v: 1.009765},
+          { t: 1800, v: 22.432072 },
+          { t: 2500, v: -1.051197 },
+        ],
+        origin: { x: 981.6, y:  687.296048 }
+      },
+      "shoe-front": {
+        keys: [
+          { t: 0, v: 0 },
+          { t: 600, v:  27.563506 },
+          { t: 1200, v: 1.009765},
+          { t: 1800, v: 22.432072 },
+          { t: 2500, v: -1.051197 },
+        ],
+        origin: { x: 981.6, y:  687.296048 }
+      },
+      "leg-front": {
+        keys: [
+          { t: 0, v: 0 },
+          { t: 600, v:  27.563506 },
+          { t: 1200, v: 1.009765},
+          { t: 1800, v: 22.432072 },
+          { t: 2500, v: -1.051197 },
+        ],
+        origin: { x: 981.6, y:  687.296048 }
+      },
+
+
+    };
+
+
+
+    const interpolate = (keys: { t: number; v: number }[], currentTime: number) => {
+      let prevKey = keys[0];
+      let nextKey = keys[0];
+
+      for (let i = 0; i < keys.length; i++) {
+        if (currentTime >= keys[i].t) {
+          prevKey = keys[i];
+        }
+        if (currentTime < keys[i].t) {
+          nextKey = keys[i];
+          break;
+        }
+      }
+
+      const timeDiff = nextKey.t - prevKey.t || 1; // Prevent division by zero
+      const valueDiff = nextKey.v - prevKey.v;
+      const progress = (currentTime - prevKey.t) / timeDiff;
+
+      return prevKey.v + valueDiff * progress;
+    };
+
+    // Step duration for animation (e.g., 3000ms)
+    const stepDuration = 3000;
     const elapsed = elapsedTime % stepDuration;
-    const progress = elapsed / stepDuration;
 
-    // Calculate swing values
-    const handSwing = Math.sin(progress * 2 * Math.PI) * 20;
-    const legSwing = Math.cos(progress * 2 * Math.PI) * 20;
-
-    // Calculate translation for the <g> element
-    const canvasWidth = canvas.width;
-    const speed = 100; // Pixels per second
+        const canvasWidth = canvas.width;
+    const speed = 150; // Pixels per second
     const translateX = isReverse
       ? canvasWidth - ((elapsedTime / 1000) * speed) % canvasWidth // Reverse: Right to Left
       : ((elapsedTime / 1000) * speed) % canvasWidth; // Forward: Left to Right
@@ -374,38 +538,15 @@ const Page: React.FC = () => {
     // Apply the translation to the <g> element
     animationWrapper.setAttribute("transform", `translate(${translateX} 0)`);
 
-    // Apply transformations to limbs
-    const leftHand = animationWrapper.querySelector("#hand-details-back");
-    const rightHand = animationWrapper.querySelector("#hand-details-front");
-    const leftLeg = animationWrapper.querySelector("#pant-back-details");
-    const rightLeg = animationWrapper.querySelector("#pant-front-details");
-    const legFront = animationWrapper.querySelector("#leg-front");
-    const legBack = animationWrapper.querySelector("#leg-back");
-    const footFront = animationWrapper.querySelector("#shoe-front");
-    const footBack = animationWrapper.querySelector("#shoe-back");
+    // Apply the transformations based on the keyframes
+    Object.entries(animations).forEach(([id, { keys, origin }]) => {
+      const element = animationWrapper.querySelector(`#${id}`);
+      if (element) {
+        const rotationValue = interpolate(keys, elapsed);
+        element.setAttribute("transform", `rotate(${rotationValue} ${origin.x} ${origin.y})`);
+      }
+    });
 
-    if (
-      !leftHand ||
-      !rightHand ||
-      !leftLeg ||
-      !rightLeg ||
-      !legFront ||
-      !legBack ||
-      !footFront ||
-      !footBack
-    ) {
-      console.warn("Some elements are missing in the SVG.");
-      return;
-    }
-
-    leftHand.setAttribute("transform", `rotate(${handSwing} 920 400)`);
-    rightHand.setAttribute("transform", `rotate(${-handSwing} 960 400)`);
-    leftLeg.setAttribute("transform", `rotate(${legSwing} 1000 502)`);
-    rightLeg.setAttribute("transform", `rotate(${-legSwing} 1000 508)`);
-    legFront.setAttribute("transform", `rotate(${-legSwing} 1000 500)`);
-    legBack.setAttribute("transform", `rotate(${legSwing} 1000 500)`);
-    footFront.setAttribute("transform", `rotate(${-legSwing} 1000 500)`);
-    footBack.setAttribute("transform", `rotate(${legSwing} 1000 500)`);
 
     // Serialize the updated SVG
     const updatedSvg = new XMLSerializer().serializeToString(svgDoc);
@@ -417,7 +558,6 @@ const Page: React.FC = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height); // Draw updated SVG
       URL.revokeObjectURL(url);
-      console.log(`SVG <g> translated to x: ${translateX.toFixed(2)}`);
     };
 
     img.onerror = () => {
@@ -427,11 +567,11 @@ const Page: React.FC = () => {
     img.src = url;
 
     // Request the next frame
-    animationFrameId.current = requestAnimationFrame((newTimestamp) =>
-      animate(svg, newTimestamp, isReverse)
-    );
+    animationFrameId.current = requestAnimationFrame((newTimestamp) => animate(svg, newTimestamp, isReverse));
   };
-  
+
+
+
 
 
   const wlkingAnimationPlay = (svg: string, isReverse: boolean = false) => {
@@ -600,32 +740,58 @@ const Page: React.FC = () => {
           const reader = new FileReader();
           reader.onload = (e) => {
             const svgContent = e.target?.result as string;
-
+  
             // Parse the SVG content
             const parser = new DOMParser();
             const svgDoc = parser.parseFromString(svgContent, "image/svg+xml");
             const svgElement = svgDoc.documentElement;
-
+  
             // Create a new <g> tag with id="animation_wrapper"
             const animationWrapper = svgDoc.createElementNS("http://www.w3.org/2000/svg", "g");
             animationWrapper.setAttribute("id", "animation_wrapper");
-
+  
             // Move all direct child <g> elements inside the new <g> tag
             const childGroups = svgElement.querySelectorAll(":scope > g");
             childGroups.forEach((child) => {
               animationWrapper.appendChild(child);
             });
-
-            // Append the new <g> tag back to the SVG element
+  
+            // Find the 'pant-back-details' and 'pant-front-details' groups inside the animation_wrapper
+            const pantBackDetails = animationWrapper.querySelector("g#pant-back-details");
+            const pantFrontDetails = animationWrapper.querySelector("g#pant-front-details");
+  
+            // Find the 'shoe-back', 'leg-back', 'shoe-front', 'leg-front' groups inside the animation_wrapper
+            const shoeBack = animationWrapper.querySelector("g#shoe-back");
+            const legBack = animationWrapper.querySelector("g#leg-back");
+            const shoeFront = animationWrapper.querySelector("g#shoe-front");
+            const legFront = animationWrapper.querySelector("g#leg-front");
+  
+            // Find the 'pant-p1' path in pant-back-details and pant-front-details
+            const pantP1Front = pantFrontDetails?.querySelector("path#pant-p1_00000031922170619610477720000001442069305815377831_");
+            const pantP1Back = pantBackDetails?.querySelector("path#pant-p1");
+  
+            // Insert 'leg-front' and 'shoe-front' inside 'pant-front-details' before pantP1Front
+            if (pantP1Front && pantFrontDetails && shoeFront && legFront) {
+              pantFrontDetails.insertBefore(legFront, pantP1Front); // Insert leg-front before pantP1Front
+              pantFrontDetails.insertBefore(shoeFront, pantP1Front); // Insert shoe-front before pantP1Front
+            }
+  
+            // Insert 'leg-back' and 'shoe-back' inside 'pant-back-details' before pantP1Back
+            if (pantP1Back && pantBackDetails && shoeBack && legBack) {
+              pantBackDetails.insertBefore(legBack, pantP1Back); // Insert leg-back before pantP1Back
+              pantBackDetails.insertBefore(shoeBack, pantP1Back); // Insert shoe-back before pantP1Back
+            }
+  
+            // Append the animation wrapper to the SVG root element
             svgElement.appendChild(animationWrapper);
-
+  
             // Serialize the updated SVG
             const serializer = new XMLSerializer();
             const updatedSvgContent = serializer.serializeToString(svgElement);
-
+  
             // Add the updated SVG content to the list
             newSvgDataList.push(updatedSvgContent);
-
+  
             if (newSvgDataList.length === files.length) {
               const updatedList = [...svgDataList, ...newSvgDataList];
               setSvgDataList(updatedList);
@@ -640,6 +806,8 @@ const Page: React.FC = () => {
       });
     }
   };
+  
+  
 
 
 
