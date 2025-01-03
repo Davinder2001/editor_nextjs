@@ -55,7 +55,7 @@ const HomePage: React.FC = () => {
       console.warn("No slide selected.");
       return;
     }
-    setIsPlaying(true)
+   
     setAddSlideRimeline((prevSlides) =>
       prevSlides.map((slide) => {
         // Hide other slides
@@ -65,6 +65,7 @@ const HomePage: React.FC = () => {
           // Play the selected slide
           if (slide.isPlaying) {
             setCurrentReplayIndex(slide.index);
+            setIsPlaying(false)
             return { ...slide, isPlaying: false };
           } else {
             // Check if an animation type is assigned
