@@ -1,16 +1,6 @@
+import { CanvasPreviewProps } from "@/utils/types";
 import React, { useEffect, useRef } from "react";
-
-interface PreviewProps {
-  backgroundImage: string | null;
-  svgContainerRef: React.RefObject<HTMLCanvasElement>;
-  svgPosition: { x: number; y: number };
-  setSvgPosition: React.Dispatch<React.SetStateAction<{ x: number; y: number }>>;
-  applyLayerStyles: (svg: string, layersToHighlight: string[]) => string;
-  selectedSvg: string | null;
-  selectedLayers: string[];
-}
-
-const SvgPreviewMain: React.FC<PreviewProps> = ({
+const SvgPreviewMain: React.FC<CanvasPreviewProps> = ({
   backgroundImage,
   svgContainerRef,
   svgPosition,
@@ -24,8 +14,8 @@ const SvgPreviewMain: React.FC<PreviewProps> = ({
   const dragStart = useRef({ x: 0, y: 0 });
 
   const startDrag = (e: React.MouseEvent) => {
-    e.preventDefault(); // Prevent default drag behavior
-    e.stopPropagation(); // Prevent propagation to parent elements
+    e.preventDefault();  
+    e.stopPropagation();  
 
     isDragging.current = true;
     dragStart.current = {
@@ -110,15 +100,6 @@ const SvgPreviewMain: React.FC<PreviewProps> = ({
     <div className="right-side-inner">
       {!selectedSvg ? (
         <div
-          // style={{
-          //   height: "450px",
-          //   width: "800px",
-          //   display: "flex",
-          //   justifyContent: "center",
-          //   alignItems: "center",
-          //   border: "1px solid #000",
-          //   backgroundColor: "#f0f0f0",
-          // }}
         >
           <p style={{ fontSize: "18px", color: "#555" }}>No SVG selected. Upload or select an SVG to preview.</p>
         </div>
@@ -136,8 +117,8 @@ const SvgPreviewMain: React.FC<PreviewProps> = ({
             cursor: "move",
             border: "1px solid #000",
             backgroundImage: `url(${backgroundImage || ''})`,
-            backgroundSize: "cover", // Ensures the background image covers the canvas
-            backgroundPosition: "center", // Centers the image
+            backgroundSize: "cover",  
+            backgroundPosition: "center",  
           }}
         />
       )}

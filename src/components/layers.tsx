@@ -1,16 +1,5 @@
-interface Layer {
-  id: string;  
-}
+import { Layer, LayersProps } from "@/utils/types";
 
- 
-interface LayersProps {
-  selectedSvg: string | null;  
-  parseSvgLayers: (svg: string) => Layer[];  
-  selectedLayers: string[];  
-  handleLayerClick: (layerId: string) => void;  
-}
-
-// LayersComponent
 const LayersComponent: React.FC<LayersProps> = ({
   selectedSvg,
   parseSvgLayers,
@@ -24,7 +13,7 @@ const LayersComponent: React.FC<LayersProps> = ({
   return (
     <div className="layers-container">
       <ul>
-        {layers.map((layer) => (
+        {layers.map((layer:Layer) => (
           <li key={layer.id}>
             <button
               onClick={() => handleLayerClick(layer.id)}

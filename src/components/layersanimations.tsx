@@ -1,38 +1,10 @@
 import React from "react";
 import Animations from "./animations";
 import TimeLine from "./timeLine";
+import { TimelineProps, AnimationsTypes } from "@/utils/types";
 
-interface Slide {
-  svg: string;
-  animationType: string | null;
-  duration: number;
-  index: number; // Unique index for each slide
-  isPlaying: boolean;
-}
-
-interface TimelineProps {
-  
-  handleWalkingAnimation: () => void;
-  handlehandstandAnimation: () => void;
-  slideForTimeline: Slide[];
-  handleSvgClick: (svg: string, slideIndex: number) => void;
-  replayActivities: () => void;
-  playheadPosition: number;
-  currentReplayIndex: number | null;
-  handleMouseDown: (event: React.MouseEvent<HTMLDivElement>) => void;
-  handleMouseMove: (event: React.MouseEvent<HTMLDivElement>) => void;
-  handleMouseUp: (event: React.MouseEvent<HTMLDivElement>) => void;
-  playPauseAni: () => void;
-  setLayerIndex: React.Dispatch<React.SetStateAction<number | null>>;
-  downloadVideo: () => void;
-  dragging: boolean;
-  playheadRef:React.RefObject<HTMLDivElement>;
-  playAndPause:() => void;
- 
-}
-
-const Layersanimations: React.FC<TimelineProps> = ({
- 
+type CombinedProps = TimelineProps & AnimationsTypes;
+const Layersanimations: React.FC<CombinedProps> = ({
   handleWalkingAnimation,
   handlehandstandAnimation,
   currentReplayIndex,

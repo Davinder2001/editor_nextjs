@@ -1,31 +1,6 @@
-import { ANIMATION_TIME_LINE } from "@/utils/animationsType";
+import { ANIMATION_TIME_LINE, FIXED_ANIMATION_TIME_LINE } from "@/utils/animationsType";
+import { Slide, TimelineProps } from "@/utils/types";
 import React from "react";
-
-interface Slide {
-  svg: string;
-  animationType: string | null;
-  duration: number;
-  index: number; // Unique index for each slide
-  isPlaying: boolean;
-}
-
-interface TimelineProps {
-  slideForTimeline: Slide[];
-  handleSvgClick: (svg: string, slideIndex: number) => void;
-  replayActivities: () => void;
-  playheadPosition: number;
-  currentReplayIndex: number | null;
-  handleMouseDown: (event: React.MouseEvent<HTMLDivElement>) => void;
-  handleMouseMove: (event: React.MouseEvent<HTMLDivElement>) => void;
-  handleMouseUp: (event: React.MouseEvent<HTMLDivElement>) => void;
-  playPauseAni: () => void;
-  setLayerIndex: React.Dispatch<React.SetStateAction<number|null>>; 
-  downloadVideo:()=>void,
-  dragging:boolean
-  playheadRef:React.RefObject<HTMLDivElement>;
-  playAndPause:()=>void
-}
-
 const TimeLine: React.FC<TimelineProps> = ({
   slideForTimeline,
   handleSvgClick,
@@ -42,12 +17,12 @@ const TimeLine: React.FC<TimelineProps> = ({
   playAndPause
   
 }) => {
-  // Fixed duration per slide (e.g., 3 seconds)
-  const fixedDuration = ANIMATION_TIME_LINE; // 3 seconds in milliseconds
-
-  // Total duration dynamically calculated based on slides
-  const totalDurationInMs = slideForTimeline.length * fixedDuration || 12000; // Default 6 seconds
+ 
+  const fixedDuration = ANIMATION_TIME_LINE;  
+  const totalDurationInMs = slideForTimeline.length * fixedDuration || FIXED_ANIMATION_TIME_LINE; 
   const totalSeconds = Math.ceil(totalDurationInMs / 1000);
+
+  
 
   return (
     <div className="timeline-container">
@@ -71,18 +46,18 @@ const TimeLine: React.FC<TimelineProps> = ({
         style={{
           position: "relative",
           marginTop: "20px",
-          borderTop: "2px solid black", // Main ruler bar
+          borderTop: "2px solid black", 
           height: "40px",
         }}
       >
         {/* Major and Minor Ticks */}
         {Array.from({ length: totalSeconds * 10 + 1 }).map((_, tickIndex) => {
-          const isMajorTick = tickIndex % 10 === 0; // Major tick for each second
-          const leftPosition = `${(tickIndex / (totalSeconds * 10)) * 100}%`; // Calculate position
+          const isMajorTick = tickIndex % 10 === 0;
+          const leftPosition = `${(tickIndex / (totalSeconds * 10)) * 100}%`;
 
           return (
             <div
-              key={`ruler-tick-${tickIndex}`} // Unique key for each tick
+              key={`ruler-tick-${tickIndex}`} 
               style={{
                 position: "absolute",
                 left: leftPosition,
